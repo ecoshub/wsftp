@@ -1,4 +1,4 @@
-package tcpcomm
+package tcpcom
 
 import (
 	"fmt"

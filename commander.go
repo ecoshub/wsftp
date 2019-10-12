@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"github.com/gorilla/websocket"
 	hs "wsftp/hs"
-	com "wsftp/tcpcomm"
+	com "wsftp/tcpcom"
 	utils "wsftp/utils"
 	cmd "wsftp/cmd"
 	router "wsftp/router"
