@@ -1,0 +1,241 @@
+
+Commands
+	send file request
+		{
+			"stat":"creq",
+			"ip":"IP",
+			"dir":"file_dir"
+		}
+
+	send accept to request
+		{
+			"stat":"cacp",
+			"ip":"IP",
+			"dir":"file_dir",
+			"dest":"file_dest"
+		}
+
+	send reject to request
+		{
+			"stat":"crej",
+			"ip":"IP",
+			"dir":"file_dir"
+		}
+
+	send message
+		{
+			"stat":"cmsg",
+			"ip":"IP",
+			"to":"username_of_other",
+			"msg":"msg_content"
+		}
+
+
+Handshake Port Transfer Messages
+	{
+		"stat":"online"/"offline",
+		"ip":"IP",
+		"username":"username"
+	}
+
+
+
+Send/Receive Port Transfer Messages
+
+Info Messages
+	{
+		"stat":"info",
+		"content":"activeUploadFull" / "activeDownloadFull"
+	}
+
+File Send Requests
+	A request has arrive
+		{
+		  "stat":"rreq",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+
+	you send a request
+		{
+		  "stat":"sreq",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+
+	your request not arrived
+		{
+		  "stat":"freq",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+
+Requests Acceptation
+	your request has accepted
+		{
+		  "stat":"racp",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "destination": "uploadDestination",
+		  "port":"trasferPort"
+		  "contentType": "file",
+		 }
+
+	you have accept a request
+		{
+		  "stat":"sacp",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "destination": "uploadDestination",
+		  "port":"trasferPort"
+		  "contentType": "file",
+		 }
+
+	your acceptation not arrived to receiver
+		{
+		  "stat":"facp",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "destination": "uploadDestination",
+		  "port":"trasferPort"
+		  "contentType": "file",
+		 }
+
+Requests Rejection
+	your request rejected
+		{
+		  "stat":"rrej",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+	you have reject a request
+		{
+		  "stat":"srej",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+
+	your reject not arrived to receiver
+		{
+		  "stat":"frej",
+		  "username": "username",
+		  "ip":"IP",
+		  "dir":"filrdir",
+		  "fileName": "filename.extension",
+		  "fileType": "extension",
+		  "fileSize": "SizeAsByte",
+		  "contentType": "file",
+		 }
+
+File Transfer Progress
+	receiving progress (download progress)
+		{
+		  "stat":"rprg",
+		  "username": "username",
+		  "ip":"IP",
+		  "port":"port",
+		  "dir":"fileDir",
+		  "total": "fileSize as byte",
+		  "current": "currently downloaded as byte",
+		  "speed": "transfer speed as kilobyte second",
+		 }
+
+	sending progress (upload progress)
+		{
+		  "stat":"sprg",
+		  "username": "username",
+		  "ip":"IP",
+		  "port":"port",
+		  "dir":"fileDir",
+		  "total": "fileSize as byte",
+		  "current": "currently upload as byte",
+		  "speed": "transfer speed as kilobyte second",
+		 }
+
+	file transfer progress has failed
+		{
+		  "stat":"fprg",
+		  "username": "username",
+		  "ip":"IP",
+		  "port":"port",
+		  "dir":"fileDir",
+		  "total": "fileSize as byte",
+		  "current": "last currently upload/download as byte",
+		  "speed": "last transfer speed as kilobyte second",
+		 }
+		 
+	progress has done
+		{
+		  "stat":"dprg",
+		  "username": "username",
+		  "ip":"IP",
+		  "port":"port",
+		  "total": "fileSize",
+		  "current": "fileSize",
+		  "speed": "0",
+		 }
+
+Message Protocol
+
+	A message has receive
+		{
+		  "stat": "rmsg"
+		  "person": "someone",
+		  "content": "Message content",
+		  "contentType": "text"
+		}
+
+	You send a message
+		{
+		  "stat": "smsg"
+		  "person": "you",
+		  "content": "Message content",
+		  "contentType": "text"
+		}
+
+	fail to send your message
+		{
+		  "stat": "fmsg"
+		  "person": "you",
+		  "content": "Your faild message content",
+		  "contentType": "text"
+		}
+
+
+*all size parameters units are byte.
+*download and upload speed units kilobyte per second.
+// when program shutdown you have to kill child process manualy.

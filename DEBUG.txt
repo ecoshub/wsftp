@@ -1,0 +1,4 @@
+- handshake not working if program has handling a file tranfer
++ ncon 
+- intToByteArray may caus segmentation fault!
+- root user problem
