@@ -145,8 +145,8 @@ func manage(){
 			case "racp":
 				intPort, _ := strconv.Atoi(rec["port"][0])
 				index := getPortIndex(intPort)
-				go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
 				setPortBusy(intPort)
+				go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
 			case "dprg":
 				port := rec["port"][0]
 				intPort, _ := strconv.Atoi(port)

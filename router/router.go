@@ -108,19 +108,17 @@ func msgListen(ch chan<- []byte){
 	listener, err := net.Listen("tcp", ":" + msgTCPPort)
     if err != nil {
         fmt.Println("Listen Error (Router)")
-        panic(err)
     }else{
     	defer listener.Close()
     }
     conn, err := listener.Accept()
     if err != nil {
         fmt.Println("Listen Accept Error (Router)")
-        panic(err)
     }else{
+    	defer conn.Close()
 	    msg, err :=  ioutil.ReadAll(conn)
 	    if err != nil {
 	        fmt.Println("Message Read Error (Router)")
-	        panic(err)
 	    }else{
 	    	ch <- msg
 	    }
@@ -131,19 +129,17 @@ func srListen(ch chan<- []byte){
 	listener, err := net.Listen("tcp", ":" + srTCPPort)
     if err != nil {
         fmt.Println("Listen Error (Router)")
-        panic(err)
     }else{
     	defer listener.Close()
     }
     conn, err := listener.Accept()
     if err != nil {
         fmt.Println("Listen Accept Error (Router)")
-        panic(err)
     }else{
+    	defer conn.Close()
 	    msg, err :=  ioutil.ReadAll(conn)
 	    if err != nil {
 	        fmt.Println("Message Read Error (Router)")
-	        panic(err)
 	    }else{
 	    	ch <- msg
 	    }

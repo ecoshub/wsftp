@@ -173,12 +173,6 @@ func (c * comm) SendData(data []byte) bool{
 }
 
 func ReceiveFile(ip string, port int, controlPort * int){
-	boolChan := make(chan bool, 1)
-	byteChan := make(chan []byte, 1)
-	ch64 := make(chan int64, 1)
-
-	// fail message for backup
-	failMsg = fmt.Sprintf(`{"stat":"ncon","ip":"%v","port":"%v","info":"receive start"}`, ip, port) 
 
 	com := NewComm(ip, port)
 
@@ -198,6 +192,13 @@ func ReceiveFile(ip string, port int, controlPort * int){
 		remaining = fileSize
 		offset = 0
 	}
+
+	boolChan := make(chan bool, 1)
+	byteChan := make(chan []byte, 1)
+	ch64 := make(chan int64, 1)
+
+	// fail message for backup
+	failMsg = fmt.Sprintf(`{"stat":"ncon","ip":"%v","port":"%v","info":"receive start"}`, ip, port) 
 
 	// fail message for backup
 	failMsg = fmt.Sprintf(`{"stat":"fprg",username":"%v","ip":"%v","port":"%v","dir":"%v",total":"%v","current":"%v","speed":"%v"}`, username,  myIP, port, dir, 0, 0, 0)
@@ -254,14 +255,12 @@ func ReceiveFile(ip string, port int, controlPort * int){
 			done = true
 		}
 	}
-	mymsg := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v"}`, otheruser, com.ip, com.port, dir)
-	othermsg := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v"}`, username, myIP, com.port, dir)
 
 	if done == false && *controlPort == 0 {
-		res = comMYSR.SendData([]byte(`{"stat":"kprg",` + mymsg))
-		if !res {return}
-		res = comSR.SendData([]byte(`{"stat":"kprg",` + othermsg))
-		if !res {return}
+		mymsg := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v"}`, otheruser, com.ip, com.port, dir)
+		othermsg := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v"}`, username, myIP, com.port, dir)
+		comMYSR.SendData([]byte(`{"stat":"kprg",` + mymsg))
+		comSR.SendData([]byte(`{"stat":"kprg",` + othermsg))
 	}
 
 
@@ -329,12 +328,12 @@ func SendFile(ip string, port int, dir string, dest string, controlPort * int){
 	data := make([]byte, 0, speed)
 	for i := 0 ; i < n ; i ++ {
 		if *controlPort == 0 {
+
 			otherSR := fmt.Sprintf(`username":"%v","ip":"%v","port":"%v","dir":"%v"}`, username, myIP, com.port, dir)
-			res = comSR.SendData([]byte(`{"stat":"kprg",` + otherSR))
-			if !res {return}
+			comSR.SendData([]byte(`{"stat":"kprg",` + otherSR))
 			mySR := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v"}`, username, com.ip, com.port, dir)
-			res = comMYSR.SendData([]byte(`{"stat":"kprg",` + mySR))
-			if !res {return}
+			comMYSR.SendData([]byte(`{"stat":"kprg",` + mySR))
+
 			return
 		}else{
 			if i == n - 1 {
@@ -352,29 +351,50 @@ func SendFile(ip string, port int, dir string, dest string, controlPort * int){
 			if res && <-boolChan{return}
 			delt := int64(end.Sub(start))
 			instatSpeed := float64(delt) / 1e9 * float64(speed) / float64(MB) * 1024
+
+
 			otherSR := fmt.Sprintf(`username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, username, myIP, com.port, dir, total, off, int(instatSpeed))
-			res = comSR.SendData([]byte(`{"stat":"rprg",` + otherSR))
-			if !res {return}
 			mySR := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, username, com.ip, com.port, dir, total, off, int(instatSpeed))
-			res = comMYSR.SendData([]byte(`{"stat":"sprg",` + mySR))
-			if !res {return}
+			comSR.SendData([]byte(`{"stat":"rprg",` + otherSR))
+			comMYSR.SendData([]byte(`{"stat":"sprg",` + mySR))
+
+
 			// fail message for backup
 			failMsg = `{"stat":"fprg",` + mySR
 		}
 	}
+
 	msg := fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, username, myIP, com.port, dir, total, total, 0)
+	failMsg = `{"stat":"dprg",` + msg
 	res = comSR.SendData([]byte(`{"stat":"dprg",` + msg))
-	if !res {return}
+	count := 0
+	for {
+		if count == 5 {
+			break
+		}
+		res = comSR.SendData([]byte(`{"stat":"dprg",` + msg))
+		if res {
+			break
+		}
+		count++
+	}
+
+
+
 
 	res = comCMD.SendData([]byte(`{"stat":"dprg",` + msg))
-	if !res {return}
-
+	if !res {
+		comCMD.SendData([]byte(`{"stat":"dprg",` + msg))
+	}
 	msg = fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, username, com.ip, com.port, dir, total, total, 0)
 	res = comMYSR.SendData([]byte(`{"stat":"dprg",` + msg))
-	if !res {return}
-
+	if !res {
+		comMYSR.SendData([]byte(`{"stat":"dprg",` + msg))
+	}
 	res = comMYCMD.SendData([]byte(`{"stat":"dprg",` + msg))
-	if !res {return}
+	if !res {
+		comMYCMD.SendData([]byte(`{"stat":"dprg",` + msg))
+	}
 
 }
 
