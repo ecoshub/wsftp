@@ -263,7 +263,12 @@ func ReceiveFile(ip string, port int, controlPort * int){
 		res = comSR.SendData([]byte(`{"stat":"kprg",` + othermsg))
 		if !res {return}
 	}
+
+
+
+
 }
+
 
 func SendFile(ip string, port int, dir string, dest string, controlPort * int){
 
@@ -314,9 +319,10 @@ func SendFile(ip string, port int, dir string, dest string, controlPort * int){
 	res = com.Rec(boolChan)
 	if res && <-boolChan{return}
 
-	comSR := NewComm(ip,srListen)
-	comMYSR := NewComm(myIP,srListen)
-	comMYCMD := NewComm(myIP,mainComand)
+	comSR := NewComm(ip, srListen)
+	comCMD := NewComm(ip, mainComand)
+	comMYSR := NewComm(myIP, srListen)
+	comMYCMD := NewComm(myIP, mainComand)
 
 
 	total := fileSize
@@ -360,12 +366,16 @@ func SendFile(ip string, port int, dir string, dest string, controlPort * int){
 	res = comSR.SendData([]byte(`{"stat":"dprg",` + msg))
 	if !res {return}
 
+	res = comCMD.SendData([]byte(`{"stat":"dprg",` + msg))
+	if !res {return}
+
 	msg = fmt.Sprintf(`"username":"%v",ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, username, com.ip, com.port, dir, total, total, 0)
 	res = comMYSR.SendData([]byte(`{"stat":"dprg",` + msg))
 	if !res {return}
 
 	res = comMYCMD.SendData([]byte(`{"stat":"dprg",` + msg))
 	if !res {return}
+
 }
 
 func send(ip string, port int, data []byte) bool{
@@ -405,9 +415,8 @@ func receive(port int, ch chan<- []byte) bool {
 		listener.Close()
 		ch <- []byte{0}
 		return false
-
     }else{
-    	listener.SetDeadline(time.Now().Add(10 * time.Second))
+    	listener.SetDeadline(time.Now().Add(5 * time.Second))
         defer listener.Close()
     }
     conn, err := listener.Accept()
