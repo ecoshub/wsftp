@@ -15,26 +15,32 @@ import (
 	json "wsftp/json"
 )
 
-var startPort int = 9996
-var mainListen string = "9997"
-// 9998 reserved for handshake to handshake com.
-var mainListenInt int = 9999
-// 10000 reserved for handshake
-var srListen int = 10001
-var msgListen int = 10002
-// 10003 reserved for ws sr
-// 10004 reserved for ws msg
+const (
+	// ports
+	STARTPORT int = 9996
+	MAINLISTENPORTWS int = 9997
+	// 9998 reserved for handshake to handshake com.
+	MAINLISTENPORT int = 9999
+	// 10000 reserved for handshake to frontend ws com.
+	SRLISTENPORT int = 10001
+	MSGLISTENPORT int = 10002
+	// 10003 reserved for sr to frontend ws com.
+	// 10004 reserved for msg to frontend ws com.
 
-var endPoint = "/cmd"
-var activeDownload int = 25
-var activeUploadLimit int = 25
-var activeUpload int = 0
-var ports = make([][]int, activeDownload)
+	// settings & limits
+	ENDPOINT = "/cmd"
+	ACTIVEDOWNLOADLIMIT int = 25
+	ACTIVEUPLOADLIMIT int = 25
+)
+
+
+var	activeUpload int = 0
+var	activeDownload int = 0
+var ports = make([][]int, ACTIVEDOWNLOADLIMIT)
 var myIP string = utils.GetInterfaceIP().String()
 var myUserName string = utils.GetUsername()
-var asd int = 31
-
 var commandChan = make(chan []byte, 1)
+
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
@@ -46,15 +52,15 @@ var upgrader = websocket.Upgrader{
 }
 
 func main(){
-	initPorts()
 	// startup
+	initPorts()
 	go hs.Start()
 	go router.StartRouting()
 
-	http.HandleFunc(endPoint, handleConn)
+	http.HandleFunc(ENDPOINT, handleConn)
 	go listen()
 	go manage()
-	err := http.ListenAndServe(":" + mainListen, nil)
+	err := http.ListenAndServe(":" + strconv.Itoa(MAINLISTENPORTWS), nil)
 	fmt.Println("Command Server shutdown unexpectedly!", err)
 }
 
@@ -85,15 +91,16 @@ func receive(port int) bool {
     msg, err :=  ioutil.ReadAll(conn)
     if err != nil {
         fmt.Println("Message Read Error (Inner)", err)
+    }else{
+	    conn.Close()
+		commandChan <- msg
     }
-    conn.Close()
-	commandChan <- msg
 	return true
 }
 
 func listen(){
 	for {
-		receive(mainListenInt)
+		receive(MAINLISTENPORT)
 	}
 }
 
@@ -122,17 +129,17 @@ func manage(){
 		if stat != ""{
 			switch stat{
 			case "creq":
-				if activeUpload < activeUploadLimit {
+				if activeUpload < ACTIVEUPLOADLIMIT {
 					cmd.SendRequest(rec["ip"][0],rec["dir"][0])
 					activeUpload++
 				}else{
-					cmd.SendMsg(myIP,srListen,`{"stat":"info","content":"activeUploadFull"}`)
+					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeUploadFull"}`)
 				}
 			case "cacp":
 				index := allocatePort()
 				newPort := ports[index][0]
 				if newPort == -1{
-					cmd.SendMsg(myIP,srListen,`{"stat":"info","content":"activeDownloadFull"}`)
+					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeDownloadFull"}`)
 					cmd.SendReject(rec["ip"][0],rec["dir"][0])
 				}else{
 					go com.ReceiveFile(rec["ip"][0], newPort, &(ports[index][1]))
@@ -148,32 +155,11 @@ func manage(){
 				setPortBusy(intPort)
 				go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
 			case "dprg":
-				port := rec["port"][0]
-				intPort, _ := strconv.Atoi(port)
+				intPort, _ := strconv.Atoi(rec["port"][0])
 				freePort(intPort)
 			case "fprg":
-				ip := rec["ip"][0]
 				intPort, _ := strconv.Atoi(rec["port"][0])
-				cmd.SendMsg(ip, srListen, receive)
-				
-				rec["ip"] = []string{myIP}
-				newRec := json.MTJ(rec)
-				cmd.SendMsg(myIP, srListen, newRec)
-
 				freePort(intPort)
-			case "ncon":
-				ip := rec["ip"][0]
-				rec["from"] = []string{myIP}
-				intPort, _ := strconv.Atoi(rec["port"][0])
-				cmd.SendMsg(ip, srListen, receive)
-				
-				rec["from"] = []string{ip}
-				rec["ip"] = []string{myIP}
-				newRec := json.MTJ(rec)
-				cmd.SendMsg(myIP, srListen, newRec)
-
-				freePort(intPort)
-
 			case "kprg":
 				intPort, _ := strconv.Atoi(rec["port"][0])
 				freePort(intPort)
@@ -185,7 +171,7 @@ func manage(){
 }
 
 func allocatePort() int{
-	for i := 0 ; i < activeDownload ; i++ {
+	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
 		if ports[i][1] == 0  && portCheck(ports[i][0]){
 			ports[i][1] = 1
 			return i
@@ -205,15 +191,15 @@ func portCheck(port int) bool{
 }
 
 func initPorts(){
-	for i := 0 ; i < activeDownload ; i++ {
-		if portCheck(startPort - i){
-			ports[i] = []int{startPort - i, 0}
+	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
+		if portCheck(STARTPORT - i){
+			ports[i] = []int{STARTPORT - i, 0}
 		}
 	}
 }
 
 func getPortIndex(port int) int{
-	for i := 0 ; i < activeDownload ; i++ {
+	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
 		if ports[i][0] == port {
 			return i
 		}

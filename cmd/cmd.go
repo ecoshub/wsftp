@@ -6,15 +6,18 @@ import (
 	"strconv"
 	utils "wsftp/utils"
 )
-// 9996 reserverd for transfer start port
-// 9997 reserverd ws commander comminication.
-// 9998 reserverd tcp handshake comminication.
-var mainListen int = 9999
-// 10000 reserved for handshake
-var srListen int = 10001
-var msgListen int = 10002
-// 10003 reserved for ws sr
-// 10004 reserved for ws msg
+
+const (
+    // 9996 reserverd for transfer start port
+    // 9997 reserverd ws commander comminication.
+    // 9998 reserverd tcp handshake comminication.
+    mainListen int = 9999
+    // 10000 reserved for handshake
+    srListen int = 10001
+    msgListen int = 10002
+    // 10003 reserved for ws sr
+    // 10004 reserved for ws msg
+)
 
 var myIP string = utils.GetInterfaceIP().String()
 

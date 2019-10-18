@@ -29,7 +29,7 @@ func GetFileName(dir string) string{
 
 func GetFileExt(dir string) string{
     tokens := strings.Split(dir, ".")
-    ext := tokens[len(tokens) - 1]
+    ext := strings.Join(tokens[1:], ".")
     return ext
 }
 
@@ -166,17 +166,25 @@ func IsFileExist(file string) bool {
 }
 
 
-func UniqName(dest, fileName string) string{
-    if !IsFileExist(dest + "/" + fileName){
-        return  fileName
+func UniqName(dest, fileName string, filesize int64) string{
+    if IsFileExist(dest + "/" + fileName){
+        if GetFileSize(dest + "/" + fileName) < filesize {
+            return fileName
+        }
+    }else{
+        return fileName
     }
     tokens := strings.Split(fileName, ".")
-    ext := tokens[len(tokens) - 1]
-    name := tokens[len(tokens) - 2]
+    name := tokens[0]
+    ext := strings.Join(tokens[1:], ".")
     count := 1
     for {
         newName := fmt.Sprintf("%v(%v).%v", name, count, ext)
-        if !IsFileExist(dest + "/" + newName){
+        if IsFileExist(dest + "/" + newName){
+            if GetFileSize(dest + "/" + newName) < filesize {
+                return newName
+            }
+        }else{
             return newName
         }
         count++
