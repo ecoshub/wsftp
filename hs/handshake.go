@@ -104,18 +104,17 @@ func receive(ip, port string, ch chan<- string){
     pack, err := net.ListenPacket("udp", ip + ":" + port)
     if err != nil {
         fmt.Println("Connection Fail", err)
-        panic(err)
     }
     n, addr, err := pack.ReadFrom(buff)
     if err != nil {
         fmt.Println("Read Error", err)
-        panic(err)
+    }else{
+    	defer pack.Close()
+	    ipandport := strings.Split(addr.String(), ":")
+	    remoteIP := ipandport[0]
+	    buff = buff[:n]
+	    ch <- string(buff) + " " + remoteIP
     }
-    ipandport := strings.Split(addr.String(), ":")
-    remoteIP := ipandport[0]
-    buff = buff[:n]
-    ch <- string(buff) + " " + remoteIP
-    pack.Close()
 }
 
 func sendPack(ip, port string, data []byte){
@@ -140,12 +139,12 @@ func send(ip, port string, data []byte, ch chan<- int){
     conn, err := net.Dial("udp", ip + ":" + port)
        if err != nil {
         fmt.Println("Connection Fail")
-        panic(err)
     	ch <- 0
+    }else{
+    	defer conn.Close()
+	    conn.Write(data)
+	    ch <- 1
     }
-    conn.Write(data)
-    conn.Close()
-    ch <- 1
 }
 
 func onClose(ch chan<- bool){
@@ -161,7 +160,7 @@ func onClose(ch chan<- bool){
 		count++
 		if count > loopControl {
 			fmt.Println("Something is wrong can't send any signal!")
-			return
+			break
 		}
 	}
 	ch <- true
@@ -173,10 +172,11 @@ func offlineFunc(ip, port string, data []byte, ch chan<- int){
        if err != nil {
         fmt.Println("Connection Fail")
         ch <- 0
+    }else{
+    	defer conn.Close()
+    	conn.Write(data)
+    	ch <- 1
     }
-    conn.Write(data)
-    conn.Close()
-    ch <- 1
 }
 
 func GetInterfaceIP() net.IP{
