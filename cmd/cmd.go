@@ -26,7 +26,7 @@ func SendRequest(ip, dir string){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 	username := utils.GetUsername()
-    data := fmt.Sprintf(`"username":"%v","ip":"%v","dir":"%v",fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
+    data := fmt.Sprintf(`"username":"%v","ip":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
      username, myIP, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     rreq := `{"stat":"rreq",` + data
     sreq := `{"stat":"sreq",` + data
