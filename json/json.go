@@ -4,57 +4,36 @@ import (
 	"fmt"
 	"strings"
     "strconv"
+    "encoding/json"
 )
 
-
-// string to JSON form
-func JTM(json string) map[string][]string {
-    res := make(map[string][]string, 20)
-    vals := make([]string,0,20)
-    json = strings.Trim(json, "[]{},")
-    json = strings.Replace(json, `"`, "", -1)
-    temp := ""
-    chr := ""
-    key := ""
-    runes := []rune(json)
-    var on bool = false
-    for i := 0 ; i < len(runes) ; i++ {
-        chr = string(runes[i])
-        if chr == "[" {
-            on = true
-            temp = ""
-            continue
+func JTM(js string) map[string][]string{
+    // problem '\' 
+    runes := []rune(js)
+    esc := rune('\\')
+    temp := make([]rune, 0, 2 * len(runes))
+    for i := 0 ; i < len(runes) ; i ++ {
+        if runes[i] == esc {
+            temp = append(temp, esc)
+            temp = append(temp, esc)
+        }else{
+            temp = append(temp, runes[i])
         }
-        if chr == "]" {
-            on = false
-            temp = strings.TrimSpace(temp)
-            vals = append(vals, temp)
-            res[key] = vals
-            vals = nil
-            temp = ""
-            i++
-            continue
+    }
+    // fixed '\'
+    js = string(temp)
+    stringMap := make(map[string]string, 1)
+    stringArrayMap := make(map[string][]string, 1)
+    stringDec := json.NewDecoder(strings.NewReader(js))
+    stringArrayDec := json.NewDecoder(strings.NewReader(js))
+    stringDec.Decode(&stringMap)
+    stringArrayDec.Decode(&stringArrayMap)
+    for k,_ := range stringArrayMap{
+        if stringArrayMap[k] == nil {
+            stringArrayMap[k] = []string{stringMap[k]}
         }
-        if chr == ","{
-            temp = strings.TrimSpace(temp)
-            vals = append(vals, temp)
-            temp = ""
-            if !on{
-                res[key] = vals
-                vals = nil
-            }
-            continue
-        }
-        if chr == ":" {
-            key = strings.TrimSpace(temp)
-            temp = ""
-            continue
-        }
-        temp += chr 
-    } 
-    vals = append(vals, strings.TrimSpace(temp))
-    res[key] = vals
-    return res
+    }
+    return stringArrayMap
 }
 
 // Map to JSON
