@@ -125,6 +125,8 @@ func manage(){
 	for {
 		receive := string(<- commandChan)
 		rec := json.JTM(receive)
+		// fmt.Println("receive", receive)
+		// fmt.Println("rec", rec)
 		stat := rec["stat"][0]
 		if stat != ""{
 			switch stat{
