@@ -169,11 +169,11 @@ func SendFile(ip string, port int, dir, dest string, control * int){
 				if !res {*control = 0;break}
 
 				currentSpeed := float64(speed) / float64(end.Sub(start).Seconds() * 1e3) // kb/second 
-				msg := fmt.Sprintf(`{"stat":"sprg",username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, int(currentSpeed))
+				msg := fmt.Sprintf(`{"stat":"sprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, int(currentSpeed))
 				SendMsg(myIP, SRLISTENPORT, msg)
 			}
 		}else{
-			msg := fmt.Sprintf(`{"stat":"fprg",username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, 0)
+			msg := fmt.Sprintf(`{"stat":"fprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, 0)
 			SendMsg(myIP, MAINCOMANDPORT, msg)
 			time.Sleep(50 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
@@ -181,7 +181,7 @@ func SendFile(ip string, port int, dir, dest string, control * int){
 			return
 		}
 	}
-	msg := fmt.Sprintf(`{"stat":"dprg",username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, 0)
+	msg := fmt.Sprintf(`{"stat":"dprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`, otherusername, ip, port, dir, fileSize, off, 0)
 	SendMsg(myIP, MAINCOMANDPORT, msg)
 	time.Sleep(50 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)
