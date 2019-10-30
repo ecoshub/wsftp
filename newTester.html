@@ -18,7 +18,7 @@
       margin-bottom: 10px;
     }
     .autosize {
-      height: 500px;
+      height: 350px;
       max-height: auto;
     }
     .area-arjustement {
@@ -80,7 +80,7 @@
             id="com"
             class="form-control" 
             placeholder="Post" 
-            spellcheck="false">{"stat":"cacp","ip":"192.168.1.104","dir":"/home/eco/Desktop/asd.avi","dest":"C:\Users\EmreCan\Desktop\downloads"}</textarea>
+            spellcheck="false">{"stat":"cacp","ip":"192.168.1.104","dir":"/home/user/Desktop/asd.avi","dest":"C:\Users\user\Desktop\downloads"}</textarea>
         </div>
         <div class="button-area">
           <input 
@@ -194,7 +194,9 @@
       }
 
       function print(msg){
-        document.getElementById("logs").value = document.getElementById("logs").value + msg + "\n"
+        var textarea = document.getElementById("logs");
+        textarea.value = textarea.value + msg + "\n";
+        textarea.scrollTop = textarea.scrollHeight;
       }
 
     </script>
