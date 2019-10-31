@@ -4,36 +4,87 @@ import (
 	"fmt"
 	"strings"
     "strconv"
-    "encoding/json"
 )
 
-func JTM(js string) map[string][]string{
-    // problem '\' 
-    runes := []rune(js)
-    esc := rune('\\')
-    temp := make([]rune, 0, 2 * len(runes))
-    for i := 0 ; i < len(runes) ; i ++ {
-        if runes[i] == esc {
-            temp = append(temp, esc)
-            temp = append(temp, esc)
+func JTM(json string) map[string][]string{
+    const (
+        QUOTESYBOL  int32 = 34
+        OPENBRACE   int32 = 91
+        CLOSEBRACE  int32 = 93
+        COMMA       int32 = 44
+        COL         int32 = 58
+        BLANK       int32 = 32
+    )
+    var currentRune rune;
+    json = strings.Trim(json, "{}")
+    runes := []rune(json)
+    inQuote := false
+    inBrace := false
+
+    tempString := ""
+    tempInBrace := make([]string, 0, 16)
+    nString := 0
+    lastKey := ""
+    mainMap := make(map[string][]string)
+    for i := 0 ; i < len(runes) ; i++ {
+        currentRune = runes[i]
+        if !inQuote && currentRune == QUOTESYBOL {
+            inQuote = true
+            continue
+        }else if (inQuote && currentRune == QUOTESYBOL) {
+            inQuote = false
+            if tempString != "" {
+                if inBrace {
+                    tempInBrace = append(tempInBrace, tempString)
+                }else{
+                    if nString % 2 == 0 {
+                        lastKey = tempString
+                    }else{
+                        mainMap[lastKey] = []string{tempString}
+                    }
+                    nString++
+                }
+                tempString = ""
+            }
+            continue
+        }
+        if !inBrace && runes[i] == OPENBRACE {
+            inBrace = true
+            continue
+        }else if inBrace && runes[i] == CLOSEBRACE {
+            inBrace = false
+            if tempString != ""{
+                tempInBrace = append(tempInBrace, tempString)
+            }
+            mainMap[lastKey] = tempInBrace
+            tempInBrace = make([]string, 0, 16)
+            tempString = ""
+            nString++
+        }
+        if !inQuote {
+            if currentRune != OPENBRACE && currentRune != CLOSEBRACE && currentRune != COMMA && currentRune != COL && currentRune != BLANK{
+                tempString += string(currentRune)
+            }
+            tempString = strings.TrimSpace(tempString)
+            if (currentRune == COL || currentRune == COMMA || currentRune == CLOSEBRACE) && tempString != "" {
+                if inBrace {
+                    tempInBrace = append(tempInBrace, tempString)
+                }else{
+                    if nString % 2 == 0 {
+                        lastKey = tempString
+                    }else{
+                        mainMap[lastKey] = []string{tempString}
+                    }
+                    nString++
+                }
+
+                tempString = ""
+            }
         }else{
-            temp = append(temp, runes[i])
+            tempString += string(currentRune)
         }
     }
-    // fixed '\'
-    js = string(temp)
-    stringMap := make(map[string]string, 1)
-    stringArrayMap := make(map[string][]string, 1)
-    stringDec := json.NewDecoder(strings.NewReader(js))
-    stringArrayDec := json.NewDecoder(strings.NewReader(js))
-    stringDec.Decode(&stringMap)
-    stringArrayDec.Decode(&stringArrayMap)
-    for k,_ := range stringArrayMap{
-        if stringArrayMap[k] == nil {
-            stringArrayMap[k] = []string{stringMap[k]}
-        }
-    }
-    return stringArrayMap
+    return mainMap
 }
 
 // Map to JSON
