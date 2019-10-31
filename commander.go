@@ -33,35 +33,33 @@ const (
 	ACTIVEUPLOADLIMIT int = 25
 )
 
+var (
+	activeUpload int = 0
+	activeDownload int = 0
+	ports = make([][]int, ACTIVEDOWNLOADLIMIT)
+	myIP string = utils.GetInterfaceIP().String()
+	myUserName string = utils.GetUsername()
+	commandChan = make(chan []byte, 1)
 
-var	activeUpload int = 0
-var	activeDownload int = 0
-var ports = make([][]int, ACTIVEDOWNLOADLIMIT)
-var myIP string = utils.GetInterfaceIP().String()
-var myUserName string = utils.GetUsername()
-var commandChan = make(chan []byte, 1)
-
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:    1024,
-	WriteBufferSize:   1024,
-	EnableCompression: false,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:    1024,
+		WriteBufferSize:   1024,
+		EnableCompression: false,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+)
 
 func main(){
-	// startup
 	initPorts()
 	go hs.Start()
 	go router.StartRouting()
-
-	http.HandleFunc(ENDPOINT, handleConn)
 	go listen()
 	go manage()
+	http.HandleFunc(ENDPOINT, handleConn)
 	err := http.ListenAndServe(":" + strconv.Itoa(MAINLISTENPORTWS), nil)
-	fmt.Println("Command Server shutdown unexpectedly!", err)
+	fmt.Println("Commander shutdown unexpectedly!", err)
 }
 
 func receive(port int) bool {
