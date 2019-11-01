@@ -84,6 +84,9 @@ func JTM(json string) map[string][]string{
             tempString += string(currentRune)
         }
     }
+    if tempString != ""{
+        mainMap[lastKey] = []string{tempString}
+    }
     return mainMap
 }
 
