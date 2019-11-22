@@ -106,16 +106,18 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println(err)
-	}
-	defer ws.Close()
-	for {
-		_, msg, err := ws.ReadMessage()
-		if err != nil {
-			ws.Close()
-			fmt.Println("Main Command Connection Closed: ", err)
-			break
+	}else{
+		fmt.Println("Connection Establish")
+		for {
+			_, msg, err := ws.ReadMessage()
+			if err != nil {
+				fmt.Println("Main Command Connection Closed: ", err)
+				fmt.Println("Waiting For Another Connection...")
+				fmt.Println("If You Are Using 'Commander Tester' Please Restart This Program For synchronization")
+				break
+			}
+			commandChan <- msg
 		}
-		commandChan <- msg
 	}
 }
 
