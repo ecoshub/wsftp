@@ -125,54 +125,74 @@ func manage(){
 	for {
 		receive := string(<- commandChan)
 		rec := json.JTM(receive)
-		stat := rec["cmd"][0]
-		if stat != ""{
-			switch stat{
-			case "creq":
-				if activeUpload < ACTIVEUPLOADLIMIT {
+		if len(rec["cmd"]) == 0 {
+			fmt.Println("Wrong command format")
+			continue
+		}else{
+			stat := rec["cmd"][0]
+			if stat != ""{
+				switch stat{
+				case "creq":
+					if activeUpload < ACTIVEUPLOADLIMIT {
+						dir := rec["dir"][0]
+						// ip/mac/username of receiver
+						mac := rec["mac"][0]
+						ip := hs.GetIP(mac)
+						username := hs.GetUsername(mac)
+						cmd.SendRequest(ip, dir, mac, username)
+						activeUpload++
+					}else{
+						cmd.TransmitData(myIP,SRLISTENPORT,`{"cmd":"info","content":"activeUploadFull"}`)
+					}
+				case "cacp":
+					index := allocatePort()
+					newPort := ports[index][0]
 					dir := rec["dir"][0]
-					// of receiver
+					dest := rec["dest"][0]
+					id := rec["id"][0]
+					// ip/mac/username of receiver
 					mac := rec["mac"][0]
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
-					cmd.SendRequest(ip, dir, mac, username)
-					activeUpload++
-				}else{
-					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeUploadFull"}`)
+					if newPort == -1{
+						cmd.TransmitData(myIP,SRLISTENPORT,`{"cmd":"info","content":"activeDownloadFull"}`)
+						cmd.SendReject(ip, mac, dir, username)
+					}else{
+						go com.ReceiveFile(ip, newPort, &(ports[index][1]))
+						cmd.SendAccept(ip, mac, dir, dest, username, id, newPort)
+					}
+				case "crej":
+					mac := rec["mac"][0]
+					ip := hs.GetIP(mac)
+					username := hs.GetUsername(mac)
+					cmd.SendReject(ip, mac, rec["dir"][0], username)
+				case "cmsg":
+					mac := rec["mac"][0]
+					msg := rec["msg"][0]
+					ip := hs.GetIP(mac)
+					username := hs.GetUsername(mac)
+					cmd.SendMessage(ip, mac, username, msg)
+				case "racp":
+					// id := rec["id"][0]
+					intPort, _ := strconv.Atoi(rec["port"][0])
+					index := getPortIndex(intPort)
+					setPortBusy(intPort)
+					go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
+				case "dprg":
+					intPort, _ := strconv.Atoi(rec["port"][0])
+					freePort(intPort)
+				case "fprg":
+					intPort, _ := strconv.Atoi(rec["port"][0])
+					freePort(intPort)
+				case "kprg":
+					intPort, _ := strconv.Atoi(rec["port"][0])
+					freePort(intPort)
+				case "reshs":
+					hs.Restart()
 				}
-			case "cacp":
-				index := allocatePort()
-				newPort := ports[index][0]
-				if newPort == -1{
-					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeDownloadFull"}`)
-					cmd.SendReject(rec["ip"][0],rec["dir"][0])
-				}else{
-					go com.ReceiveFile(rec["ip"][0], newPort, &(ports[index][1]))
-					cmd.SendAccept(rec["ip"][0], rec["dir"][0], rec["dest"][0], newPort)
-				}
-			case "crej":
-				cmd.SendReject(rec["ip"][0],rec["dir"][0])
-			case "cmsg":
-				cmd.SendMessage(rec["ip"][0],rec["to"][0], rec["msg"][0])
-			case "racp":
-				intPort, _ := strconv.Atoi(rec["port"][0])
-				index := getPortIndex(intPort)
-				setPortBusy(intPort)
-				go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
-			case "dprg":
-				intPort, _ := strconv.Atoi(rec["port"][0])
-				freePort(intPort)
-			case "fprg":
-				intPort, _ := strconv.Atoi(rec["port"][0])
-				freePort(intPort)
-			case "kprg":
-				intPort, _ := strconv.Atoi(rec["port"][0])
-				freePort(intPort)
-			case "reshs":
-				hs.Restart()
+			}else{
+				fmt.Println("Wrong command")
 			}
-		}else{
-			fmt.Println("Wrong command")
 		}
 	}
 }
