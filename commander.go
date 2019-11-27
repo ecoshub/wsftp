@@ -165,6 +165,8 @@ func manage(){
 			case "kprg":
 				intPort, _ := strconv.Atoi(rec["port"][0])
 				freePort(intPort)
+			case "reshs":
+				hs.Restart()
 			}
 		}else{
 			fmt.Println("Wrong command")
