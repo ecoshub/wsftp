@@ -7,46 +7,52 @@ import (
 	"strings"
 	"os"
     "os/signal"
-    "os/user"
     "syscall"
+    "wsftp/utils"
 	"github.com/gorilla/websocket"
 )
 
-var port string = "9998"
-var hsPort string = "10000"
-var endPoint = "/hs"
-var broadcastIP string = GetBroadcastIP().String()
-var myIP string = GetInterfaceIP().String()
-var myIPB []byte = []byte(myIP)
-var broadcastListenIP string = "0.0.0.0"
-var loopControl int = 100
-var receiveControl bool = true
-var IPList []string = make([]string,0,1024)
-var msgList []string = make([]string,0,1024)
-var UsernameList []string = make([]string,0,1024)
-var onlineCount int = 0
-var myUsername string = getUsername()
-var myUsernameB []byte = []byte(myUsername)
-var msgOn []byte = []byte("online")
-var msgOff []byte = []byte("offline")
-var msgBusy []byte = []byte("busy")
-var udpRepeat int = 5
+const (
+	port string = "9998"
+	hsPort string = "10000"
+	endPoint = "/hs"
+	broadcastListenIP string = "0.0.0.0"
+	loopControl int = 100
+	udpRepeat int = 5
+)
 
-var messageChan = make(chan []byte, 1)
+var (
+	broadcastIP string = utils.GetBroadcastIP().String()
+	myIP string = utils.GetInterfaceIP().String()
+	myIPB []byte = []byte(myIP)
+	myEthMac string = utils.GetEthMac()
+	myEthMacB []byte = []byte(myEthMac)
+	receiveControl bool = true
+	IPList []string = make([]string,0,1024)
+	onlineCount int = 0
+	UsernameList []string = make([]string,0,1024)
+	myUsername string = utils.GetUsername()
+	myUsernameB []byte = []byte(myUsername)
+	msgOn []byte = []byte("online")
+	msgOff []byte = []byte("offline")
 
-var upgrader = websocket.Upgrader{
+	messageChan = make(chan []byte, 1)
+
+	upgrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: false,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-}
+	}
+)
+
 
 func handleConn(w http.ResponseWriter, r *http.Request){
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Handshake web socket connection error: ", err)
 	}
 	defer ws.Close()
 	for {
@@ -65,7 +71,7 @@ func activity(){
 	sigs := make(chan os.Signal, 1)
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	data := concatByteArray(" ", msgOn, myUsernameB)
+	data := concatByteArray(" ", msgOn, myUsernameB, myEthMacB)
     sendPack(broadcastIP, port, data)
 	receiveChan := make(chan string, 1)
     go func() {
@@ -77,22 +83,19 @@ func activity(){
 	for receiveControl {
 		go receive(broadcastListenIP, port, receiveChan)
 		tempPack := <- receiveChan
-		tempMsg, tempIP, tempUsername := parsePack(tempPack)
+		tempMsg, tempIP, tempUsername, tempMAC := parsePack(tempPack)
+		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempMsg, tempIP, tempUsername, tempMAC)
 		if !hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOn){
 			IPList = append(IPList, tempIP)
-			msgList = append(msgList, tempMsg)
 			UsernameList = append(UsernameList, tempUsername)
 			onlineCount++
-			msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v"}`,tempMsg, tempIP, tempUsername)
 			messageChan <- []byte(msg)
 			data := concatByteArray(" ", msgOn, myUsernameB)
     		sendPack(broadcastIP, port, data)
 		}
 		if hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOff){
 			IPList = removeFromList(IPList, tempIP)
-			msgList = removeFromList(msgList, string(msgOn))
 			UsernameList = removeFromList(UsernameList, tempUsername)
-			msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v"}`,tempMsg, tempIP, tempUsername)
 			messageChan <- []byte(msg)
 		}
 	}
@@ -179,35 +182,6 @@ func offlineFunc(ip, port string, data []byte, ch chan<- int){
     }
 }
 
-func GetInterfaceIP() net.IP{
-    ins, _ := net.Interfaces()
-    inslen := len(ins)
-    myAddr := ""
-    for i := 0 ; i < inslen ; i++ {
-        if ins[i].Flags &  net.FlagLoopback != net.FlagLoopback && ins[i].Flags & net.FlagUp == net.FlagUp{
-            addr, _ := ins[i].Addrs()
-            if addr != nil {
-                for _,ad := range addr{
-                    if strings.Contains(ad.String(), "."){
-                        myAddr = ad.String()
-                        break
-                    }
-                }
-                ip, _, _ := net.ParseCIDR(myAddr)
-                return ip
-            }
-        }
-    }
-    fmt.Println("Interface IP resolve error in func GetInterfaceIP()")
-    return net.ParseIP("0.0.0.0")
-}
-
-func GetBroadcastIP() net.IP{
-	IP := GetInterfaceIP()
-	IP[len(IP) - 1] = 255
-	return IP
-}
-
 func hasThis(list []string, el string) bool {
 	for _, v := range list {
 		if v == el {
@@ -217,11 +191,12 @@ func hasThis(list []string, el string) bool {
 	return false
 }
 
-func parsePack(pack string) (msg string, IP string, username string){
+func parsePack(pack string) (msg string, IP string, username string, MAC string){
 	tokens := strings.Split(pack, " ")
 	msg = tokens[0]
 	username = tokens[1]
 	IP = tokens[2]
+	MAC = tokens[3]
 	return
 }
 
@@ -239,15 +214,6 @@ func removeFromList(list []string, el string) []string{
 		}
 	}
 	return newList
-}
-
-func getUsername() string{
-	user, err := user.Current()
-	if err != nil {
-		return "unknown"
-	}else{
-		return user.Username
-	}
 }
 
 func concatByteArray(sep string, arr ...[]byte) []byte {
