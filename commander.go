@@ -27,7 +27,7 @@ const (
 	// 10003 reserved for sr to frontend ws com.
 	// 10004 reserved for msg to frontend ws com.
 
-	// settings & limits
+	// websocket settings & limits
 	ENDPOINT = "/cmd"
 	ACTIVEDOWNLOADLIMIT int = 25
 	ACTIVEUPLOADLIMIT int = 25
@@ -125,14 +125,12 @@ func manage(){
 	for {
 		receive := string(<- commandChan)
 		rec := json.JTM(receive)
-		// fmt.Println("receive", receive)
-		// fmt.Println("rec", rec)
 		stat := rec["stat"][0]
 		if stat != ""{
 			switch stat{
 			case "creq":
 				if activeUpload < ACTIVEUPLOADLIMIT {
-					cmd.SendRequest(rec["ip"][0],rec["dir"][0])
+					cmd.SendRequest(rec["ip"][0],rec["dir"][0],rec["mac"][0])
 					activeUpload++
 				}else{
 					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeUploadFull"}`)
