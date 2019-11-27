@@ -30,13 +30,13 @@ var (
 	receiveControl bool = true
 	IPList []string = make([]string,0,1024)
 	onlineCount int = 0
-	UsernameList []string = make([]string,0,1024)
 	myUsername string = utils.GetUsername()
 	myUsernameB []byte = []byte(myUsername)
 	msgOn []byte = []byte("online")
 	msgOff []byte = []byte("offline")
 
 	messageChan = make(chan []byte, 1)
+	sigs = make(chan os.Signal, 1)
 
 	upgrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
@@ -67,8 +67,16 @@ func Start(){
 	fmt.Println("Handshake server shutdown unexpectedly!", err)
 }
 
+func Restart(){
+    done := make(chan bool, 1)
+    onClose(done)
+    <-done
+	IPList = make([]string,0,1024)
+	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
+    sendPack(broadcastIP, port, data)
+}
+
 func activity(){	
-	sigs := make(chan os.Signal, 1)
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
@@ -87,7 +95,6 @@ func activity(){
 		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempMsg, tempIP, tempUsername, tempMAC)
 		if !hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOn){
 			IPList = append(IPList, tempIP)
-			UsernameList = append(UsernameList, tempUsername)
 			onlineCount++
 			messageChan <- []byte(msg)
 			data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
@@ -95,7 +102,6 @@ func activity(){
 		}
 		if hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOff){
 			IPList = removeFromList(IPList, tempIP)
-			UsernameList = removeFromList(UsernameList, tempUsername)
 			messageChan <- []byte(msg)
 		}
 	}
