@@ -26,7 +26,6 @@ Commands
 		{
 			"cmd":"cmsg",
 			"mac":"MAC_of_receiver",
-			"to":"username_of_other",
 			"msg":"msg_content"
 		}
 
