@@ -71,7 +71,7 @@ func activity(){
 	sigs := make(chan os.Signal, 1)
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	data := concatByteArray(" ", msgOn, myUsernameB, myEthMacB)
+	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
     sendPack(broadcastIP, port, data)
 	receiveChan := make(chan string, 1)
     go func() {
@@ -90,7 +90,7 @@ func activity(){
 			UsernameList = append(UsernameList, tempUsername)
 			onlineCount++
 			messageChan <- []byte(msg)
-			data := concatByteArray(" ", msgOn, myUsernameB, myEthMacB)
+			data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
     		sendPack(broadcastIP, port, data)
 		}
 		if hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOff){
@@ -217,7 +217,7 @@ func removeFromList(list []string, el string) []string{
 }
 
 func concatByteArray(sep string, arr ...[]byte) []byte {
-	newArr := make([]byte,0,1024)
+	newArr := make([]byte ,0 ,1024)
 	lena := len(arr)
 	sepB := []byte(sep)
 	for i, v := range arr {
@@ -226,5 +226,7 @@ func concatByteArray(sep string, arr ...[]byte) []byte {
 			newArr = append(newArr, sepB...)
 		} 
 	}
+	fmt.Println(newArr)
+	fmt.Println(string(newArr))
 	return newArr
 }
