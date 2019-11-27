@@ -226,7 +226,5 @@ func concatByteArray(sep string, arr ...[]byte) []byte {
 			newArr = append(newArr, sepB...)
 		} 
 	}
-	fmt.Println(newArr)
-	fmt.Println(string(newArr))
 	return newArr
 }
