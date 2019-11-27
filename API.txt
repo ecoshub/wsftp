@@ -1,14 +1,14 @@
 Commands
 	send file request
 		{
-			"stat":"creq",
-			"ip":"IP",
+			"cmd":"creq",
+			"mac":"MAC_of_receiver",
 			"dir":"file_dir"
 		}
 
 	send accept to request
 		{
-			"stat":"cacp",
+			"cmd":"cacp",
 			"ip":"IP",
 			"dir":"file_dir",
 			"dest":"file_dest"
@@ -16,14 +16,14 @@ Commands
 
 	send reject to request
 		{
-			"stat":"crej",
+			"cmd":"crej",
 			"ip":"IP",
 			"dir":"file_dir"
 		}
 
 	send message
 		{
-			"stat":"cmsg",
+			"cmd":"cmsg",
 			"ip":"IP",
 			"to":"username_of_other",
 			"msg":"msg_content"
@@ -31,19 +31,19 @@ Commands
 
 	kill download/upload progress
 		{
-			"stat":"kprg",
+			"cmd":"kprg",
 			"port":"port_of_download/upload"
 		}
 		
 	restart handshake
 		{
-			"stat":"reshs"
+			"cmd":"reshs"
 		}
 
 
 Handshake Port Transfer Messages
 	{
-		"stat":"online"/"offline",
+		"cmd":"online"/"offline",
 		"ip":"IP",
 		"username":"username"
 	}
@@ -52,14 +52,14 @@ Send/Receive Port Transfer Messages
 
 Info Messages
 	{
-		"stat":"info",
+		"cmd":"info",
 		"content":"activeUploadFull" / "activeDownloadFull"
 	}
 
 File Send Requests
 	A request has arrive
 		{
-		  "stat":"rreq",
+		  "cmd":"rreq",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -71,7 +71,7 @@ File Send Requests
 
 	you send a request
 		{
-		  "stat":"sreq",
+		  "cmd":"sreq",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -83,7 +83,7 @@ File Send Requests
 
 	your request not arrived
 		{
-		  "stat":"freq",
+		  "cmd":"freq",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -96,7 +96,7 @@ File Send Requests
 Requests Acceptation
 	your request has accepted
 		{
-		  "stat":"racp",
+		  "cmd":"racp",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -109,7 +109,7 @@ Requests Acceptation
 
 	you have accept a request
 		{
-		  "stat":"sacp",
+		  "cmd":"sacp",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -122,7 +122,7 @@ Requests Acceptation
 
 	your acceptation not arrived to receiver
 		{
-		  "stat":"facp",
+		  "cmd":"facp",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -136,7 +136,7 @@ Requests Acceptation
 Requests Rejection
 	your request rejected
 		{
-		  "stat":"rrej",
+		  "cmd":"rrej",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -147,7 +147,7 @@ Requests Rejection
 		 }
 	you have reject a request
 		{
-		  "stat":"srej",
+		  "cmd":"srej",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -159,7 +159,7 @@ Requests Rejection
 
 	your reject not arrived to receiver
 		{
-		  "stat":"frej",
+		  "cmd":"frej",
 		  "username": "username",
 		  "ip":"IP",
 		  "dir":"filrdir",
@@ -172,7 +172,7 @@ Requests Rejection
 File Transfer Progress
 	receiving progress (download progress)
 		{
-		  "stat":"rprg",
+		  "cmd":"rprg",
 		  "username": "username",
 		  "ip":"IP",
 		  "port":"port",
@@ -184,7 +184,7 @@ File Transfer Progress
 
 	sending progress (upload progress)
 		{
-		  "stat":"sprg",
+		  "cmd":"sprg",
 		  "username": "username",
 		  "ip":"IP",
 		  "port":"port",
@@ -196,7 +196,7 @@ File Transfer Progress
 
 	file transfer progress has failed
 		{
-		  "stat":"fprg",
+		  "cmd":"fprg",
 		  "username": "username",
 		  "ip":"IP",
 		  "port":"port",
@@ -208,7 +208,7 @@ File Transfer Progress
 		 
 	progress has done
 		{
-		  "stat":"dprg",
+		  "cmd":"dprg",
 		  "username": "username",
 		  "ip":"IP",
 		  "port":"port",
@@ -221,7 +221,7 @@ Message Protocol
 
 	A message has receive
 		{
-		  "stat": "rmsg"
+		  "cmd": "rmsg"
 		  "person": "someone",
 		  "content": "Message content",
 		  "contentType": "text"
@@ -229,7 +229,7 @@ Message Protocol
 
 	You send a message
 		{
-		  "stat": "smsg"
+		  "cmd": "smsg"
 		  "person": "you",
 		  "content": "Message content",
 		  "contentType": "text"
@@ -237,7 +237,7 @@ Message Protocol
 
 	fail to send your message
 		{
-		  "stat": "fmsg"
+		  "cmd": "fmsg"
 		  "person": "you",
 		  "content": "Your faild message content",
 		  "contentType": "text"
