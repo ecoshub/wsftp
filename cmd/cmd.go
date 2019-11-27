@@ -21,14 +21,14 @@ const (
 
 var myIP string = utils.GetInterfaceIP().String()
 
-func SendRequest(ip, dir , mac string){
+func SendRequest(ip, dir , mac , username string){
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
-	username := utils.GetUsername()
+	myUsername := utils.GetUsername()
     myMAC := utils.GetEthMac()
     data := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
-     username, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
+     myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     rreq := `{"stat":"rreq",` + data
 
     data = fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
