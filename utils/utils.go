@@ -73,6 +73,18 @@ func GetInterfaceIP() net.IP{
     return net.ParseIP("0.0.0.0")
 }
 
+func GetEthMac() string {
+    ins, _ := net.Interfaces()
+    for _,in := range ins {
+        if len(in.Name) > 0{
+            if in.Name[0] == 'e' {
+                return in.HardwareAddr.String()
+            }
+        }
+    }
+    return "null"
+}
+
 func IntToByteArray(num int64, size int) []byte {
     // size := int(unsafe.Sizeof(num))
     arr := make([]byte, size)
