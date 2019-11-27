@@ -1,4 +1,3 @@
-
 Commands
 	send file request
 		{
@@ -29,10 +28,16 @@ Commands
 			"to":"username_of_other",
 			"msg":"msg_content"
 		}
+
 	kill download/upload progress
 		{
 			"stat":"kprg",
 			"port":"port_of_download/upload"
+		}
+		
+	restart handshake
+		{
+			"stat":"reshs"
 		}
 
 
