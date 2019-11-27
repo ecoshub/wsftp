@@ -31,7 +31,7 @@ func SendRequest(ip, dir , mac string){
      username, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     rreq := `{"stat":"rreq",` + data
 
-    data := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
+    data = fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
      username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     sreq := `{"stat":"sreq",` + data
     freq := `{"stat":"freq",` + data
