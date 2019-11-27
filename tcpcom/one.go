@@ -32,13 +32,15 @@ const (
 
 )
 
-// enviroment
-var myIP string = utils.GetInterfaceIP().String()
-var username string = utils.GetUsername()
+var (
+	// enviroment
+	myIP string = utils.GetInterfaceIP().String()
+	username string = utils.GetUsername()
 
-// for debug
-var step string = "::Steps Start::\n"
-var stepCount int = 0
+	// for debug
+	step string = "::Steps Start::\n"
+	stepCount int = 0
+)
 
 // master comminication struct
 type comm struct {
