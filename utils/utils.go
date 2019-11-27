@@ -82,9 +82,13 @@ func GetEthMac() string {
             }
         }
     }
+    for _,in := range ins {
+        if in.HardwareAddr.String() != ""{
+            return in.HardwareAddr.String()
+        }
+    }
     return "null"
 }
-
 func GetBroadcastIP() net.IP{
     IP := GetInterfaceIP()
     IP[len(IP) - 1] = 255
