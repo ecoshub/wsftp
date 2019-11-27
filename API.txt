@@ -48,8 +48,6 @@ Handshake Port Transfer Messages
 		"username":"username"
 	}
 
-
-
 Send/Receive Port Transfer Messages
 
 Info Messages
