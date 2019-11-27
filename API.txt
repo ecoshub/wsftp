@@ -9,22 +9,23 @@ Commands
 	send accept to request
 		{
 			"cmd":"cacp",
-			"ip":"IP",
+			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
-			"dest":"file_dest"
+			"dest":"file_dest",
+			"id":"custom_id"
 		}
 
 	send reject to request
 		{
 			"cmd":"crej",
-			"ip":"IP",
+			"mac":"MAC_of_receiver",
 			"dir":"file_dir"
 		}
 
 	send message
 		{
 			"cmd":"cmsg",
-			"ip":"IP",
+			"mac":"MAC_of_receiver",
 			"to":"username_of_other",
 			"msg":"msg_content"
 		}
@@ -102,7 +103,7 @@ Requests Acceptation
 		  "dir":"filrdir",
 		  "fileName": "filename.extension",
 		  "fileType": "extension",
-		  "destination": "uploadDestination",
+		  "dest": "uploadDestination",
 		  "port":"trasferPort"
 		  "contentType": "file",
 		 }
@@ -115,7 +116,7 @@ Requests Acceptation
 		  "dir":"filrdir",
 		  "fileName": "filename.extension",
 		  "fileType": "extension",
-		  "destination": "uploadDestination",
+		  "dest": "uploadDestination",
 		  "port":"trasferPort"
 		  "contentType": "file",
 		 }
@@ -128,7 +129,7 @@ Requests Acceptation
 		  "dir":"filrdir",
 		  "fileName": "filename.extension",
 		  "fileType": "extension",
-		  "destination": "uploadDestination",
+		  "dest": "uploadDestination",
 		  "port":"trasferPort"
 		  "contentType": "file",
 		 }
