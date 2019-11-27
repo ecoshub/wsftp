@@ -116,12 +116,12 @@ func activity(){
 	}
 }
 
-func GetUsername(mac string) string{
-	return onlines[mac][0]
-}
-
 func GetIP(mac string) string{
 	return onlines[mac][1]
+}
+
+func GetUsername(mac string) string{
+	return onlines[mac][0]
 }
 
 func receive(ip, port string, ch chan<- string){
