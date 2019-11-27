@@ -37,6 +37,7 @@ var (
 	activeUpload int = 0
 	activeDownload int = 0
 	ports = make([][]int, ACTIVEDOWNLOADLIMIT)
+	portIDMap = make(map[int]string, ACTIVEDOWNLOADLIMIT)
 	myIP string = utils.GetInterfaceIP().String()
 	myUserName string = utils.GetUsername()
 	commandChan = make(chan []byte, 1)
@@ -150,15 +151,15 @@ func manage(){
 					dir := rec["dir"][0]
 					dest := rec["dest"][0]
 					id := rec["id"][0]
-					// ip/mac/username of receiver
 					mac := rec["mac"][0]
-					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
+					ip := hs.GetIP(mac)
 					if newPort == -1{
 						cmd.TransmitData(myIP,SRLISTENPORT,`{"cmd":"info","content":"activeDownloadFull"}`)
 						cmd.SendReject(ip, mac, dir, username)
 					}else{
-						go com.ReceiveFile(ip, newPort, &(ports[index][1]))
+						portIDMap[newPort] = id
+						go com.ReceiveFile(ip, mac, username, newPort, id, &(ports[index][1]))
 						cmd.SendAccept(ip, mac, dir, dest, username, id, newPort)
 					}
 				case "crej":
@@ -173,11 +174,11 @@ func manage(){
 					username := hs.GetUsername(mac)
 					cmd.SendMessage(ip, mac, username, msg)
 				case "racp":
-					// id := rec["id"][0]
+					id := rec["id"][0]
 					intPort, _ := strconv.Atoi(rec["port"][0])
 					index := getPortIndex(intPort)
 					setPortBusy(intPort)
-					go com.SendFile(rec["ip"][0], intPort, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
+					go com.SendFile(rec["ip"][0], intPort, id, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
 				case "dprg":
 					intPort, _ := strconv.Atoi(rec["port"][0])
 					freePort(intPort)
