@@ -85,6 +85,12 @@ func GetEthMac() string {
     return "null"
 }
 
+func GetBroadcastIP() net.IP{
+    IP := GetInterfaceIP()
+    IP[len(IP) - 1] = 255
+    return IP
+}
+
 func IntToByteArray(num int64, size int) []byte {
     // size := int(unsafe.Sizeof(num))
     arr := make([]byte, size)
