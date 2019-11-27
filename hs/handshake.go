@@ -90,7 +90,7 @@ func activity(){
 			UsernameList = append(UsernameList, tempUsername)
 			onlineCount++
 			messageChan <- []byte(msg)
-			data := concatByteArray(" ", msgOn, myUsernameB)
+			data := concatByteArray(" ", msgOn, myUsernameB, myEthMacB)
     		sendPack(broadcastIP, port, data)
 		}
 		if hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOff){
