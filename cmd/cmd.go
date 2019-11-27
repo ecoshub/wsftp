@@ -11,31 +11,35 @@ const (
     // 9996 reserverd for transfer start port
     // 9997 reserverd ws commander comminication.
     // 9998 reserverd tcp handshake comminication.
-    mainListen int = 9999
+    MAINLISTEN int = 9999
     // 10000 reserved for handshake
-    srListen int = 10001
-    msgListen int = 10002
+    SRLISTEN int = 10001
+    MSGLISTEN int = 10002
     // 10003 reserved for ws sr
     // 10004 reserved for ws msg
 )
 
 var myIP string = utils.GetInterfaceIP().String()
 
-func SendRequest(ip, dir string){
+func SendRequest(ip, dir , mac string){
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 	username := utils.GetUsername()
-    data := fmt.Sprintf(`"username":"%v","ip":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
-     username, myIP, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
+    myMAC := utils.GetEthMac()
+    data := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
+     username, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     rreq := `{"stat":"rreq",` + data
+
+    data := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
+     username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
     sreq := `{"stat":"sreq",` + data
     freq := `{"stat":"freq",` + data
-    res := SendMsg(ip, srListen, rreq)
+    res := SendMsg(ip, SRLISTEN, rreq)
     if res {
-        SendMsg(myIP, srListen, sreq)
+        SendMsg(myIP, SRLISTEN, sreq)
     }else{
-        SendMsg(myIP, srListen, freq)
+        SendMsg(myIP, SRLISTEN, freq)
     }
 }
 
@@ -44,18 +48,18 @@ func SendAccept(ip, dir , dest string, port int){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
     data := fmt.Sprintf(`"username":"%v","ip":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","contentType":"file"}`,
-        username, myIP, dir, fileName, fileType, dest, strconv.Itoa(port))
+        username, ip, dir, fileName, fileType, dest, strconv.Itoa(port))
     racp := `{"stat":"racp",` + data
     sacp := `{"stat":"sacp",` + data
     facp := `{"stat":"facp",` + data
     
-    res := SendMsg(ip, mainListen, racp)
+    res := SendMsg(ip, MAINLISTEN, racp)
     if res {
-        SendMsg(myIP, srListen, sacp)
-        SendMsg(ip, srListen, racp)
+        SendMsg(myIP, SRLISTEN, sacp)
+        SendMsg(ip, SRLISTEN, racp)
     }else{
-        SendMsg(ip, srListen, facp)
-        SendMsg(myIP, srListen, facp)
+        SendMsg(ip, SRLISTEN, facp)
+        SendMsg(myIP, SRLISTEN, facp)
     }
 }
 
@@ -64,15 +68,15 @@ func SendReject(ip, dir string){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
     data := fmt.Sprintf(`"username":"%v","ip":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file"}`,
-     username, myIP, dir, fileName, fileType)
+     username, ip, dir, fileName, fileType)
     rrej := `{"stat":"rrej",` + data
     srej := `{"stat":"srej",` + data
     frej := `{"stat":"frej",` + data
-    res := SendMsg(ip, srListen, rrej)
+    res := SendMsg(ip, SRLISTEN, rrej)
     if res {
-    	SendMsg(myIP, srListen, srej)
+    	SendMsg(myIP, SRLISTEN, srej)
     }else{
-    	SendMsg(myIP, srListen, frej)
+    	SendMsg(myIP, SRLISTEN, frej)
     }
 }
 
@@ -83,11 +87,11 @@ func SendMessage(ip, to, msg string){
     rmsg := `{"stat":"rmsg",` + data
     smsg := `{"stat":"smsg",` + data2
     fmsg := `{"stat":"fmsg",` + data2
-    res := SendMsg(ip,msgListen, rmsg)
+    res := SendMsg(ip,MSGLISTEN, rmsg)
     if res {
-        SendMsg(myIP, msgListen, smsg)
+        SendMsg(myIP, MSGLISTEN, smsg)
     }else{
-        SendMsg(myIP, msgListen, fmsg)
+        SendMsg(myIP, MSGLISTEN, fmsg)
     }
 }
 
