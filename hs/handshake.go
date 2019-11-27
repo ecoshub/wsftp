@@ -100,7 +100,7 @@ func activity(){
 		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
 		if tempMAC != myEthMac {
 			if !hasThis(MACList, tempMAC) && tempStatus == string(msgOn){
-				onlines[tempIP] = []string{tempUsername, tempMAC} 
+				onlines[tempMAC] = []string{tempUsername, tempIP} 
 				MACList = append(MACList, tempMAC)
 				onlineCount++
 				innerMessageChan <- []byte(msg)
@@ -109,19 +109,19 @@ func activity(){
 			}
 			if hasThis(MACList, tempMAC) && tempStatus == string(msgOff){
 				MACList = removeFromList(MACList, tempMAC)
-				delete(onlines, tempIP) 
+				delete(onlines, tempMAC) 
 				innerMessageChan <- []byte(msg)
 			}
 		}
 	}
 }
 
-func getMac(ip string) string{
-	return onlines[ip][1]
+func GetIP(mac string) string{
+	return onlines[mac][1]
 }
 
-func getUsername(ip string) string{
-	return onlines[ip][0]
+func GetUsername(mac string) string{
+	return onlines[mac][0]
 }
 
 func receive(ip, port string, ch chan<- string){
