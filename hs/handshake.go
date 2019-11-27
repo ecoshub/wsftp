@@ -152,7 +152,7 @@ func send(ip, port string, data []byte, ch chan<- int){
 
 func onClose(ch chan<- bool){
 	sendValidationChan := make(chan int, 1)
-	data := concatByteArray(" ", msgOff, myUsernameB)
+	data := concatByteArray(" ", msgOff, myUsernameB, myIPB, myEthMacB)
 	valid := 0
 	count := 0
 	for valid != 1 {
