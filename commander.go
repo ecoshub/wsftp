@@ -125,12 +125,17 @@ func manage(){
 	for {
 		receive := string(<- commandChan)
 		rec := json.JTM(receive)
-		stat := rec["stat"][0]
+		stat := rec["cmd"][0]
 		if stat != ""{
 			switch stat{
 			case "creq":
 				if activeUpload < ACTIVEUPLOADLIMIT {
-					cmd.SendRequest(rec["ip"][0],rec["dir"][0],rec["mac"][0])
+					dir := rec["dir"][0]
+					// of receiver
+					mac := rec["mac"][0]
+					ip := hs.GetIP(mac)
+					username := hs.GetUsername(mac)
+					cmd.SendRequest(ip, dir, mac, username)
 					activeUpload++
 				}else{
 					cmd.SendMsg(myIP,SRLISTENPORT,`{"stat":"info","content":"activeUploadFull"}`)
