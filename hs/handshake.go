@@ -15,7 +15,8 @@ import (
 const (
 	port string = "9998"
 	hsPort string = "10000"
-	endPoint = "/hs"
+	hsEndpoint = "/hs"
+	cmdEndpoint = "/cmd"
 	broadcastListenIP string = "0.0.0.0"
 	loopControl int = 100
 	udpRepeat int = 5
@@ -28,17 +29,18 @@ var (
 	myEthMac string = utils.GetEthMac()
 	myEthMacB []byte = []byte(myEthMac)
 	receiveControl bool = true
-	IPList []string = make([]string,0,1024)
+	MACList []string = make([]string,0,1024)
 	onlineCount int = 0
 	myUsername string = utils.GetUsername()
 	myUsernameB []byte = []byte(myUsername)
 	msgOn []byte = []byte("online")
 	msgOff []byte = []byte("offline")
+	onlines = make(map[string][]string, 128)
 
-	messageChan = make(chan []byte, 1)
+	innerMessageChan = make(chan []byte, 1)
 	sigs = make(chan os.Signal, 1)
 
-	upgrader = websocket.Upgrader{
+	upgraderHS = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: false,
@@ -46,22 +48,24 @@ var (
 		return true
 	},
 	}
+
 )
 
 
 func handleConn(w http.ResponseWriter, r *http.Request){
-	ws, err := upgrader.Upgrade(w, r, nil)
+	ws, err := upgraderHS.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Handshake web socket connection error: ", err)
+		fmt.Println("Handshake(hs) web socket connection error: ", err)
 	}
 	defer ws.Close()
 	for {
-		ws.WriteMessage(1, []byte(<-messageChan))
+		ws.WriteMessage(1, []byte(<-innerMessageChan))
 	}
 }
 
+
 func Start(){
-	http.HandleFunc(endPoint, handleConn)
+	http.HandleFunc(hsEndpoint, handleConn)
 	go activity()
 	err := http.ListenAndServe(":" + hsPort, nil)
 	fmt.Println("Handshake server shutdown unexpectedly!", err)
@@ -71,7 +75,8 @@ func Restart(){
     done := make(chan bool, 1)
     onClose(done)
     <-done
-	IPList = make([]string,0,1024)
+	MACList = make([]string,0,1024)
+    onlines = make(map[string][]string, 128)
 	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
     sendPack(broadcastIP, port, data)
 }
@@ -91,22 +96,33 @@ func activity(){
 	for receiveControl {
 		go receive(broadcastListenIP, port, receiveChan)
 		tempPack := <- receiveChan
-		tempMsg, tempIP, tempUsername, tempMAC := parsePack(tempPack)
-		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempMsg, tempIP, tempUsername, tempMAC)
-		if !hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOn){
-			IPList = append(IPList, tempIP)
-			onlineCount++
-			messageChan <- []byte(msg)
-			data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-    		sendPack(broadcastIP, port, data)
-		}
-		if hasThis(IPList, tempIP) && tempIP != myIP && tempMsg == string(msgOff){
-			IPList = removeFromList(IPList, tempIP)
-			messageChan <- []byte(msg)
+		tempStatus, tempIP, tempUsername, tempMAC := parsePack(tempPack)
+		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
+		if tempMAC != myEthMac {
+			if !hasThis(MACList, tempMAC) && tempStatus == string(msgOn){
+				onlines[tempIP] = []string{tempUsername, tempMAC} 
+				MACList = append(MACList, tempMAC)
+				onlineCount++
+				innerMessageChan <- []byte(msg)
+				data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
+	    		sendPack(broadcastIP, port, data)
+			}
+			if hasThis(MACList, tempMAC) && tempStatus == string(msgOff){
+				MACList = removeFromList(MACList, tempMAC)
+				delete(onlines, tempIP) 
+				innerMessageChan <- []byte(msg)
+			}
 		}
 	}
 }
 
+func getMac(ip string) string{
+	return onlines[ip][1]
+}
+
+func getUsername(ip string) string{
+	return onlines[ip][0]
+}
 
 func receive(ip, port string, ch chan<- string){
 	buff := make([]byte, 1024)
