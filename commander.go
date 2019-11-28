@@ -165,9 +165,11 @@ func manage(){
 			case "crej":
 				result, mac := getVal(commandJSON, "mac")
 				if !result {continue}
+				result, dir := getVal(commandJSON, "dir")
+				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
-				cmd.SendReject(ip, mac, commandJSON["dir"][0], username)
+				cmd.SendReject(ip, mac, dir, username)
 			case "cmsg":
 				result, mac := getVal(commandJSON, "mac")
 				if !result {continue}
