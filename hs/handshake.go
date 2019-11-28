@@ -13,13 +13,12 @@ import (
 )
 
 const (
-	port string = "9998"
-	hsPort string = "10000"
-	hsEndpoint = "/hs"
-	cmdEndpoint = "/cmd"
-	broadcastListenIP string = "0.0.0.0"
-	loopControl int = 100
-	udpRepeat int = 5
+	MAINPORT string = "9998"
+	WSCOMPORT string = "10000"
+	ENDPOINT = "/hs"
+	BROADCASTLISTENIP string = "0.0.0.0"
+	LOOPCONTROLLIMIT int = 100
+	UDPREPEAT int = 5
 )
 
 var (
@@ -36,7 +35,6 @@ var (
 	msgOn []byte = []byte("online")
 	msgOff []byte = []byte("offline")
 	onlines = make(map[string][]string, 128)
-
 	innerMessageChan = make(chan []byte, 1)
 	sigs = make(chan os.Signal, 1)
 
@@ -55,7 +53,7 @@ var (
 func handleConn(w http.ResponseWriter, r *http.Request){
 	ws, err := upgraderHS.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Handshake(hs) web socket connection error: ", err)
+		fmt.Println("Handshake web socket connection error: ", err)
 	}
 	defer ws.Close()
 	for {
@@ -65,9 +63,9 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 
 
 func Start(){
-	http.HandleFunc(hsEndpoint, handleConn)
+	http.HandleFunc(ENDPOINT, handleConn)
 	go activity()
-	err := http.ListenAndServe(":" + hsPort, nil)
+	err := http.ListenAndServe(":" + WSCOMPORT, nil)
 	fmt.Println("Handshake server shutdown unexpectedly!", err)
 }
 
@@ -78,14 +76,14 @@ func Restart(){
 	MACList = make([]string,0,1024)
     onlines = make(map[string][]string, 128)
 	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-    sendPack(broadcastIP, port, data)
+    sendPack(broadcastIP, MAINPORT, data)
 }
 
 func activity(){	
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-    sendPack(broadcastIP, port, data)
+    sendPack(broadcastIP, MAINPORT, data)
 	receiveChan := make(chan string, 1)
     go func() {
         <- sigs
@@ -94,10 +92,10 @@ func activity(){
       	os.Exit(0)
     }()
 	for receiveControl {
-		go receive(broadcastListenIP, port, receiveChan)
+		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
 		tempPack := <- receiveChan
 		tempStatus, tempIP, tempUsername, tempMAC := parsePack(tempPack)
-		msg := fmt.Sprintf(`{"stat":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
+		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
 		if tempMAC != myEthMac {
 			if !hasThis(MACList, tempMAC) && tempStatus == string(msgOn){
 				onlines[tempMAC] = []string{tempUsername, tempIP} 
@@ -105,11 +103,12 @@ func activity(){
 				onlineCount++
 				innerMessageChan <- []byte(msg)
 				data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-	    		sendPack(broadcastIP, port, data)
+	    		sendPack(broadcastIP, MAINPORT, data)
 			}
 			if hasThis(MACList, tempMAC) && tempStatus == string(msgOff){
 				MACList = removeFromList(MACList, tempMAC)
 				delete(onlines, tempMAC) 
+				onlineCount--
 				innerMessageChan <- []byte(msg)
 			}
 		}
@@ -147,12 +146,12 @@ func sendPack(ip, port string, data []byte){
 	valid := 0
 	count := 0
 	for valid != 1 {
-		for i := 0 ; i < udpRepeat ; i++ {
+		for i := 0 ; i < UDPREPEAT ; i++ {
 			go send(broadcastIP, port, data , sendValidationChan)
 		}
 		valid = <- sendValidationChan
 		count++
-		if count > loopControl {
+		if count > LOOPCONTROLLIMIT {
 			fmt.Println("Something is wrong can't send any signal!")
 			return
 		}
@@ -178,12 +177,12 @@ func onClose(ch chan<- bool){
 	valid := 0
 	count := 0
 	for valid != 1 {
-		for i := 0 ; i < udpRepeat ; i++ {
-			go offlineFunc(broadcastIP, port, data , sendValidationChan)
+		for i := 0 ; i < UDPREPEAT ; i++ {
+			go offlineFunc(broadcastIP, MAINPORT, data , sendValidationChan)
 		}
 		valid = <- sendValidationChan
 		count++
-		if count > loopControl {
+		if count > LOOPCONTROLLIMIT {
 			fmt.Println("Something is wrong can't send any signal!")
 			break
 		}
