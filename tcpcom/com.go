@@ -55,7 +55,7 @@ func NewCom(ip string, port int) *comm{
 	return &tempCon
 }
 
-func SendFile(ip string, port int, id, dir, dest string, control * int){
+func SendFile(ip, mac, username string, port int, id, dir, dest string, control * int){
 
 	// byteChan := make(chan []byte, 1)
 	boolChan := make(chan bool, 1)
@@ -67,7 +67,6 @@ func SendFile(ip string, port int, id, dir, dest string, control * int){
 	
 	fileSize := utils.GetFileSize(dir)
 	filename := utils.GetFileName(dir)
-	otherusername := ""
 	
 	// dial to receiver
 	res := com.Dial()
@@ -171,13 +170,17 @@ func SendFile(ip string, port int, id, dir, dest string, control * int){
 				if !res {*control = 0;break}
 
 				currentSpeed := float64(speed) / float64(end.Sub(start).Seconds() * 1e3) // kb/second 
-				msg := fmt.Sprintf(`{"cmd":"sprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
-				 otherusername, ip, port, dir, fileSize, off, int(currentSpeed))
+
+				msg := fmt.Sprintf(`{"cmd":"sprg","username":"%v","ip":"%v","mac":"%v","port":"%v","id":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
+				 username, ip, mac, port, id, dir, fileSize, off, int(currentSpeed))
+
 				SendMsg(myIP, SRLISTENPORT, msg)
 			}
 		}else{
-			msg := fmt.Sprintf(`{"cmd":"fprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
-			 otherusername, ip, port, dir, fileSize, off, 0)
+
+			msg := fmt.Sprintf(`{"cmd":"fprg","username":"%v","ip":"%v","mac":"%v","port":"%v","id":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
+			 username, ip, mac, port, id, dir, fileSize, off, 0)
+
 			SendMsg(myIP, MAINCOMANDPORT, msg)
 			time.Sleep(50 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
@@ -185,8 +188,9 @@ func SendFile(ip string, port int, id, dir, dest string, control * int){
 			return
 		}
 	}
-	msg := fmt.Sprintf(`{"cmd":"dprg","username":"%v","ip":"%v","port":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
-	 otherusername, ip, port, dir, fileSize, off, 0)
+	msg := fmt.Sprintf(`{"cmd":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","id":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
+	 username, ip, mac, port, id, dir, fileSize, off, 0)
+
 	SendMsg(myIP, MAINCOMANDPORT, msg)
 	time.Sleep(50 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)
