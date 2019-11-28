@@ -6,45 +6,46 @@ import (
 	"net/http"
 	"io/ioutil"
 	"github.com/gorilla/websocket"
-	utils "wsftp/utils"
 )
 
-// 9996 reserverd for transfer start port
-// 9997 reserverd ws commander comminication.
-// 9998 reserverd tcp handshake comminication.
-// 9999 reserverd tcp commander comminication.
-// 10000 reserverd ws handshake comminication.
-var srTCPPort string = "10001"
-var msgTCPPort string = "10002"
-var srWSPort string = "10003"
-var msgWSPort string = "10004"
+const (
+	// 9996 reserverd for transfer start port
+	// 9997 reserverd ws commander comminication.
+	// 9998 reserverd tcp handshake comminication.
+	// 9999 reserverd tcp commander comminication.
+	// 10000 reserverd ws handshake comminication.
+	SRTCPPORT string = "10001"
+	MSGTCPPORT string = "10002"
+	SRWSPORT string = "10003"
+	MSGWSPORT string = "10004"
+	MESSAGEENDPOINT string = "/msg"
+	SRENDPOINT string = "/sr"
+)
 
-var myIP string = utils.GetInterfaceIP().String()
-var messageEndPoint string = "/msg"
-var srEndPoint string = "/sr"
+var (
+	messageChan = make(chan []byte, 1)
+	srChan = make(chan []byte, 1)
+	srReceiveChan = make(chan []byte, 1)
+	msgReceiveChan = make(chan []byte, 1)
 
-var messageChan = make(chan []byte, 1)
-var srChan = make(chan []byte, 1)
-var srReceiveChan = make(chan []byte, 1)
-var msgReceiveChan = make(chan []byte, 1)
-
-var upgraderSR = websocket.Upgrader{
+	upgraderSR = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: false,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-}
+	}
 
-var upgraderMSG = websocket.Upgrader{
+	upgraderMSG = websocket.Upgrader{
 	ReadBufferSize:    4096,
 	WriteBufferSize:   4096,
 	EnableCompression: false,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-}
+	}
+)
 
 func StartRouting(){
 	go StartMessageChan()
@@ -73,7 +74,7 @@ func startMSGListen(){
 func handleMessage(w http.ResponseWriter, r *http.Request){
 	ws, err := upgraderMSG.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Route message channel websocket connection error: ", err)
 	}
 	defer ws.Close()
 	for {
@@ -84,7 +85,7 @@ func handleMessage(w http.ResponseWriter, r *http.Request){
 func handleSr(w http.ResponseWriter, r *http.Request){
 	ws, err := upgraderSR.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Route sr channel websocket connection error: ", err)
 	}
 	defer ws.Close()
 	for {
@@ -93,19 +94,19 @@ func handleSr(w http.ResponseWriter, r *http.Request){
 }
 
 func StartMessageChan(){
-	http.HandleFunc(messageEndPoint, handleMessage)
-	err := http.ListenAndServe(":" + msgWSPort, nil)
+	http.HandleFunc(MESSAGEENDPOINT, handleMessage)
+	err := http.ListenAndServe(":" + MSGWSPORT, nil)
 	fmt.Println("Server shutdown unexpectedly!", err)
 }
 
 func StartSrChan(){
-	http.HandleFunc(srEndPoint, handleSr)
-	err := http.ListenAndServe(":" + srWSPort, nil)
+	http.HandleFunc(SRENDPOINT, handleSr)
+	err := http.ListenAndServe(":" + SRWSPORT, nil)
 	fmt.Println("Server shutdown unexpectedly!", err)
 }
 
 func msgListen(ch chan<- []byte){
-	listener, err := net.Listen("tcp", ":" + msgTCPPort)
+	listener, err := net.Listen("tcp", ":" + MSGTCPPORT)
     if err != nil {
         fmt.Println("Listen Error (Router)")
     }else{
@@ -126,7 +127,7 @@ func msgListen(ch chan<- []byte){
 }
 
 func srListen(ch chan<- []byte){
-	listener, err := net.Listen("tcp", ":" + srTCPPort)
+	listener, err := net.Listen("tcp", ":" + SRTCPPORT)
     if err != nil {
         fmt.Println("Listen Error (Router)")
     }else{
