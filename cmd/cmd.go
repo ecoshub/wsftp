@@ -31,7 +31,7 @@ func SendRequest(ip, dir , mac , username string){
     fileType := utils.GetFileExt(fileName)
 
     if fileSize == 0 {
-        fnf := `{"cmd":"info","content":"file not found"}`
+        fnf := `{"event":"info","content":"file not found"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
         dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
@@ -39,9 +39,9 @@ func SendRequest(ip, dir , mac , username string){
         dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
          username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
 
-        rreq := `{"cmd":"rreq",` + dataToSend
-        sreq := `{"cmd":"sreq",` + dataToMe
-        freq := `{"cmd":"freq",` + dataToMe
+        rreq := `{"event":"rreq",` + dataToSend
+        sreq := `{"event":"sreq",` + dataToMe
+        freq := `{"event":"freq",` + dataToMe
         res := TransmitData(ip, SRLISTEN, rreq)
         if res {
             TransmitData(myIP, SRLISTEN, sreq)
@@ -60,9 +60,9 @@ func SendAccept(ip, mac, dir, dest, username, id string, port int){
     dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","id":"%v","contentType":"file"}`,
         username, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), id)
 
-    racp := `{"cmd":"racp",` + dataToSend
-    sacp := `{"cmd":"sacp",` + dataToMe
-    facp := `{"cmd":"facp",` + dataToMe
+    racp := `{"event":"racp",` + dataToSend
+    sacp := `{"event":"sacp",` + dataToMe
+    facp := `{"event":"facp",` + dataToMe
     
     res := TransmitData(ip, MAINLISTEN, racp)
     if res {
@@ -83,9 +83,9 @@ func SendReject(ip, mac, dir, username string){
     dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file"}`,
      username, ip, mac, dir, fileName, fileType)
 
-    rrej := `{"cmd":"rrej",` + dataToSend
-    srej := `{"cmd":"srej",` + dataToMe
-    frej := `{"cmd":"frej",` + dataToMe
+    rrej := `{"event":"rrej",` + dataToSend
+    srej := `{"event":"srej",` + dataToMe
+    frej := `{"event":"frej",` + dataToMe
 
     res := TransmitData(ip, SRLISTEN, rrej)
     if res {
@@ -99,9 +99,9 @@ func SendMessage(ip, mac, username, msg string){
     dataToSend := fmt.Sprintf(`"mac":"%v","person":"%v","content":"%v","contentType":"text"}`, myMAC, myUsername, msg)
     dataToMe := fmt.Sprintf(`"mac":"%v","person":"%v","content":"%v","contentType":"text"}`,mac,  username, msg)
 
-    rmsg := `{"cmd":"rmsg",` + dataToSend
-    smsg := `{"cmd":"smsg",` + dataToMe
-    fmsg := `{"cmd":"fmsg",` + dataToMe
+    rmsg := `{"event":"rmsg",` + dataToSend
+    smsg := `{"event":"smsg",` + dataToMe
+    fmsg := `{"event":"fmsg",` + dataToMe
 
     res := TransmitData(ip,MSGLISTEN, rmsg)
     if res {
