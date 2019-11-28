@@ -1,14 +1,14 @@
 Commands
 	send file request
 		{
-			"cmd":"creq",
+			"event":"creq",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir"
 		}
 
 	send accept to request
 		{
-			"cmd":"cacp",
+			"event":"cacp",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"dest":"file_dest",
@@ -17,233 +17,251 @@ Commands
 
 	send reject to request
 		{
-			"cmd":"crej",
+			"event":"crej",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir"
 		}
 
 	send message
 		{
-			"cmd":"cmsg",
+			"event":"cmsg",
 			"mac":"MAC_of_receiver",
 			"msg":"msg_content"
 		}
 
 	kill download/upload progress
 		{
-			"cmd":"kprg",
+			"event":"kprg",
 			"port":"port_of_download/upload"
 		}
 		
 	restart handshake
 		{
-			"cmd":"reshs"
+			"event":"rshs"
 		}
 
 
 Handshake Port Transfer Messages
 	{
-		"cmd":"online"/"offline",
+		"event":"online/offline",
 		"ip":"IP",
-		"username":"username"
+		"username":"username",
+		"mac":"MAC_of_receiver"
 	}
 
 Send/Receive Port Transfer Messages
 
 Info Messages
 	{
-		"cmd":"info",
-		"content":"activeUploadFull" / "activeDownloadFull"
+		"event":"info",
+		"content":"info messages*"
 	}
+	*info messages
+		- Active transaction full
+			total of active upload and download transaction is 25 (for now)
+			current send/receive command is trying to exceed it.
+		- Wrong command
+			current command is wrong check 'event' keyword.
+		- Missing key 'key'
+			current command has missing keyword 'key'.
+		- File not found
+			dir of current command is wrong or pointing another directory, check 'dir' keyword.
 
 File Send Requests
 	A request has arrive
 		{
-		  "cmd":"rreq",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"rreq",
+			"username": "username",
+			"ip":"IP",
+			mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
 		 }
 
 	you send a request
 		{
-		  "cmd":"sreq",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"sreq",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
 		 }
 
-	your request not arrived
+	your request not arrived to receiver
 		{
-		  "cmd":"freq",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"freq",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
 		 }
 
 Requests Acceptation
 	your request has accepted
 		{
-		  "cmd":"racp",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "dest": "uploadDestination",
-		  "port":"trasferPort"
-		  "contentType": "file",
+			"event":"racp",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"dest": "upload_destination",
+			"port":"trasferPort",
+			"id":"custom_id",
+			"contentType": "file",
 		 }
 
 	you have accept a request
 		{
-		  "cmd":"sacp",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "dest": "uploadDestination",
-		  "port":"trasferPort"
-		  "contentType": "file",
+			"event":"sacp",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"dest": "upload_destination",
+			"port":"trasferPort",
+			"id":"custom_id",
+			"contentType": "file",
 		 }
 
 	your acceptation not arrived to receiver
 		{
-		  "cmd":"facp",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "dest": "uploadDestination",
-		  "port":"trasferPort"
-		  "contentType": "file",
+			"event":"facp",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver"
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"dest": "upload_destination",
+			"port":"trasferPort",
+			"id":"custom_id",
+			"contentType": "file",
 		 }
 
 Requests Rejection
 	your request rejected
 		{
-		  "cmd":"rrej",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"rrej",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"contentType": "file",
 		 }
 	you have reject a request
 		{
-		  "cmd":"srej",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"srej",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"contentType": "file",
 		 }
 
 	your reject not arrived to receiver
 		{
-		  "cmd":"frej",
-		  "username": "username",
-		  "ip":"IP",
-		  "dir":"filrdir",
-		  "fileName": "filename.extension",
-		  "fileType": "extension",
-		  "fileSize": "SizeAsByte",
-		  "contentType": "file",
+			"event":"frej",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"contentType": "file",
 		 }
 
 File Transfer Progress
-	receiving progress (download progress)
-		{
-		  "cmd":"rprg",
-		  "username": "username",
-		  "ip":"IP",
-		  "port":"port",
-		  "dir":"fileDir",
-		  "total": "fileSize as byte",
-		  "current": "currently downloaded as byte",
-		  "speed": "transfer speed as kilobyte second",
-		 }
 
-	sending progress (upload progress)
+	progress of file
 		{
-		  "cmd":"sprg",
-		  "username": "username",
-		  "ip":"IP",
-		  "port":"port",
-		  "dir":"fileDir",
-		  "total": "fileSize as byte",
-		  "current": "currently upload as byte",
-		  "speed": "transfer speed as kilobyte second",
+			"event":"prg",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"port":"port",
+			"id":"custom_id",
+			"dir":"fileDir",
+			"total": "fileSize as byte",
+			"current": "currently upload as byte",
+			"speed": "transfer speed as kilobyte second",
 		 }
 
 	file transfer progress has failed
 		{
-		  "cmd":"fprg",
-		  "username": "username",
-		  "ip":"IP",
-		  "port":"port",
-		  "dir":"fileDir",
-		  "total": "fileSize as byte",
-		  "current": "last currently upload/download as byte",
-		  "speed": "last transfer speed as kilobyte second",
+			"event":"fprg",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"port":"port",
+			"id":"custom_id",
+			"dir":"fileDir",
+			"total": "fileSize as byte",
+			"current": "last currently upload/download as byte",
+			"speed": "last transfer speed as kilobyte second",
 		 }
 		 
 	progress has done
 		{
-		  "cmd":"dprg",
-		  "username": "username",
-		  "ip":"IP",
-		  "port":"port",
-		  "total": "fileSize",
-		  "current": "fileSize",
-		  "speed": "0",
+			"event":"dprg",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"port":"port",
+			"id":"custom_id",
+			"total": "fileSize",
+			"current": "fileSize",
+			"speed": "0",
 		 }
 
 Message Protocol
 
 	A message has receive
 		{
-		  "cmd": "rmsg"
-		  "person": "someone",
-		  "content": "Message content",
-		  "contentType": "text"
+			"event": "rmsg",
+			"mac":"MAC_of_receiver",
+			"username": "username_of_sender",
+			"content": "Message content",
+			"contentType": "text"
 		}
 
 	You send a message
 		{
-		  "cmd": "smsg"
-		  "person": "you",
-		  "content": "Message content",
-		  "contentType": "text"
+			"event": "smsg",
+			"mac":"MAC_of_receiver",
+			"username": "username_of_receiver",
+			"content": "Message content",
+			"contentType": "text"
 		}
 
 	fail to send your message
 		{
-		  "cmd": "fmsg"
-		  "person": "you",
-		  "content": "Your faild message content",
-		  "contentType": "text"
+			"event": "fmsg",
+			"mac":"MAC_of_receiver",
+			"username": "username_of_receiver",
+			"content": "Your faild message content",
+			"contentType": "text"
 		}
 
 
-*all size parameters units are byte.
-*download and upload speed units kilobyte per second.
+*all file size unit is byte.
+*download and upload speed unit is kilobyte per second.
 // when program shutdown you have to kill child process manualy.
