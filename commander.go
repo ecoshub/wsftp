@@ -178,12 +178,13 @@ func manage(){
 					id := rec["id"][0]
 					ip = rec["ip"][0]
 					dir := rec["dir"][0]
+					dest := rec["destination"][0]
 					username := hs.GetUsername(mac)
-					
+
 					intPort, _ := strconv.Atoi(rec["port"][0])
 					index := getPortIndex(intPort)
 					setPortBusy(intPort)
-					go com.SendFile(rec["ip"][0], intPort, id, rec["dir"][0], rec["destination"][0], &(ports[index][1]))
+					go com.SendFile(ip, mac, username, intPort, id, dir, dest, &(ports[index][1]))
 				case "dprg":
 					intPort, _ := strconv.Atoi(rec["port"][0])
 					freePort(intPort)
