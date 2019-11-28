@@ -31,7 +31,7 @@ func SendRequest(ip, dir , mac , username string){
     fileType := utils.GetFileExt(fileName)
 
     if fileSize == 0 {
-        fnf := `{"event":"info","content":"file not found"}`
+        fnf := `{"event":"info","content":"File not found"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
         dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
@@ -96,8 +96,8 @@ func SendReject(ip, mac, dir, username string){
 }
 
 func SendMessage(ip, mac, username, msg string){
-    dataToSend := fmt.Sprintf(`"mac":"%v","person":"%v","content":"%v","contentType":"text"}`, myMAC, myUsername, msg)
-    dataToMe := fmt.Sprintf(`"mac":"%v","person":"%v","content":"%v","contentType":"text"}`,mac,  username, msg)
+    dataToSend := fmt.Sprintf(`"mac":"%v","username":"%v","content":"%v","contentType":"text"}`, myMAC, myUsername, msg)
+    dataToMe := fmt.Sprintf(`"mac":"%v","username":"%v","content":"%v","contentType":"text"}`,mac,  username, msg)
 
     rmsg := `{"event":"rmsg",` + dataToSend
     smsg := `{"event":"smsg",` + dataToMe
