@@ -174,7 +174,12 @@ func manage(){
 					username := hs.GetUsername(mac)
 					cmd.SendMessage(ip, mac, username, msg)
 				case "racp":
+					mac := rec["mac"][0]
 					id := rec["id"][0]
+					ip = rec["ip"][0]
+					dir := rec["dir"][0]
+					username := hs.GetUsername(mac)
+					
 					intPort, _ := strconv.Atoi(rec["port"][0])
 					index := getPortIndex(intPort)
 					setPortBusy(intPort)
