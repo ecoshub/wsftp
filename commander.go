@@ -29,15 +29,13 @@ const (
 
 	// websocket settings & limits
 	ENDPOINT = "/cmd"
-	ACTIVEDOWNLOADLIMIT int = 25
-	ACTIVEUPLOADLIMIT int = 25
+	ACTIVETRANSACTIONLIMIT int = 25
 )
 
 var (
-	activeUpload int = 0
-	activeDownload int = 0
-	ports = make([][]int, ACTIVEDOWNLOADLIMIT)
-	portIDMap = make(map[int]string, ACTIVEDOWNLOADLIMIT)
+	activeTransaction int = 0
+	ports = make([][]int, ACTIVETRANSACTIONLIMIT)
+	portIDMap = make(map[int]string, ACTIVETRANSACTIONLIMIT)
 	myIP string = utils.GetInterfaceIP().String()
 	myUserName string = utils.GetUsername()
 	commandChan = make(chan []byte, 1)
@@ -131,7 +129,7 @@ func manage(){
 		if event != ""{
 			switch event{
 			case "creq":
-				if activeUpload < ACTIVEUPLOADLIMIT {
+				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					result, dir := getVal(commandJSON, "dir")
 					if !result {continue}
 					result, mac := getVal(commandJSON, "mac")
@@ -139,9 +137,9 @@ func manage(){
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
 					cmd.SendRequest(ip, dir, mac, username)
-					activeUpload++
+					activeTransaction++
 				}else{
-					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"activeUploadFull"}`)
+					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
 				}
 			case "cacp":
 				index := allocatePort()
@@ -157,7 +155,7 @@ func manage(){
 				username := hs.GetUsername(mac)
 				ip := hs.GetIP(mac)
 				if newPort == -1{
-					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"activeDownloadFull"}`)
+					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
 					cmd.SendReject(ip, mac, dir, username)
 				}else{
 					portIDMap[newPort] = id
@@ -201,27 +199,29 @@ func manage(){
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
+				activeTransaction--
 			case "fprg":
 				result, port := getVal(commandJSON, "port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
+				activeTransaction--
 			case "kprg":
 				result, port := getVal(commandJSON, "port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
-			case "reshs":
+			case "rshs":
 				hs.Restart()
 			}
 		}else{
-			fmt.Println("Wrong command")
+			cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Wrong command"}`)
 		}
 	}
 }
 
 func allocatePort() int{
-	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
+	for i := 0 ; i < ACTIVETRANSACTIONLIMIT ; i++ {
 		if ports[i][1] == 0  && portCheck(ports[i][0]){
 			ports[i][1] = 1
 			return i
@@ -232,7 +232,8 @@ func allocatePort() int{
 
 func getVal(json map[string][]string, key string) (bool, string){
 	if len(json[key]) == 0 {
-		fmt.Printf("Missing key '%v' from map '%v'", key, json)
+		msg := fmt.Sprintf(`{"event":"info","content":"Missing key '%v'"}`, key)
+		cmd.TransmitData(myIP,SRLISTENPORT, msg)
 	}else{
 		return true, json[key][0]
 	}
@@ -250,7 +251,7 @@ func portCheck(port int) bool{
 }
 
 func initPorts(){
-	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
+	for i := 0 ; i < ACTIVETRANSACTIONLIMIT ; i++ {
 		if portCheck(STARTPORT - i){
 			ports[i] = []int{STARTPORT - i, 0}
 		}
@@ -258,7 +259,7 @@ func initPorts(){
 }
 
 func getPortIndex(port int) int{
-	for i := 0 ; i < ACTIVEDOWNLOADLIMIT ; i++ {
+	for i := 0 ; i < ACTIVETRANSACTIONLIMIT ; i++ {
 		if ports[i][0] == port {
 			return i
 		}
