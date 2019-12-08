@@ -1,0 +1,4 @@
+github.com/eco9999/rw v0.0.0-20191208153503-27982f828791 h1:g6p+Zob+wPntJvQY8dgbFB6jBsyh1ghp32JTBKbqtVA=
+github.com/eco9999/rw v0.0.0-20191208153503-27982f828791/go.mod h1:QE8aDOKTy7WEGpqQdCCrU/B4PQBCUhljjt7Uob0Yrv8=
+github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
+github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
