@@ -116,22 +116,32 @@ func activity(){
 }
 
 func GetIP(mac string) string{
-	return onlines[mac][1]
+	if len(onlines[mac]) != 0 {
+		return onlines[mac][1]
+	}else{
+		sendInfo("No IP address match!")
+	}
+	return ""
 }
 
 func GetUsername(mac string) string{
-	return onlines[mac][0]
+	if len(onlines[mac]) != 0 {
+		return onlines[mac][0]
+	}else{
+		sendInfo("No MAC address match!")
+	}
+	return ""
 }
 
 func receive(ip, port string, ch chan<- string){
 	buff := make([]byte, 1024)
     pack, err := net.ListenPacket("udp", ip + ":" + port)
     if err != nil {
-        fmt.Println("Connection Fail", err)
+        sendInfo("UDP(R) Connection Error " + err.Error())
     }
     n, addr, err := pack.ReadFrom(buff)
     if err != nil {
-        fmt.Println("Read Error", err)
+        sendInfo("UDP(R) Read Error " + err.Error())
     }else{
     	defer pack.Close()
 	    ipandport := strings.Split(addr.String(), ":")
@@ -147,12 +157,12 @@ func sendPack(ip, port string, data []byte){
 	count := 0
 	for valid != 1 {
 		for i := 0 ; i < UDPREPEAT ; i++ {
-			go send(broadcastIP, port, data , sendValidationChan)
+			go send(ip, port, data , sendValidationChan)
 		}
 		valid = <- sendValidationChan
 		count++
 		if count > LOOPCONTROLLIMIT {
-			fmt.Println("Something is wrong can't send any signal!")
+        	sendInfo("UDP(S) Repetition Error. Something is wrong can't send any signal!")
 			return
 		}
 	}
@@ -162,7 +172,7 @@ func sendPack(ip, port string, data []byte){
 func send(ip, port string, data []byte, ch chan<- int){
     conn, err := net.Dial("udp", ip + ":" + port)
        if err != nil {
-        fmt.Println("Connection Fail")
+        sendInfo("UDP(S) Connection Error." + err.Error())
     	ch <- 0
     }else{
     	defer conn.Close()
@@ -183,7 +193,7 @@ func onClose(ch chan<- bool){
 		valid = <- sendValidationChan
 		count++
 		if count > LOOPCONTROLLIMIT {
-			fmt.Println("Something is wrong can't send any signal!")
+        	sendInfo("UDP(S-Off) Repetition Error. Something is wrong can't send any signal!")
 			break
 		}
 	}
@@ -194,7 +204,7 @@ func onClose(ch chan<- bool){
 func offlineFunc(ip, port string, data []byte, ch chan<- int){
     conn, err := net.Dial("udp", ip + ":" + port)
        if err != nil {
-        fmt.Println("Connection Fail")
+        sendInfo("UDP(S-Off) Connection Error." + err.Error())
         ch <- 0
     }else{
     	defer conn.Close()
@@ -248,4 +258,9 @@ func concatByteArray(sep string, arr ...[]byte) []byte {
 		} 
 	}
 	return newArr
+}
+
+func sendInfo(msg string){
+    msg = fmt.Sprintf(`{"event":"info","content":"-HANDSHAKE- %v"}`, msg)
+	innerMessageChan <- []byte(msg)
 }
