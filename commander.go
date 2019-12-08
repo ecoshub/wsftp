@@ -13,6 +13,7 @@ import (
 	cmd "wsftp/cmd"
 	router "wsftp/router"
 	json "wsftp/json"
+	rw "wsftp/rw"
 )
 
 const (
@@ -128,6 +129,19 @@ func manage(){
 		if !result {continue}
 		if event != ""{
 			switch event{
+			case "save":
+				result, mac := getVal(commandJSON, "mac")
+				if !result {continue}
+				result, input := getVal(commandJSON, "input")
+				if !result {continue}
+				username := hs.GetUsername(mac)
+				rw.SaveLog(username, mac, input)
+			case "get":
+				result, mac := getVal(commandJSON, "mac")
+				if !result {continue}
+				username := hs.GetUsername(mac)
+				log := rw.GetLog(username, mac)
+				cmd.TransmitData(myIP, SRLISTENPORT,`[` + log + `]`)
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					result, dir := getVal(commandJSON, "dir")
