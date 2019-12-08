@@ -34,7 +34,19 @@ Commands
 			"event":"kprg",
 			"port":"port_of_download/upload"
 		}
-		
+	save string/json
+		{
+			"event":"save",
+			"mac":"MAC_of_receiver",
+			"input":"content"
+		}
+
+	get string/json
+		{
+			"event":"get",
+			"mac":"MAC_of_receiver"
+		}
+
 	restart handshake
 		{
 			"event":"rshs"
