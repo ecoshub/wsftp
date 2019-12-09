@@ -134,12 +134,14 @@ func manage(){
 				if !result {continue}
 				result, input := getVal(commandJSON, "input")
 				if !result {continue}
-				username := hs.GetUsername(mac)
+				result, username := getVal(commandJSON, "username")
+				if !result {continue}
 				rw.SaveLog(username, mac, input)
 			case "get":
 				result, mac := getVal(commandJSON, "mac")
 				if !result {continue}
-				username := hs.GetUsername(mac)
+				result, username := getVal(commandJSON, "username")
+				if !result {continue}
 				log := rw.GetLog(username, mac)
 				cmd.TransmitData(myIP, SRLISTENPORT,`[` + log + `]`)
 			case "creq":
