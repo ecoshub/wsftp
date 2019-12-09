@@ -38,13 +38,15 @@ Commands
 		{
 			"event":"save",
 			"mac":"MAC_of_receiver",
+			"username":"username",
 			"input":"content"
 		}
 
 	get string/json
 		{
 			"event":"get",
-			"mac":"MAC_of_receiver"
+			"mac":"MAC_of_receiver",
+			"username":"username"
 		}
 
 	restart handshake
