@@ -18,7 +18,7 @@ func FolderCreation(mainFolderName string) string{
 	return downDir
 }
 
-func NameControl(name string) bool{
+func nameControl(name string) bool{
 	dirs := rw.Dir(maindir)
 	for _,v := range dirs {
 		if name == rw.SplitName(v){
@@ -28,20 +28,31 @@ func NameControl(name string) bool{
 	return false
 }
 
-func NameCreation(MAC, username string) string{
-	return strings.ToLower(MAC + ":" + username + ".log")
+func nameCreation(MAC, username, content string) string{
+	return strings.ToLower(MAC + ":" + username + "-" + content + ".log")
 }
 
-func GetLog(MAC, username string) string{
-	name := NameCreation(MAC, username)
-	if NameControl(name) {
+func GetLog(MAC, username, content string, start, end int) string{
+	name := nameCreation(MAC, username, content)
+	if nameControl(name) {
 		file := rw.SRead(maindir + rw.Sep() + name)
-		return file
+		tokens := strings.Split(file, rw.NewLine())
+		lent := len(tokens)
+		if lent < end {
+			return strings.Join(tokens, rw.NewLine())
+		}else{
+			return strings.Join(tokens[start:end], rw.NewLine())
+		}	
 	}
 	return ""
 }
 
-func SaveLog(MAC, username, input string){
-	name := NameCreation(MAC, username)
-	rw.SWrite(maindir + rw.Sep() + name, input + rw.NewLine())
+func SaveLog(MAC, username, content, input string){
+	name := nameCreation(MAC, username, content)
+	size := rw.GetFileSize(maindir + rw.Sep() + name)
+	if size == 0 {
+		rw.SWrite(maindir + rw.Sep() + name, input)
+	}else{
+		rw.SWrite(maindir + rw.Sep() + name, "," + rw.NewLine() + input)
+	}
 }
