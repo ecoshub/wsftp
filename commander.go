@@ -136,14 +136,25 @@ func manage(){
 				if !result {continue}
 				result, username := getVal(commandJSON, "username")
 				if !result {continue}
-				rw.SaveLog(username, mac, input)
+				result, content := getVal(commandJSON, "content")
+				if !result {continue}
+				rw.SaveLog(username, mac, input, content)
 			case "get":
 				result, mac := getVal(commandJSON, "mac")
 				if !result {continue}
 				result, username := getVal(commandJSON, "username")
 				if !result {continue}
-				log := rw.GetLog(username, mac)
-				cmd.TransmitData(myIP, SRLISTENPORT,`[` + log + `]`)
+				result, start := getVal(commandJSON, "start")
+				if !result {continue}
+				result, end := getVal(commandJSON, "end")
+				if !result {continue}
+				result, content := getVal(commandJSON, "content")
+				if !result {continue}
+				startN, _ := strconv.Atoi(start)
+				endN, _ := strconv.Atoi(end)
+				log := rw.GetLog(username, mac, content, startN, endN)
+				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","data":[%v]}`, mac, username, log)
+				cmd.TransmitData(myIP, SRLISTENPORT, str)
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					result, dir := getVal(commandJSON, "dir")
