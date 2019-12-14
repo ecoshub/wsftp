@@ -2,7 +2,7 @@ package rw
 
 import (
 	"strings"
-	rw "github.com/eco9999/rw"
+	rw "github.com/eco9999/penman"
 )
 
 var maindir string= FolderCreation("tunnel-logs")
