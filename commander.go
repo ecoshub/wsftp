@@ -139,6 +139,7 @@ func manage(){
 				result, content := getVal(commandJSON, "content")
 				if !result {continue}
 				rw.SaveLog(username, mac, input, content)
+				cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"saved"}`)
 			case "get":
 				result, mac := getVal(commandJSON, "mac")
 				if !result {continue}
