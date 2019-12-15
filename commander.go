@@ -157,6 +157,36 @@ func manage(){
 				log, len := log.GetLog(mac, username, content, startN, endN)
 				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","start":%v,"end":%v,"length":%v,"data":[%v]}`, mac, username, start, end, len, log)
 				cmd.TransmitData(myIP, SRLISTENPORT, str)
+			case "dell":
+				mac, result := receivedJSONCommand.Get("mac")
+				if !result {continue}
+				username, result := receivedJSONCommand.Get("username")
+				if !result {continue}
+				content, result := receivedJSONCommand.Get("content")
+				if !result {continue}
+				key, result := receivedJSONCommand.Get("key")
+				if !result {continue}
+				val, result := receivedJSONCommand.Get("value")
+				if !result {continue}
+				done := log.DelLine(mac, username, content, key , val)
+				if done {
+					cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","key":%v,"val":%v,"content":"deleted"}`, key, val))
+				}else{
+					cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","key":%v,"val":%v,"content":"error. not deleted"}`, key, val))
+				}
+			case "delb":
+				mac, result := receivedJSONCommand.Get("mac")
+				if !result {continue}
+				username, result := receivedJSONCommand.Get("username")
+				if !result {continue}
+				content, result := receivedJSONCommand.Get("content")
+				if !result {continue}
+				done := log.DelBase(mac, username, content)
+				if done {
+					cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"base deleted"}`)
+				}else{
+					cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"error. base not deleted"}`)
+				}
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					dir, result := receivedJSONCommand.Get("dir")
