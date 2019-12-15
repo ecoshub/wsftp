@@ -13,7 +13,7 @@ import (
 	utils "wsftp/utils"
 	cmd "wsftp/cmd"
 	router "wsftp/router"
-	rw "wsftp/rw"
+	log "wsftp/log"
 )
 
 const (
@@ -139,7 +139,7 @@ func manage(){
 				if !result {continue}
 				content, result := receivedJSONCommand.Get("content")
 				if !result {continue}
-				rw.SaveLog(mac, username, content, input)
+				log.SaveLog(mac, username, content, input)
 				cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"saved"}`)
 			case "get":
 				mac, result := receivedJSONCommand.Get("mac")
@@ -154,7 +154,7 @@ func manage(){
 				if !result {continue}
 				startN, _ := strconv.Atoi(start)
 				endN, _ := strconv.Atoi(end)
-				log, len := rw.GetLog(mac, username, content, startN, endN)
+				log, len := log.GetLog(mac, username, content, startN, endN)
 				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","start":%v,"end":%v,"length":%v,"data":[%v]}`, mac, username, start, end, len, log)
 				cmd.TransmitData(myIP, SRLISTENPORT, str)
 			case "creq":
