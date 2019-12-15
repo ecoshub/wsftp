@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"io/ioutil"
 	"github.com/gorilla/websocket"
+	parser "github.com/eco9999/jparse"
 	hs "wsftp/hs"
 	com "wsftp/tcpcom"
 	utils "wsftp/utils"
 	cmd "wsftp/cmd"
 	router "wsftp/router"
-	json "wsftp/json"
 	rw "wsftp/rw"
 )
 
@@ -52,6 +52,7 @@ var (
 )
 
 func main(){
+	// test
 	initPorts()
 	go hs.Start()
 	go router.StartRouting()
@@ -123,33 +124,33 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 
 func manage(){
 	for {
-		receivedCommand := string(<- commandChan)
-		commandJSON := json.JTM(receivedCommand)
-		result, event := getVal(commandJSON, "event")
+		receivedJSONCommand, done := parser.JSONParser(string(<- commandChan))
+		if !done{continue}
+		event, result := receivedJSONCommand.Get("event")
 		if !result {continue}
 		if event != ""{
 			switch event{
 			case "save":
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
-				result, input := getVal(commandJSON, "input")
+				input, result := receivedJSONCommand.Get("input")
 				if !result {continue}
-				result, username := getVal(commandJSON, "username")
+				username, result := receivedJSONCommand.Get("username")
 				if !result {continue}
-				result, content := getVal(commandJSON, "content")
+				content, result := receivedJSONCommand.Get("content")
 				if !result {continue}
 				rw.SaveLog(username, mac, input, content)
 				cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"saved"}`)
 			case "get":
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
-				result, username := getVal(commandJSON, "username")
+				username, result := receivedJSONCommand.Get("username")
 				if !result {continue}
-				result, start := getVal(commandJSON, "start")
+				start, result := receivedJSONCommand.Get("start")
 				if !result {continue}
-				result, end := getVal(commandJSON, "end")
+				end, result := receivedJSONCommand.Get("end")
 				if !result {continue}
-				result, content := getVal(commandJSON, "content")
+				content, result := receivedJSONCommand.Get("content")
 				if !result {continue}
 				startN, _ := strconv.Atoi(start)
 				endN, _ := strconv.Atoi(end)
@@ -158,9 +159,9 @@ func manage(){
 				cmd.TransmitData(myIP, SRLISTENPORT, str)
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
-					result, dir := getVal(commandJSON, "dir")
+					dir, result := receivedJSONCommand.Get("dir")
 					if !result {continue}
-					result, mac := getVal(commandJSON, "mac")
+					mac, result := receivedJSONCommand.Get("mac")
 					if !result {continue}
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
@@ -172,13 +173,13 @@ func manage(){
 			case "cacp":
 				index := allocatePort()
 				newPort := ports[index][0]
-				result, dir := getVal(commandJSON, "dir")
+				dir, result := receivedJSONCommand.Get("dir")
 				if !result {continue}
-				result, dest := getVal(commandJSON, "dest")
+				dest, result := receivedJSONCommand.Get("dest")
 				if !result {continue}
-				result, id := getVal(commandJSON, "id")
+				id, result := receivedJSONCommand.Get("id")
 				if !result {continue}
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
 				username := hs.GetUsername(mac)
 				ip := hs.GetIP(mac)
@@ -191,33 +192,33 @@ func manage(){
 					cmd.SendAccept(ip, mac, dir, dest, username, id, newPort)
 				}
 			case "crej":
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
-				result, dir := getVal(commandJSON, "dir")
+				dir, result := receivedJSONCommand.Get("dir")
 				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendReject(ip, mac, dir, username)
 			case "cmsg":
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
-				result, msg := getVal(commandJSON, "msg")
+				msg, result := receivedJSONCommand.Get("msg")
 				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendMessage(ip, mac, username, msg)
 			case "racp":
-				result, dir := getVal(commandJSON, "dir")
+				dir, result := receivedJSONCommand.Get("dir")
 				if !result {continue}
-				result, dest := getVal(commandJSON, "destination")
+				dest, result := receivedJSONCommand.Get("destination")
 				if !result {continue}
-				result, id := getVal(commandJSON, "id")
+				id, result := receivedJSONCommand.Get("id")
 				if !result {continue}
-				result, mac := getVal(commandJSON, "mac")
+				mac, result := receivedJSONCommand.Get("mac")
 				if !result {continue}
-				result, ip := getVal(commandJSON, "ip")
+				ip, result := receivedJSONCommand.Get("ip")
 				if !result {continue}
-				result, port := getVal(commandJSON, "port")
+				port, result := receivedJSONCommand.Get("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
@@ -225,19 +226,19 @@ func manage(){
 				setPortBusy(intPort)
 				go com.SendFile(ip, mac, username, intPort, id, dir, dest, &(ports[index][1]))
 			case "dprg":
-				result, port := getVal(commandJSON, "port")
+				port, result := receivedJSONCommand.Get("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "fprg":
-				result, port := getVal(commandJSON, "port")
+				port, result := receivedJSONCommand.Get("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "kprg":
-				result, port := getVal(commandJSON, "port")
+				port, result := receivedJSONCommand.Get("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
@@ -258,16 +259,6 @@ func allocatePort() int{
 		}
 	}
 	return -1
-}
-
-func getVal(json map[string][]string, key string) (bool, string){
-	if len(json[key]) == 0 {
-		msg := fmt.Sprintf(`{"event":"info","content":"Missing key '%v'"}`, key)
-		cmd.TransmitData(myIP,SRLISTENPORT, msg)
-	}else{
-		return true, json[key][0]
-	}
-	return false, "null"
 }
 
 func portCheck(port int) bool{
