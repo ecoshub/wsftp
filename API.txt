@@ -39,6 +39,7 @@ Commands
 			"event":"save",
 			"mac":"MAC_of_receiver",
 			"username":"username",
+			"content":"content/all/media",
 			"input":"content"
 		}
 
@@ -49,11 +50,21 @@ Commands
 			"username":"username"
 		}
 
+	get return
+		{
+			"event":"log",
+			"mac":"MAC_of_receiver",
+			"username":"username",
+			"start":start_index,
+			"end":end_index(not included),
+			"length":return_array_langth,
+			"data":logs_as_array
+		} 
+
 	restart handshake
 		{
 			"event":"rshs"
 		}
-
 
 Handshake Port Transfer Messages
 	{
