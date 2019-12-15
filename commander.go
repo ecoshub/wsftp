@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"github.com/gorilla/websocket"
-	parser "github.com/eco9999/jparse"
+	parse "github.com/eco9999/jparse"
 	hs "wsftp/hs"
 	com "wsftp/tcpcom"
 	utils "wsftp/utils"
@@ -124,7 +124,7 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 
 func manage(){
 	for {
-		receivedJSONCommand, done := parser.JSONParser(string(<- commandChan))
+		receivedJSONCommand, done := parse.JSONParser(string(<- commandChan))
 		if !done{continue}
 		event, result := receivedJSONCommand.Get("event")
 		if !result {continue}
@@ -139,7 +139,7 @@ func manage(){
 				if !result {continue}
 				content, result := receivedJSONCommand.Get("content")
 				if !result {continue}
-				rw.SaveLog(username, mac, input, content)
+				rw.SaveLog(mac, username, content, input)
 				cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"saved"}`)
 			case "get":
 				mac, result := receivedJSONCommand.Get("mac")
@@ -154,8 +154,8 @@ func manage(){
 				if !result {continue}
 				startN, _ := strconv.Atoi(start)
 				endN, _ := strconv.Atoi(end)
-				log := rw.GetLog(username, mac, content, startN, endN)
-				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","data":[%v]}`, mac, username, log)
+				log, len := rw.GetLog(mac, username, content, startN, endN)
+				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","start":%v,"end":%v,"length":%v,"data":[%v]}`, mac, username, start, end, len, log)
 				cmd.TransmitData(myIP, SRLISTENPORT, str)
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
