@@ -29,22 +29,23 @@ func nameControl(name string) bool{
 }
 
 func nameCreation(MAC, username, content string) string{
-	return strings.ToLower(MAC + ":" + username + "-" + content + ".log")
+	return strings.ToLower(username + ":" + content + ":" + MAC + ".log")
 }
 
-func GetLog(MAC, username, content string, start, end int) string{
+func GetLog(MAC, username, content string, start, end int) (string, int){
 	name := nameCreation(MAC, username, content)
+	lent := 0
 	if nameControl(name) {
 		file := rw.SRead(maindir + rw.Sep() + name)
 		tokens := strings.Split(file, rw.NewLine())
-		lent := len(tokens)
+		lent = len(tokens)
 		if lent < end {
-			return strings.Join(tokens, rw.NewLine())
+			return strings.Join(tokens, rw.NewLine()), lent
 		}else{
-			return strings.Join(tokens[start:end], rw.NewLine())
+			return strings.Join(tokens[start:end], rw.NewLine()), lent
 		}	
 	}
-	return ""
+	return "", 0
 }
 
 func SaveLog(MAC, username, content, input string){
