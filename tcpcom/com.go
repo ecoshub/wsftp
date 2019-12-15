@@ -6,6 +6,7 @@ import (
     "strconv"
     "time"
 	utils "wsftp/utils"
+	rw "github.com/eco9999/penman"
 )
 
 const (
@@ -133,11 +134,11 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	for i := 0 ; i < batchSize ; i++ {
 		if *control == 1{
 			if i == batchSize - 1 {
-				data = utils.FReadAt(dir, off, fileSize - off)
+				data = rw.ReadAt(dir, off, fileSize - off)
 				datalen = fileSize - off
 				innerBatchSize = utils.GetPackNumber(datalen, speed)
 			}else{
-				data = utils.FReadAt(dir, off, int64(READDISCBUFFER))
+				data = rw.ReadAt(dir, off, int64(READDISCBUFFER))
 			}
 			innerData := make([]byte, 0, speed)
 			for j := 0 ; j < innerBatchSize ; j++ {
@@ -274,7 +275,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 	        }else{*control = 0}
 		
 	        if genCount > WRITEDISCBUFFER{
-	            utils.FWrite(dir, mainBuffer)
+	            rw.Write(dir, mainBuffer)
 	            mainBuffer = make([]byte, 0, WRITEDISCBUFFER )
 	            genCount = 0
 	        }
@@ -302,7 +303,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     	}
     }
     if len(mainBuffer) > 0 {
-        utils.FWrite(dir, mainBuffer)
+        rw.Write(dir, mainBuffer)
     }
 	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","id":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v"}`,
 	 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
