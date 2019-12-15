@@ -5,6 +5,7 @@ import (
 	"net"
 	"strconv"
 	utils "wsftp/utils"
+    rw "github.com/eco9999/penman"  
 )
 
 const (
@@ -26,6 +27,7 @@ var (
 )
 
 func SendRequest(ip, dir , mac , username string){
+    dir = rw.PreProcess(dir)
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
