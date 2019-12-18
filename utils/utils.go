@@ -3,12 +3,9 @@ package utils
 import (
     "fmt"
     "os"
-    "io/ioutil"
-    "unsafe"
     "strings"
     "os/user"
     "net"
-    "time"
 )
 
 var Sep = string(os.PathSeparator)
@@ -95,91 +92,6 @@ func GetBroadcastIP() net.IP{
     return IP
 }
 
-func IntToByteArray(num int64, size int) []byte {
-    // size := int(unsafe.Sizeof(num))
-    arr := make([]byte, size)
-    for i := 0 ; i < size ; i++ {
-        byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
-        arr[i] = byt
-    }
-    return arr
-}
-
-func ByteArrayToInt(arr []byte) int64{
-    val := int64(0)
-    size := len(arr)
-    for i := 0 ; i < size ; i++ {
-        *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&val)) + uintptr(i))) = arr[i]
-    }
-    return val
-}
-
-func FReadAt(dir string, offset int64, length int64) []byte {
-    f, err := os.Open(dir)
-    if err != nil {
-        fmt.Println("File Open Error:", err)
-    }else{
-        defer f.Close()
-    }
-    data := make([]byte, length)
-    _, err = f.Seek(offset, 0)
-    if err != nil {
-        fmt.Println("Seeker Error:", err)
-    }
-    _, err = f.Read(data)
-    if err != nil {
-        fmt.Println("Read Error:", err)
-    }
-    return data
-}
-
-// Write
-// if file exist append end
-// curr prefix not lower-upper key senstive
-// dir: curr\new_folder\new_text.txt is current directory
-// desk prefix not lower-upper key senstive
-// dir: desk\new_folder\new_text.txt is desktop directory
-func FWrite(dir string, buff []byte){
-    newdir, newfile := SplitDir(dir)
-    err := os.MkdirAll(newdir, os.ModePerm)
-    if err != nil {
-        fmt.Println("Make Directory Error:", err)
-    }else{
-        if IsFileExist(newfile) {
-            appendFile(newfile, buff)
-        }else{
-            writeFile(newfile, buff)
-        }
-    }
-}
-
-// main write function
-func writeFile(filedir string, buffer []byte) {
-    err := ioutil.WriteFile(filedir, buffer, os.ModePerm)   
-    if err != nil {
-        fmt.Printf("File Write Error:%v\n", err)
-    }
-}
-
-// main append function
-func appendFile(filedir string, buff []byte) {
-    f, err := os.OpenFile(filedir, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-    if err != nil {
-        fmt.Printf("File Open Error:%v\n", err)
-    }
-    defer f.Close()
-    if _, err = f.Write(buff); err != nil {
-        fmt.Printf("File Write Error:%v\n", err)
-    }
-}
-
-func SplitDir(dir string) (string, string){
-    sp := Sep
-    tokens := strings.Split(dir, sp)
-    dirPart := strings.Join(tokens[:len(tokens) - 1], sp)
-    return dirPart, dir
-}
-
 func IsFileExist(file string) bool {
     if _, err := os.Stat(file); os.IsNotExist(err){
         return false
@@ -211,10 +123,4 @@ func UniqName(dest, fileName string, filesize int64) string{
         }
         count++
     }
-}
-
-func TimeStamp() string {
-    current := time.Now()
-    times := current.Format("02-01-2006-15-04-05")
-    return times
 }
