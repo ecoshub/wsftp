@@ -13,7 +13,6 @@ import (
 	utils "wsftp/utils"
 	cmd "wsftp/cmd"
 	router "wsftp/router"
-	log "wsftp/log"
 )
 
 const (
@@ -52,7 +51,6 @@ var (
 )
 
 func main(){
-	// test
 	initPorts()
 	go hs.Start()
 	go router.StartRouting()
@@ -124,74 +122,16 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 
 func manage(){
 	for {
-		receivedJSONCommand, done := parse.JSONParser(string(<- commandChan))
-		if !done{continue}
-		event, result := receivedJSONCommand.Get("event")
+		json := parse.JParse(<- commandChan)
+		event, result := json.GetString("event")
 		if !result {continue}
 		if event != ""{
 			switch event{
-			case "save":
-				mac, result := receivedJSONCommand.Get("mac")
-				if !result {continue}
-				input, result := receivedJSONCommand.Get("input")
-				if !result {continue}
-				username, result := receivedJSONCommand.Get("username")
-				if !result {continue}
-				content, result := receivedJSONCommand.Get("content")
-				if !result {continue}
-				log.SaveLog(mac, username, content, input)
-				cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"saved"}`)
-			case "get":
-				mac, result := receivedJSONCommand.Get("mac")
-				if !result {continue}
-				username, result := receivedJSONCommand.Get("username")
-				if !result {continue}
-				start, result := receivedJSONCommand.Get("start")
-				if !result {continue}
-				end, result := receivedJSONCommand.Get("end")
-				if !result {continue}
-				content, result := receivedJSONCommand.Get("content")
-				if !result {continue}
-				startN, _ := strconv.Atoi(start)
-				endN, _ := strconv.Atoi(end)
-				log, len := log.GetLog(mac, username, content, startN, endN)
-				str := fmt.Sprintf(`{"event":"log","mac":"%v","username":"%v","start":%v,"end":%v,"length":%v,"data":[%v]}`, mac, username, start, end, len, log)
-				cmd.TransmitData(myIP, SRLISTENPORT, str)
-			case "dell":
-				mac, result := receivedJSONCommand.Get("mac")
-				if !result {continue}
-				username, result := receivedJSONCommand.Get("username")
-				if !result {continue}
-				content, result := receivedJSONCommand.Get("content")
-				if !result {continue}
-				key, result := receivedJSONCommand.Get("key")
-				if !result {continue}
-				val, result := receivedJSONCommand.Get("value")
-				if !result {continue}
-				done := log.DelLine(mac, username, content, key , val)
-				if done {
-					cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","key":%v,"val":%v,"content":"deleted"}`, key, val))
-				}else{
-					cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","key":%v,"val":%v,"content":"error. not deleted"}`, key, val))
-				}
-			case "delb":
-				mac, result := receivedJSONCommand.Get("mac")
-				if !result {continue}
-				username, result := receivedJSONCommand.Get("username")
-				if !result {continue}
-				content, result := receivedJSONCommand.Get("content")
-				if !result {continue}
-				done := log.DelBase(mac, username, content)
-				if done {
-					cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"base deleted"}`)
-				}else{
-					cmd.TransmitData(myIP, SRLISTENPORT, `{"event":"info","content":"error. base not deleted"}`)
-				}
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
-					dir, result := receivedJSONCommand.Get("dir")
+					dir, result := json.GetString("dir")
 					if !result {continue}
-					mac, result := receivedJSONCommand.Get("mac")
+					mac, result := json.GetString("mac")
 					if !result {continue}
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
@@ -203,13 +143,13 @@ func manage(){
 			case "cacp":
 				index := allocatePort()
 				newPort := ports[index][0]
-				dir, result := receivedJSONCommand.Get("dir")
+				dir, result := json.GetString("dir")
 				if !result {continue}
-				dest, result := receivedJSONCommand.Get("dest")
+				dest, result := json.GetString("dest")
 				if !result {continue}
-				id, result := receivedJSONCommand.Get("id")
+				id, result := json.GetString("id")
 				if !result {continue}
-				mac, result := receivedJSONCommand.Get("mac")
+				mac, result := json.GetString("mac")
 				if !result {continue}
 				username := hs.GetUsername(mac)
 				ip := hs.GetIP(mac)
@@ -222,33 +162,33 @@ func manage(){
 					cmd.SendAccept(ip, mac, dir, dest, username, id, newPort)
 				}
 			case "crej":
-				mac, result := receivedJSONCommand.Get("mac")
+				mac, result := json.GetString("mac")
 				if !result {continue}
-				dir, result := receivedJSONCommand.Get("dir")
+				dir, result := json.GetString("dir")
 				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendReject(ip, mac, dir, username)
 			case "cmsg":
-				mac, result := receivedJSONCommand.Get("mac")
+				mac, result := json.GetString("mac")
 				if !result {continue}
-				msg, result := receivedJSONCommand.Get("msg")
+				msg, result := json.GetString("msg")
 				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendMessage(ip, mac, username, msg)
 			case "racp":
-				dir, result := receivedJSONCommand.Get("dir")
+				dir, result := json.GetString("dir")
 				if !result {continue}
-				dest, result := receivedJSONCommand.Get("destination")
+				dest, result := json.GetString("destination")
 				if !result {continue}
-				id, result := receivedJSONCommand.Get("id")
+				id, result := json.GetString("id")
 				if !result {continue}
-				mac, result := receivedJSONCommand.Get("mac")
+				mac, result := json.GetString("mac")
 				if !result {continue}
-				ip, result := receivedJSONCommand.Get("ip")
+				ip, result := json.GetString("ip")
 				if !result {continue}
-				port, result := receivedJSONCommand.Get("port")
+				port, result := json.GetString("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
@@ -256,19 +196,19 @@ func manage(){
 				setPortBusy(intPort)
 				go com.SendFile(ip, mac, username, intPort, id, dir, dest, &(ports[index][1]))
 			case "dprg":
-				port, result := receivedJSONCommand.Get("port")
+				port, result := json.GetString("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "fprg":
-				port, result := receivedJSONCommand.Get("port")
+				port, result := json.GetString("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "kprg":
-				port, result := receivedJSONCommand.Get("port")
+				port, result := json.GetString("port")
 				if !result {continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
