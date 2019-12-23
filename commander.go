@@ -133,11 +133,11 @@ func manage(){
 					if !result {continue}
 					mac, result := json.GetString("mac")
 					if !result {continue}
-					tid, result := json.GetString("tid")
+					uuid, result := json.GetString("uuid")
 					if !result {continue}
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
-					cmd.SendRequest(ip, dir, mac, username, tid)
+					cmd.SendRequest(ip, dir, mac, username, uuid)
 					activeTransaction++
 				}else{
 					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
@@ -149,7 +149,7 @@ func manage(){
 				if !result {continue}
 				dest, result := json.GetString("dest")
 				if !result {continue}
-				tid, result := json.GetString("tid")
+				uuid, result := json.GetString("uuid")
 				if !result {continue}
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -157,22 +157,22 @@ func manage(){
 				ip := hs.GetIP(mac)
 				if newPort == -1{
 					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
-					cmd.SendReject(ip, mac, dir, tid, username)
+					cmd.SendReject(ip, mac, dir, uuid, username)
 				}else{
-					portIDMap[newPort] = tid
-					go com.ReceiveFile(ip, mac, username, newPort, tid, &(ports[index][1]))
-					cmd.SendAccept(ip, mac, dir, dest, username, tid, newPort)
+					portIDMap[newPort] = uuid
+					go com.ReceiveFile(ip, mac, username, newPort, uuid, &(ports[index][1]))
+					cmd.SendAccept(ip, mac, dir, dest, username, uuid, newPort)
 				}
 			case "crej":
 				mac, result := json.GetString("mac")
 				if !result {continue}
 				dir, result := json.GetString("dir")
 				if !result {continue}
-				tid, result := json.GetString("tid")
+				uuid, result := json.GetString("uuid")
 				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
-				cmd.SendReject(ip, mac, dir, tid, username)
+				cmd.SendReject(ip, mac, dir, uuid, username)
 			case "cmsg":
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -186,7 +186,7 @@ func manage(){
 				if !result {continue}
 				dest, result := json.GetString("destination")
 				if !result {continue}
-				tid, result := json.GetString("tid")
+				uuid, result := json.GetString("uuid")
 				if !result {continue}
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -198,7 +198,7 @@ func manage(){
 				index := getPortIndex(intPort)
 				username := hs.GetUsername(mac)
 				setPortBusy(intPort)
-				go com.SendFile(ip, mac, username, intPort, tid, dir, dest, &(ports[index][1]))
+				go com.SendFile(ip, mac, username, intPort, uuid, dir, dest, &(ports[index][1]))
 			case "dprg":
 				port, result := json.GetString("port")
 				if !result {continue}

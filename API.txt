@@ -4,7 +4,7 @@ Commands
 			"event":"creq",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		}
 
 	send accept to request
@@ -13,7 +13,7 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"dest":"file_dest",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		}
 
 	send reject to request
@@ -21,7 +21,7 @@ Commands
 			"event":"crej",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		}
 
 	send message
@@ -106,7 +106,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 
 	you send a request
@@ -120,7 +120,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 
 	your request not arrived to receiver
@@ -134,7 +134,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 
 Requests Acceptation
@@ -149,7 +149,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -164,7 +164,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -179,7 +179,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -194,7 +194,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 	you have reject a request
 		{
@@ -206,7 +206,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 
 	your reject not arrived to receiver
@@ -219,7 +219,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"tid":"custom_id"
+			"uuid":"custom_id"
 		 }
 
 File Transfer Progress
@@ -231,7 +231,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"dir":"fileDir",
 			"total": "fileSize as byte",
 			"current": "currently upload as byte",
@@ -245,7 +245,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"dir":"fileDir",
 			"total": "fileSize as byte",
 			"current": "last currently upload/download as byte",
@@ -259,7 +259,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"tid":"custom_id",
+			"uuid":"custom_id",
 			"total": "fileSize",
 			"current": "fileSize",
 			"speed": "0",

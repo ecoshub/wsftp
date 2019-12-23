@@ -26,7 +26,7 @@ var (
     myMAC string = utils.GetEthMac()
 )
 
-func SendRequest(ip, dir , mac , username , tid string){
+func SendRequest(ip, dir , mac , username , uuid string){
     dir = rw.PreProcess(dir)
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
@@ -36,10 +36,10 @@ func SendRequest(ip, dir , mac , username , tid string){
         fnf := `{"event":"info","content":"File not found"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
-        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":"%v"}`,
-         myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
-        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":"%v"}`,
-         username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
+        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
+         myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
+        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
+         username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
 
         rreq := `{"event":"rreq",` + dataToSend
         sreq := `{"event":"sreq",` + dataToMe
@@ -54,14 +54,14 @@ func SendRequest(ip, dir , mac , username , tid string){
     }
 }
 
-func SendAccept(ip, mac, dir, dest, username, tid string, port int){
+func SendAccept(ip, mac, dir, dest, username, uuid string, port int){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","tid":"%v","contentType":"file"}`,
-        myUsername, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), tid)
-    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","tid":"%v","contentType":"file"}`,
-        username, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), tid)
+    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
+        myUsername, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
+    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
+        username, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
 
     racp := `{"event":"racp",` + dataToSend
     sacp := `{"event":"sacp",` + dataToMe
@@ -77,14 +77,14 @@ func SendAccept(ip, mac, dir, dest, username, tid string, port int){
     }
 }
 
-func SendReject(ip, mac, dir, tid, username string){
+func SendReject(ip, mac, dir, uuid, username string){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","tid":"%v"}`,
-     myUsername, myIP, myMAC, dir, fileName, fileType, tid)
-    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","tid":"%v"}`,
-     username, ip, mac, dir, fileName, fileType, tid)
+    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","uuid":"%v"}`,
+     myUsername, myIP, myMAC, dir, fileName, fileType, uuid)
+    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","uuid":"%v"}`,
+     username, ip, mac, dir, fileName, fileType, uuid)
 
     rrej := `{"event":"rrej",` + dataToSend
     srej := `{"event":"srej",` + dataToMe
