@@ -3,7 +3,8 @@ Commands
 		{
 			"event":"creq",
 			"mac":"MAC_of_receiver",
-			"dir":"file_dir"
+			"dir":"file_dir",
+			"tid":"custom_id"
 		}
 
 	send accept to request
@@ -12,7 +13,7 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"dest":"file_dest",
-			"id":"custom_id"
+			"tid":"custom_id"
 		}
 
 	send reject to request
@@ -144,7 +145,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -159,7 +160,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -174,7 +175,7 @@ Requests Acceptation
 			"fileType": "extension",
 			"dest": "upload_destination",
 			"port":"trasferPort",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"contentType": "file",
 		 }
 
@@ -223,7 +224,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"dir":"fileDir",
 			"total": "fileSize as byte",
 			"current": "currently upload as byte",
@@ -237,7 +238,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"dir":"fileDir",
 			"total": "fileSize as byte",
 			"current": "last currently upload/download as byte",
@@ -251,7 +252,7 @@ File Transfer Progress
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"port":"port",
-			"id":"custom_id",
+			"tid":"custom_id",
 			"total": "fileSize",
 			"current": "fileSize",
 			"speed": "0",

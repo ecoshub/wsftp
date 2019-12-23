@@ -26,7 +26,7 @@ var (
     myMAC string = utils.GetEthMac()
 )
 
-func SendRequest(ip, dir , mac , username string){
+func SendRequest(ip, dir , mac , username , tid string){
     dir = rw.PreProcess(dir)
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
@@ -36,14 +36,15 @@ func SendRequest(ip, dir , mac , username string){
         fnf := `{"event":"info","content":"File not found"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
-        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
-         myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
-        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file"}`,
-         username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10))
+        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":%v}`,
+         myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
+        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":%v}`,
+         username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
 
         rreq := `{"event":"rreq",` + dataToSend
         sreq := `{"event":"sreq",` + dataToMe
         freq := `{"event":"freq",` + dataToMe
+        
         res := TransmitData(ip, SRLISTEN, rreq)
         if res {
             TransmitData(myIP, SRLISTEN, sreq)

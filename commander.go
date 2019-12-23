@@ -133,9 +133,11 @@ func manage(){
 					if !result {continue}
 					mac, result := json.GetString("mac")
 					if !result {continue}
+					tid, result := json.GetString("tid")
+					if !result {continue}
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
-					cmd.SendRequest(ip, dir, mac, username)
+					cmd.SendRequest(ip, dir, mac, username, tid)
 					activeTransaction++
 				}else{
 					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
@@ -147,7 +149,7 @@ func manage(){
 				if !result {continue}
 				dest, result := json.GetString("dest")
 				if !result {continue}
-				id, result := json.GetString("id")
+				id, result := json.GetString("tid")
 				if !result {continue}
 				mac, result := json.GetString("mac")
 				if !result {continue}
