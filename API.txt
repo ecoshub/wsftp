@@ -20,7 +20,8 @@ Commands
 		{
 			"event":"crej",
 			"mac":"MAC_of_receiver",
-			"dir":"file_dir"
+			"dir":"file_dir",
+			"tid":"custom_id"
 		}
 
 	send message
@@ -105,6 +106,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 
 	you send a request
@@ -118,6 +120,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 
 	your request not arrived to receiver
@@ -131,6 +134,7 @@ File Send Requests
 			"fileType": "extension",
 			"fileSize": "SizeAsByte",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 
 Requests Acceptation
@@ -190,6 +194,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 	you have reject a request
 		{
@@ -201,6 +206,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 
 	your reject not arrived to receiver
@@ -213,6 +219,7 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
+			"tid":"custom_id"
 		 }
 
 File Transfer Progress

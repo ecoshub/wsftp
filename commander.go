@@ -149,7 +149,7 @@ func manage(){
 				if !result {continue}
 				dest, result := json.GetString("dest")
 				if !result {continue}
-				id, result := json.GetString("tid")
+				tid, result := json.GetString("tid")
 				if !result {continue}
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -157,20 +157,22 @@ func manage(){
 				ip := hs.GetIP(mac)
 				if newPort == -1{
 					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
-					cmd.SendReject(ip, mac, dir, username)
+					cmd.SendReject(ip, mac, dir, tid, username)
 				}else{
-					portIDMap[newPort] = id
-					go com.ReceiveFile(ip, mac, username, newPort, id, &(ports[index][1]))
-					cmd.SendAccept(ip, mac, dir, dest, username, id, newPort)
+					portIDMap[newPort] = tid
+					go com.ReceiveFile(ip, mac, username, newPort, tid, &(ports[index][1]))
+					cmd.SendAccept(ip, mac, dir, dest, username, tid, newPort)
 				}
 			case "crej":
 				mac, result := json.GetString("mac")
 				if !result {continue}
 				dir, result := json.GetString("dir")
 				if !result {continue}
+				tid, result := json.GetString("tid")
+				if !result {continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
-				cmd.SendReject(ip, mac, dir, username)
+				cmd.SendReject(ip, mac, dir, tid, username)
 			case "cmsg":
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -184,7 +186,7 @@ func manage(){
 				if !result {continue}
 				dest, result := json.GetString("destination")
 				if !result {continue}
-				id, result := json.GetString("id")
+				tid, result := json.GetString("tid")
 				if !result {continue}
 				mac, result := json.GetString("mac")
 				if !result {continue}
@@ -196,7 +198,7 @@ func manage(){
 				index := getPortIndex(intPort)
 				username := hs.GetUsername(mac)
 				setPortBusy(intPort)
-				go com.SendFile(ip, mac, username, intPort, id, dir, dest, &(ports[index][1]))
+				go com.SendFile(ip, mac, username, intPort, tid, dir, dest, &(ports[index][1]))
 			case "dprg":
 				port, result := json.GetString("port")
 				if !result {continue}

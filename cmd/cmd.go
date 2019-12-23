@@ -77,14 +77,14 @@ func SendAccept(ip, mac, dir, dest, username, tid string, port int){
     }
 }
 
-func SendReject(ip, mac, dir, username string){
+func SendReject(ip, mac, dir, tid, username string){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file"}`,
-     myUsername, myIP, myMAC, dir, fileName, fileType)
-    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file"}`,
-     username, ip, mac, dir, fileName, fileType)
+    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","tid":"%v"}`,
+     myUsername, myIP, myMAC, dir, fileName, fileType, tid)
+    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","tid":"%v"}`,
+     username, ip, mac, dir, fileName, fileType, tid)
 
     rrej := `{"event":"rrej",` + dataToSend
     srej := `{"event":"srej",` + dataToMe
