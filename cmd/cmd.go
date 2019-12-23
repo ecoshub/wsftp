@@ -36,9 +36,9 @@ func SendRequest(ip, dir , mac , username , tid string){
         fnf := `{"event":"info","content":"File not found"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
-        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":%v}`,
+        dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":"%v"}`,
          myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
-        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":%v}`,
+        dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","tid":"%v"}`,
          username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), tid)
 
         rreq := `{"event":"rreq",` + dataToSend
@@ -54,14 +54,14 @@ func SendRequest(ip, dir , mac , username , tid string){
     }
 }
 
-func SendAccept(ip, mac, dir, dest, username, id string, port int){
+func SendAccept(ip, mac, dir, dest, username, tid string, port int){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","id":"%v","contentType":"file"}`,
-        myUsername, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), id)
-    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","id":"%v","contentType":"file"}`,
-        username, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), id)
+    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","tid":"%v","contentType":"file"}`,
+        myUsername, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), tid)
+    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","tid":"%v","contentType":"file"}`,
+        username, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), tid)
 
     racp := `{"event":"racp",` + dataToSend
     sacp := `{"event":"sacp",` + dataToMe
