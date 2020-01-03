@@ -93,7 +93,10 @@ func activity(){
     }()
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
-		json := jparse.Parse(<- receiveChan)
+		data := <- receiveChan
+		fmt.Println(data)
+		fmt.Println(string(data))
+		json := jparse.Parse(data)
 		tempStatus, _ := json.GetString("event")
 		tempIP, _ := json.GetString("ip")
 		tempUsername, _ := json.GetString("username")
@@ -182,12 +185,12 @@ func send(ip, port string, data []byte, ch chan<- int){
 
 func onClose(ch chan<- bool){
 	sendValidationChan := make(chan int, 1)
-	data := concatByteArray(" ", msgOff, myUsernameB, myIPB, myEthMacB)
+	data := fmt.Sprintf(`{"event":"offline","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
 	valid := 0
 	count := 0
 	for valid != 1 {
 		for i := 0 ; i < UDPREPEAT ; i++ {
-			go offlineFunc(broadcastIP, MAINPORT, data , sendValidationChan)
+			go offlineFunc(broadcastIP, MAINPORT, []byte(data) , sendValidationChan)
 		}
 		valid = <- sendValidationChan
 		count++
