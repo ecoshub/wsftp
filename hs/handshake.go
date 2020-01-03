@@ -94,8 +94,6 @@ func activity(){
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
 		data := <- receiveChan
-		fmt.Println(data)
-		fmt.Println(string(data))
 		json := jparse.Parse(data)
 		tempStatus, _ := json.GetString("event")
 		tempIP, _ := json.GetString("ip")
