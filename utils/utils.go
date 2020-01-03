@@ -6,9 +6,12 @@ import (
     "strings"
     "os/user"
     "net"
+    rw "github.com/eco9999/penman"
+    "github.com/eco9999/jparse"
 )
 
 var Sep = string(os.PathSeparator)
+var settingDir string = rw.GetHome() + Sep + "Documents" + Sep + "wsftp-settings.json"
 
 func GetFileSize(dir string) int64{
     info, err := os.Stat(dir)
@@ -38,13 +41,31 @@ func GetPackNumber(totalsize, speed int64) int{
     return int(totalFrag)
 }
 
-func GetUsername() string{
+func GetCustomUsername() string{
+    if rw.IsFileExist(settingDir) {
+        if !rw.IsFileEmpty(settingDir) {
+            file := rw.Read(settingDir)
+            json := jparse.Parse(file)
+            username, done := json.Get("username")
+            if done {
+                return string(username)
+            }
+        }
+    }
     user, err := user.Current()
     if err != nil {
         return "unknown"
     }else{
         return user.Username
     }
+}
+
+func GetUsername() string{
+    user, err := user.Current()
+    if err != nil {
+        return "unknown"
+    }
+    return user.Username
 }
 
 func GetInterfaceIP() net.IP{

@@ -22,7 +22,7 @@ const (
 
 var (
     myIP string = utils.GetInterfaceIP().String()
-    myUsername string = utils.GetUsername()
+    myUsername string = utils.GetCustomUsername()
     myMAC string = utils.GetEthMac()
 )
 

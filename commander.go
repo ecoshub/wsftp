@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"github.com/gorilla/websocket"
-	parse "github.com/eco9999/jparse"
+	"github.com/eco9999/jparse"
 	hs "wsftp/hs"
 	com "wsftp/tcpcom"
 	utils "wsftp/utils"
@@ -37,7 +37,6 @@ var (
 	ports = make([][]int, ACTIVETRANSACTIONLIMIT)
 	portIDMap = make(map[int]string, ACTIVETRANSACTIONLIMIT)
 	myIP string = utils.GetInterfaceIP().String()
-	myUserName string = utils.GetUsername()
 	commandChan = make(chan []byte, 1)
 
 	upgrader = websocket.Upgrader{
@@ -122,7 +121,7 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 
 func manage(){
 	for {
-		json := parse.JParse(<- commandChan)
+		json := jparse.Parse(<- commandChan)
 		event, result := json.GetString("event")
 		if !result {continue}
 		if event != ""{

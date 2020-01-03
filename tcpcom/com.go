@@ -35,7 +35,6 @@ const (
 var (
 	// enviroment
 	myIP string = utils.GetInterfaceIP().String()
-	myUsername string = utils.GetUsername()
 	myMac string = utils.GetEthMac()
 
 	// for debug

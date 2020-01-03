@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strings"
 	"os"
     "os/signal"
     "syscall"
     "wsftp/utils"
 	"github.com/gorilla/websocket"
+	"github.com/eco9999/jparse"
 )
 
 const (
@@ -30,7 +30,7 @@ var (
 	receiveControl bool = true
 	MACList []string = make([]string,0,1024)
 	onlineCount int = 0
-	myUsername string = utils.GetUsername()
+	myUsername string = utils.GetCustomUsername()
 	myUsernameB []byte = []byte(myUsername)
 	msgOn []byte = []byte("online")
 	msgOff []byte = []byte("offline")
@@ -82,9 +82,9 @@ func Restart(){
 func activity(){	
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-    sendPack(broadcastIP, MAINPORT, data)
-	receiveChan := make(chan string, 1)
+    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+    sendPack(broadcastIP, MAINPORT, []byte(data))
+	receiveChan := make(chan []byte, 1)
     go func() {
         <- sigs
         onClose(done)
@@ -93,8 +93,11 @@ func activity(){
     }()
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
-		tempPack := <- receiveChan
-		tempStatus, tempIP, tempUsername, tempMAC := parsePack(tempPack)
+		json := jparse.Parse(<- receiveChan)
+		tempStatus, _ := json.GetString("event")
+		tempIP, _ := json.GetString("ip")
+		tempUsername, _ := json.GetString("username")
+		tempMAC, _ := json.GetString("mac")
 		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
 		if tempMAC != myEthMac {
 			if !hasThis(MACList, tempMAC) && tempStatus == string(msgOn){
@@ -133,22 +136,18 @@ func GetUsername(mac string) string{
 	return ""
 }
 
-func receive(ip, port string, ch chan<- string){
+func receive(ip, port string, ch chan<- []byte){
 	buff := make([]byte, 1024)
     pack, err := net.ListenPacket("udp", ip + ":" + port)
     if err != nil {
         sendInfo("UDP(R) Connection Error " + err.Error())
     }
-    n, addr, err := pack.ReadFrom(buff)
+    n, _, err := pack.ReadFrom(buff)
     if err != nil {
         sendInfo("UDP(R) Read Error " + err.Error())
-    }else{
-    	defer pack.Close()
-	    ipandport := strings.Split(addr.String(), ":")
-	    remoteIP := ipandport[0]
-	    buff = buff[:n]
-	    ch <- string(buff) + " " + remoteIP
     }
+	defer pack.Close()
+    ch <- buff[:n]
 }
 
 func sendPack(ip, port string, data []byte){
@@ -220,15 +219,6 @@ func hasThis(list []string, el string) bool {
 		}
 	}
 	return false
-}
-
-func parsePack(pack string) (msg string, IP string, username string, MAC string){
-	tokens := strings.Split(pack, " ")
-	msg = tokens[0]
-	username = tokens[1]
-	IP = tokens[2]
-	MAC = tokens[3]
-	return
 }
 
 func removeFromList(list []string, el string) []string{
