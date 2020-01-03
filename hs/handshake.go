@@ -75,8 +75,8 @@ func Restart(){
     <-done
 	MACList = make([]string,0,1024)
     onlines = make(map[string][]string, 128)
-	data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-    sendPack(broadcastIP, MAINPORT, data)
+    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+    sendPack(broadcastIP, MAINPORT, []byte(data))
 }
 
 func activity(){	
@@ -108,8 +108,8 @@ func activity(){
 				MACList = append(MACList, tempMAC)
 				onlineCount++
 				innerMessageChan <- []byte(msg)
-				data := concatByteArray(" ", msgOn, myUsernameB, myIPB, myEthMacB)
-	    		sendPack(broadcastIP, MAINPORT, data)
+				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+	    		sendPack(broadcastIP, MAINPORT, []byte(data))
 			}
 			if hasThis(MACList, tempMAC) && tempStatus == string(msgOff){
 				MACList = removeFromList(MACList, tempMAC)
@@ -238,19 +238,6 @@ func removeFromList(list []string, el string) []string{
 		}
 	}
 	return newList
-}
-
-func concatByteArray(sep string, arr ...[]byte) []byte {
-	newArr := make([]byte ,0 ,1024)
-	lena := len(arr)
-	sepB := []byte(sep)
-	for i, v := range arr {
-		newArr = append(newArr, v...)
-		if i != lena - 1 {
-			newArr = append(newArr, sepB...)
-		} 
-	}
-	return newArr
 }
 
 func sendInfo(msg string){
