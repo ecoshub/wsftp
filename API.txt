@@ -1,5 +1,6 @@
 Commands
 	send file request
+	
 		{
 			"event":"creq",
 			"mac":"MAC_of_receiver",
@@ -25,6 +26,7 @@ Commands
 		}
 
 	send message
+
 		{
 			"event":"cmsg",
 			"mac":"MAC_of_receiver",
@@ -32,10 +34,12 @@ Commands
 		}
 
 	kill download/upload progress
+
 		{
 			"event":"kprg",
 			"port":"port_of_download/upload"
 		}
+
 	save string/json
 		{
 			"event":"save",
@@ -51,17 +55,6 @@ Commands
 			"mac":"MAC_of_receiver",
 			"username":"username"
 		}
-
-	get return
-		{
-			"event":"log",
-			"mac":"MAC_of_receiver",
-			"username":"username",
-			"start":start_index,
-			"end":end_index(not included),
-			"length":return_array_langth,
-			"data":logs_as_array
-		} 
 
 	restart handshake
 		{
@@ -100,7 +93,7 @@ File Send Requests
 			"event":"rreq",
 			"username": "username",
 			"ip":"IP",
-			mac":"MAC_of_receiver",
+			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
 			"fileType": "extension",
