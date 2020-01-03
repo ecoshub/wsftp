@@ -24,17 +24,12 @@ const (
 var (
 	broadcastIP string = utils.GetBroadcastIP().String()
 	myIP string = utils.GetInterfaceIP().String()
-	myIPB []byte = []byte(myIP)
 	myEthMac string = utils.GetEthMac()
-	myEthMacB []byte = []byte(myEthMac)
 	receiveControl bool = true
 	MACList []string = make([]string,0,1024)
 	onlineCount int = 0
 	myUsername string = utils.GetCustomUsername()
-	myUsernameB []byte = []byte(myUsername)
-	msgOn []byte = []byte("online")
-	msgOff []byte = []byte("offline")
-	onlines = make(map[string][]string, 128)
+	onlines = make(map[string][]string, 256)
 	innerMessageChan = make(chan []byte, 1)
 	sigs = make(chan os.Signal, 1)
 
@@ -49,7 +44,6 @@ var (
 
 )
 
-
 func handleConn(w http.ResponseWriter, r *http.Request){
 	ws, err := upgraderHS.Upgrade(w, r, nil)
 	if err != nil {
@@ -60,7 +54,6 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 		ws.WriteMessage(1, []byte(<-innerMessageChan))
 	}
 }
-
 
 func Start(){
 	http.HandleFunc(ENDPOINT, handleConn)
@@ -73,6 +66,7 @@ func Restart(){
     done := make(chan bool, 1)
     onClose(done)
     <-done
+    myUsername = utils.GetCustomUsername()
 	MACList = make([]string,0,1024)
     onlines = make(map[string][]string, 128)
     data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
@@ -101,7 +95,7 @@ func activity(){
 		tempMAC, _ := json.GetString("mac")
 		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
 		if tempMAC != myEthMac {
-			if !hasThis(MACList, tempMAC) && tempStatus == string(msgOn){
+			if !hasThis(MACList, tempMAC) && tempStatus == "online"{
 				onlines[tempMAC] = []string{tempUsername, tempIP} 
 				MACList = append(MACList, tempMAC)
 				onlineCount++
@@ -109,7 +103,7 @@ func activity(){
 				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
 	    		sendPack(broadcastIP, MAINPORT, []byte(data))
 			}
-			if hasThis(MACList, tempMAC) && tempStatus == string(msgOff){
+			if hasThis(MACList, tempMAC) && tempStatus == "offline"{
 				MACList = removeFromList(MACList, tempMAC)
 				delete(onlines, tempMAC) 
 				onlineCount--
@@ -166,7 +160,6 @@ func sendPack(ip, port string, data []byte){
 			return
 		}
 	}
-
 }
 
 func send(ip, port string, data []byte, ch chan<- int){
@@ -199,7 +192,6 @@ func onClose(ch chan<- bool){
 	}
 	ch <- true
 }
-
 
 func offlineFunc(ip, port string, data []byte, ch chan<- int){
     conn, err := net.Dial("udp", ip + ":" + port)
