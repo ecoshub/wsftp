@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"github.com/gorilla/websocket"
-	"github.com/eco9999/jparse"
+	"github.com/ecoshub/jparse"
 	hs "wsftp/hs"
 	com "wsftp/tcpcom"
 	utils "wsftp/utils"

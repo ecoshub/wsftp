@@ -6,7 +6,7 @@ import (
     "strconv"
     "time"
 	utils "wsftp/utils"
-	rw "github.com/eco9999/penman"
+	rw "github.com/ecoshub/penman"
 )
 
 const (

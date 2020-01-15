@@ -6,8 +6,8 @@ import (
     "strings"
     "os/user"
     "net"
-    rw "github.com/eco9999/penman"
-    "github.com/eco9999/jparse"
+    rw "github.com/ecoshub/penman"
+    "github.com/ecoshub/jparse"
 )
 
 var Sep = string(os.PathSeparator)

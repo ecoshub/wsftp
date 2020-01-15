@@ -9,7 +9,7 @@ import (
     "syscall"
     "wsftp/utils"
 	"github.com/gorilla/websocket"
-	"github.com/eco9999/jparse"
+	"github.com/ecoshub/jparse"
 )
 
 const (
