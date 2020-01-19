@@ -127,7 +127,7 @@ func manage(){
 		if event != ""{
 			switch event{
 			case "my":
-				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"username":"%v","mac":"%v","ip":"%v"}`, utils.GetCustomUsername(), utils.GetEthMac(), myIP))
+				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v"}`, utils.GetCustomUsername(), utils.GetEthMac(), myIP))
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					dir, result := json.GetString("dir")

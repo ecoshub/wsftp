@@ -1,4 +1,17 @@
-Commands
+Commands	
+
+	get info
+		{
+			"event":"my"
+		}
+
+		return from SR port
+			{
+				"username":my_username,
+				"mac":my_mac,
+				"ip":my_ip
+			}
+
 	send file request
 	
 		{
