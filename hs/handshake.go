@@ -87,27 +87,30 @@ func activity(){
     }()
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
-		data := <- receiveChan
-		json := jparse.Parse(data)
-		tempStatus, _ := json.GetString("event")
-		tempIP, _ := json.GetString("ip")
-		tempUsername, _ := json.GetString("username")
-		tempMAC, _ := json.GetString("mac")
-		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
-		if tempMAC != myEthMac {
-			if !hasThis(MACList, tempMAC) && tempStatus == "online"{
-				onlines[tempMAC] = []string{tempUsername, tempIP} 
-				MACList = append(MACList, tempMAC)
-				onlineCount++
-				innerMessageChan <- []byte(msg)
-				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
-	    		sendPack(broadcastIP, MAINPORT, []byte(data))
-			}
-			if hasThis(MACList, tempMAC) && tempStatus == "offline"{
-				MACList = removeFromList(MACList, tempMAC)
-				delete(onlines, tempMAC) 
-				onlineCount--
-				innerMessageChan <- []byte(msg)
+		receive := <- receiveChan
+		if receive[0] != 0 {
+			data := <- receiveChan
+			json := jparse.Parse(data)
+			tempStatus, _ := json.GetString("event")
+			tempIP, _ := json.GetString("ip")
+			tempUsername, _ := json.GetString("username")
+			tempMAC, _ := json.GetString("mac")
+			msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
+			if tempMAC != myEthMac {
+				if !hasThis(MACList, tempMAC) && tempStatus == "online"{
+					onlines[tempMAC] = []string{tempUsername, tempIP} 
+					MACList = append(MACList, tempMAC)
+					onlineCount++
+					innerMessageChan <- []byte(msg)
+					data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+		    		sendPack(broadcastIP, MAINPORT, []byte(data))
+				}
+				if hasThis(MACList, tempMAC) && tempStatus == "offline"{
+					MACList = removeFromList(MACList, tempMAC)
+					delete(onlines, tempMAC) 
+					onlineCount--
+					innerMessageChan <- []byte(msg)
+				}
 			}
 		}
 	}
@@ -136,10 +139,14 @@ func receive(ip, port string, ch chan<- []byte){
     pack, err := net.ListenPacket("udp", ip + ":" + port)
     if err != nil {
         sendInfo("UDP(R) Connection Error " + err.Error())
+        pack.Close()
+        ch <- []byte{0}
     }
     n, _, err := pack.ReadFrom(buff)
     if err != nil {
         sendInfo("UDP(R) Read Error " + err.Error())
+        pack.Close()
+        ch <- []byte{0}
     }
 	defer pack.Close()
     ch <- buff[:n]
