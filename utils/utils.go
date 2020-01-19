@@ -11,6 +11,7 @@ import (
 )
 
 var Sep = string(os.PathSeparator)
+// ./data/settings.json
 var settingDir string = rw.GetHome() + Sep + "Documents" + Sep + "wsftp-settings.json"
 
 func GetFileSize(dir string) int64{
