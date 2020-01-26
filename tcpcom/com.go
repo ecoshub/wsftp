@@ -302,9 +302,9 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 			com.Close()
 			done := rw.DelFile(dir)
 			if done {
-				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file deleted. directory:%v"}`, dir))
+				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file deleted.","dir":"%v"}`, dir))
 			}else{
-				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file delete operation fail. directory:%v"}`, dir))
+				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file delete operation fail.","dir":"%v"}}`, dir))
 			}
 			return
     	}
