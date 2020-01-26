@@ -123,9 +123,11 @@ func manage(){
 	for {
 		json := <- commandChan
 		event, err := jint.GetString(json, "event")
-		if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'event'", err));continue}
+		if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"total":"%v","active":"%v"}`, ACTIVETRANSACTIONLIMIT, activeTransaction));continue}
 		if event != ""{
 			switch event{
+			case "actv":
+				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "my":
 				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "creq":
