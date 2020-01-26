@@ -280,6 +280,7 @@ func getPortIndex(port int) int{
 
 func setPortBusy(port int) bool{
 	index := getPortIndex(port)
+	fmt.Println(index, STARTPORT, ACTIVETRANSACTIONLIMIT)
 	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT + 1{
 		ports[index][1] = 1
 		return true
