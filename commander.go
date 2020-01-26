@@ -200,6 +200,15 @@ func manage(){
 				index := getPortIndex(intPort)
 				username := hs.GetUsername(mac)
 				if !setPortBusy(intPort) {
+					// fprgJSON, _ := jint.SetString(json, "fprg", "event")
+					// fprgJSON, _ := jint.AddKeyValueString(hs, "type", "upload")
+					// fprgJSON, _ := jint.AddKeyValueString(hs, "total", "0")
+					// fprgJSON, _ := jint.AddKeyValueString(hs, "current", "0")
+					// fprgJSON, _ := jint.AddKeyValueString(hs, "speed", "0")
+					// fprgJSON, _ := jint.Delete(hs, "contentType")
+					// fprgJSON, _ := jint.Delete(hs, "fileName")
+					// fprgJSON, _ := jint.Delete(hs, "fileType")
+					// fprgJSON, _ := jint.Delete(hs, "dest")
 					continue
 				}
 				go com.SendFile(ip, mac, username, intPort, uuid, dir, dest, &(ports[index][1]))
@@ -271,7 +280,7 @@ func getPortIndex(port int) int{
 
 func setPortBusy(port int) bool{
 	index := getPortIndex(port)
-	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT{
+	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT + 1{
 		ports[index][1] = 1
 		return true
 	}else{
@@ -282,7 +291,7 @@ func setPortBusy(port int) bool{
 
 func freePort(port int) bool{
 	index := getPortIndex(port)
-	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT{
+	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT + 1{
 		ports[index][1] = 0
 		return true
 	}else{
