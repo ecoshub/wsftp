@@ -169,9 +169,8 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 
 			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
 			 username, ip, mac, port, id, dir, fileSize, off, 0)
-
 			SendMsg(myIP, MAINCOMANDPORT, msg)
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
 			com.Close()
 			return
@@ -179,9 +178,8 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	}
 	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
 	 username, ip, mac, port, id, dir, fileSize, off, 0)
-
 	SendMsg(myIP, MAINCOMANDPORT, msg)
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)
 	com.Close()
 }
@@ -248,7 +246,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     res = com.Ack()
     if !res{return}
 
-    // receive file size
+    // receive speed
     res = com.RecInt(int64Chan)
     if !res {return}
 	
@@ -258,7 +256,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     res = com.Ack()
     if !res{return}	
 
-   // send file
+   // download file
     count := remaining
     currentSize := int64(0)
     mainBuffer := make([]byte, 0, WRITEDISCBUFFER)
@@ -295,9 +293,15 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
 			 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
 			SendMsg(myIP, MAINCOMANDPORT, msg)
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
 			com.Close()
+			done := rw.DelFile(dir)
+			if done {
+				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file deleted. directory:%v"}`, dir))
+			}else{
+				SendMsg(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"info","content":"Unfinished file delete operation fail. directory:%v"}`, dir))
+			}
 			return
     	}
     }
@@ -307,7 +311,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
 	 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
 	SendMsg(myIP, MAINCOMANDPORT, msg)
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)
     com.Close()
 }
