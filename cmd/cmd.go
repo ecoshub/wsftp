@@ -54,6 +54,29 @@ func SendRequest(ip, dir , mac , username , uuid string){
     }
 }
 
+func SendCancel(ip, dir , mac , username , uuid string){
+    dir = rw.PreProcess(dir)
+    fileSize := utils.GetFileSize(dir)
+    fileName := utils.GetFileName(dir)
+    fileType := utils.GetFileExt(fileName)
+
+    dataToSend := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
+     myUsername, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
+    dataToMe := fmt.Sprintf(`"username":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
+     username, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
+
+    rreq := `{"event":"rcncl",` + dataToSend
+    sreq := `{"event":"scncl",` + dataToMe
+    freq := `{"event":"fcncl",` + dataToMe
+    
+    res := TransmitData(ip, SRLISTEN, rreq)
+    if res {
+        TransmitData(myIP, SRLISTEN, sreq)
+    }else{
+        TransmitData(myIP, SRLISTEN, freq)
+    }
+}
+
 func SendAccept(ip, mac, dir, dest, username, uuid string, port int){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)

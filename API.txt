@@ -24,6 +24,17 @@ Commands
 			"username":"username_receiver"
 		}
 
+	send cancel file
+	
+		{
+			"event":"cncl",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"uuid":"custom_id",
+			"ip":my_ip,
+			"username":"username_receiver"
+		}
+
 	send accept to request
 		{
 			"event":"cacp",
@@ -97,6 +108,49 @@ Info Messages
 		- Unfinished file delete operation fail. directory
 			if trasaction not completed commander is going to delete unfinished file this info means file deletion is failed.
 
+File Send Cancel
+	A cancel signal has arrive
+		{
+			"event":"rcncl",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
+			"uuid":"custom_id"
+		 }
+
+	you send a cancel signal request
+		{
+			"event":"scncl",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
+			"uuid":"custom_id"
+		 }
+
+	your cancel signal has not arrived to receiver
+		{
+			"event":"fcncl",
+			"username": "username",
+			"ip":"IP",
+			"mac":"MAC_of_receiver",
+			"dir":"file_dir",
+			"fileName": "filename.extension",
+			"fileType": "extension",
+			"fileSize": "SizeAsByte",
+			"contentType": "file",
+			"uuid":"custom_id"
+		 }
+
 File Send Requests
 	A request has arrive
 		{
@@ -126,7 +180,7 @@ File Send Requests
 			"uuid":"custom_id"
 		 }
 
-	your request not arrived to receiver
+	your request has not arrived to receiver
 		{
 			"event":"freq",
 			"username": "username",
@@ -171,7 +225,7 @@ Requests Acceptation
 			"contentType": "file",
 		 }
 
-	your acceptation not arrived to receiver
+	your acceptation has not arrived to receiver
 		{
 			"event":"facp",
 			"username": "username",
@@ -214,7 +268,7 @@ Requests Rejection
 			"cause": "stadart/full"
 		 }
 
-	your reject not arrived to receiver
+	your reject has not arrived to receiver
 		{
 			"event":"frej",
 			"username": "username",
