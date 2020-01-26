@@ -59,6 +59,7 @@ func Start(){
 	go activity()
 	err := http.ListenAndServe(":" + WSCOMPORT, nil)
 	fmt.Println("Handshake server shutdown unexpectedly!", err)
+	sendInfo("Handshake server shutdown unexpectedly!, err:" +  err.Error())
 }
 
 func Restart(){
@@ -88,7 +89,6 @@ func activity(){
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
 		receive := <- receiveChan
-		fmt.Println(string(receive))
 		if len(receive) < 2 {
 			if len(receive) == 1 {
 				if receive[0] == 0 {
