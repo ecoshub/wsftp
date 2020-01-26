@@ -9,7 +9,8 @@ import (
     "syscall"
     "wsftp/utils"
 	"github.com/gorilla/websocket"
-	"github.com/ecoshub/jparse"
+	// "github.com/ecoshub/jparse"
+	"github.com/ecoshub/jint"
 )
 
 const (
@@ -101,11 +102,15 @@ func activity(){
 				continue
 			}
 		}
-		json := jparse.Parse(receive)
-		tempStatus, _ := json.GetString("event")
-		tempIP, _ := json.GetString("ip")
-		tempUsername, _ := json.GetString("username")
-		tempMAC, _ := json.GetString("mac")
+		tempStatus, err := jint.GetString(receive, "event")
+		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		tempIP, err := jint.GetString(receive, "ip")
+		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		tempUsername, err := jint.GetString(receive, "username")
+		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		tempMAC, err := jint.GetString(receive, "mac")
+		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+
 		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
 		if tempMAC != myEthMac {
 			if !hasThis(MACList, tempMAC) && tempStatus == "online"{
