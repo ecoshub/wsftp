@@ -142,8 +142,12 @@ func manage(){
 					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
 					nick, err := jint.GetString(json, "nick")
 					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
-					cmd.SendRequest(ip, dir, mac, username, nick, uuid)
-					activeTransaction++
+					if utils.IsDir(dir) {
+						cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Folder transaction not suppoted."}`)
+					}else{
+						cmd.SendRequest(ip, dir, mac, username, nick, uuid)
+						activeTransaction++
+					}
 				}else{
 					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
 				}

@@ -121,6 +121,16 @@ func IsFileExist(file string) bool {
     return true
 }
 
+func IsDir(dir string) bool{
+    fi, err := os.Stat(dir)
+    if err != nil {
+        return false
+    }
+    if fi.Mode().IsDir() {
+        return true
+    }
+    return false
+}
 
 func UniqName(dest, fileName string, filesize int64) string{
     if !IsFileExist(dest + Sep + fileName){
