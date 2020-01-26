@@ -1,5 +1,17 @@
 Commands	
 
+	get total/active transactions
+		{
+			"event":"actv"
+		}
+
+		return from SR port
+			{
+				"event":"actv",
+				"total":"total transaction limit",
+				"active":"active transaction"
+			}
+
 	get info
 		{
 			"event":"my"

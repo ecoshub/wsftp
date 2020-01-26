@@ -127,7 +127,7 @@ func manage(){
 		if event != ""{
 			switch event{
 			case "actv":
-				cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"total":"%v","active":"%v"}`, ACTIVETRANSACTIONLIMIT, activeTransaction))
+				cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"actv","total":"%v","active":"%v"}`, ACTIVETRANSACTIONLIMIT, activeTransaction))
 			case "my":
 				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "creq":
