@@ -58,7 +58,7 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 
 	boolChan := make(chan bool, 1)
 	intChan := make(chan int, 1)
-	int64Chan := make(chan int64, 1)
+	// int64Chan := make(chan int64, 1)
 
 	// main comminication struct
 	com := NewCom(ip, port)
@@ -97,6 +97,7 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	// speed test controlPort mechanism
 	// fileSize = utils.GetFileSize(dir)
 	// remaining := fileSize - off
+
 	speed := int64(0)
 	if int(fileSize) >= SPEEDTESTLIMIT {
 		// run speed test
@@ -129,6 +130,7 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	data := make([]byte, speed)
 	datalen := int64(READDISCBUFFER)
 
+	off := fileSize
 	for i := 0 ; i < batchSize ; i++ {
 		if *control == 1{
 			if i == batchSize - 1 {
@@ -237,7 +239,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     // if !res {return}
 
     // if filesize bigger than speed test limit run a speed test
-    if int(remaining) >= SPEEDTESTLIMIT {
+    if int(fileSize) >= SPEEDTESTLIMIT {
         res = com.RecTestData()
         if !res {return}
     }else{
