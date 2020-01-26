@@ -159,6 +159,7 @@ func manage(){
 				if newPort == -1{
 					cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
 					cmd.SendReject(ip, mac, dir, uuid, username)
+					// send info message to receiver to
 				}else{
 					portIDMap[newPort] = uuid
 					go com.ReceiveFile(ip, mac, username, newPort, uuid, &(ports[index][1]))
