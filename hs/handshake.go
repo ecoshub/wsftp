@@ -88,18 +88,20 @@ func activity(){
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
 		receive := <- receiveChan
-		if len(receive) == 1 {
-			if receive[0] == 0 {
-				sendInfo("UDP ERROR.")
-				continue
+		fmt.Println(string(receive))
+		if len(receive) < 2 {
+			if len(receive) == 1 {
+				if receive[0] == 0 {
+					sendInfo("UDP ERROR.")
+					continue
+				}
 			}
 			if len(receive) == 0 {
 				sendInfo("EMPTY UDP MESSAGE.")
 				continue
 			}
 		}
-		data := <- receiveChan
-		json := jparse.Parse(data)
+		json := jparse.Parse(receive)
 		tempStatus, _ := json.GetString("event")
 		tempIP, _ := json.GetString("ip")
 		tempUsername, _ := json.GetString("username")
