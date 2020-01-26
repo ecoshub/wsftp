@@ -26,10 +26,11 @@ var (
 	broadcastIP string = utils.GetBroadcastIP().String()
 	myIP string = utils.GetInterfaceIP().String()
 	myEthMac string = utils.GetEthMac()
+	myUsername string = utils.GetUsername()
+	myNick string = utils.GetNick()
 	receiveControl bool = true
 	MACList []string = make([]string,0,1024)
 	onlineCount int = 0
-	myUsername string = utils.GetCustomUsername()
 	onlines = make(map[string][]string, 256)
 	innerMessageChan = make(chan []byte, 1)
 	sigs = make(chan os.Signal, 1)
@@ -67,17 +68,18 @@ func Restart(){
     done := make(chan bool, 1)
     onClose(done)
     <-done
-    myUsername = utils.GetCustomUsername()
+    myUsername = utils.GetUsername()
+    myNick = utils.GetNick()
 	MACList = make([]string,0,1024)
     onlines = make(map[string][]string, 128)
-    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
     sendPack(broadcastIP, MAINPORT, []byte(data))
 }
 
 func activity(){	
     done := make(chan bool, 1)
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
     sendPack(broadcastIP, MAINPORT, []byte(data))
 	receiveChan := make(chan []byte, 1)
     go func() {
@@ -103,25 +105,26 @@ func activity(){
 			}
 		}
 		tempStatus, err := jint.GetString(receive, "event")
-		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		if err != nil {sendInfo("HS json parse error. Key:'event' err: " + err.Error());continue}
 		tempIP, err := jint.GetString(receive, "ip")
-		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		if err != nil {sendInfo("HS json parse error. Key:'ip' err: " + err.Error());continue}
 		tempUsername, err := jint.GetString(receive, "username")
-		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
+		if err != nil {sendInfo("HS json parse error. Key:'username' err: " + err.Error());continue}
 		tempMAC, err := jint.GetString(receive, "mac")
-		if err != nil {sendInfo("HS json parse error. err: " + err.Error());continue}
-
-		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempMAC)
+		if err != nil {sendInfo("HS json parse error. Key:'mac' err: " + err.Error());continue}
+		tempNick, err := jint.GetString(receive, "nick")
+		if err != nil {sendInfo("HS json parse error. Key:'nick' err: " + err.Error());continue}
+		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempNick, tempMAC)
 		if tempMAC != myEthMac {
-			if !hasThis(MACList, tempMAC) && tempStatus == "online"{
+			if !hasThis(MACList, tempMAC) && tempStatus == "online" && tempUsername != myUsername{
 				onlines[tempMAC] = []string{tempUsername, tempIP} 
 				MACList = append(MACList, tempMAC)
 				onlineCount++
 				innerMessageChan <- []byte(msg)
-				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
 	    		sendPack(broadcastIP, MAINPORT, []byte(data))
 			}
-			if hasThis(MACList, tempMAC) && tempStatus == "offline"{
+			if hasThis(MACList, tempMAC) && tempStatus == "offline" && tempUsername != myUsername{
 				MACList = removeFromList(MACList, tempMAC)
 				delete(onlines, tempMAC) 
 				onlineCount--

@@ -127,7 +127,7 @@ func manage(){
 		if event != ""{
 			switch event{
 			case "my":
-				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v"}`, utils.GetCustomUsername(), utils.GetEthMac(), myIP))
+				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					dir, err := jint.GetString(json, "dir")
@@ -140,7 +140,9 @@ func manage(){
 					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 					username, err := jint.GetString(json, "username")
 					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
-					cmd.SendRequest(ip, dir, mac, username, uuid)
+					nick, err := jint.GetString(json, "nick")
+					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
+					cmd.SendRequest(ip, dir, mac, username, nick, uuid)
 					activeTransaction++
 				}else{
 					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
@@ -158,16 +160,18 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
+				nick, err := jint.GetString(json, "nick")
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
 				index := allocatePort()
 				if index == -1 {
-					cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","username":"%v"}`, utils.GetCustomUsername()))
-					cmd.SendReject(ip, mac, dir, uuid, username, "full")
+					cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","username":"%v"}`, utils.GetUsername()))
+					cmd.SendReject(ip, mac, dir, uuid, username, nick, "full")
 					continue
 				}
 				newPort := ports[index][0]
 				portIDMap[newPort] = uuid
 				go com.ReceiveFile(ip, mac, username, newPort, uuid, &(ports[index][1]))
-				cmd.SendAccept(ip, mac, dir, dest, username, uuid, newPort)
+				cmd.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 			case "crej":
 				mac, err := jint.GetString(json, "mac")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
@@ -179,7 +183,9 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
-				cmd.SendReject(ip, mac, dir, uuid, username, "standart")
+				nick, err := jint.GetString(json, "nick")
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
+				cmd.SendReject(ip, mac, dir, uuid, username, nick, "standart")
 			case "cmsg":
 				mac, err := jint.GetString(json, "mac")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
@@ -189,7 +195,9 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
-				cmd.SendMessage(ip, mac, username, msg)
+				nick, err := jint.GetString(json, "nick")
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
+				cmd.SendMessage(ip, mac, username, nick, msg)
 			case "racp":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
@@ -205,6 +213,8 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
+				// nick, err := jint.GetString(json, "nick")
+				// if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
 				if !setPortBusy(intPort) {
@@ -223,7 +233,9 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
-				cmd.SendCancel(ip, dir, mac, username, uuid)
+				nick, err := jint.GetString(json, "nick")
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
+				cmd.SendCancel(ip, dir, mac, username, nick, uuid)
 			case "dprg":
 				port, err := jint.GetString(json, "port")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}

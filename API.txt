@@ -10,7 +10,8 @@ Commands
 				"event": "my"
 				"username":"my_username",
 				"mac":"my_mac",
-				"ip":"my_ip"
+				"ip":"my_ip",
+				"nick": "custom_username"
 			}
 
 	send file request
@@ -21,7 +22,8 @@ Commands
 			"dir":"file_dir",
 			"uuid":"custom_id",
 			"ip":my_ip,
-			"username":"username_receiver"
+			"username":"username_receiver",
+			"nick": "custom_username"
 		}
 
 	send cancel file
@@ -32,7 +34,8 @@ Commands
 			"dir":"file_dir",
 			"uuid":"custom_id",
 			"ip":my_ip,
-			"username":"username_receiver"
+			"username":"username_receiver",
+			"nick": "custom_username"
 		}
 
 	send accept to request
@@ -43,7 +46,8 @@ Commands
 			"dest":"file_dest",
 			"uuid":"custom_id",
 			"ip":my_ip,
-			"username":"username_receiver"
+			"username":"username_receiver",
+			"nick": "custom_username"
 		}
 
 	send reject to request
@@ -54,6 +58,7 @@ Commands
 			"uuid":"custom_id",
 			"ip":my_ip,
 			"username":"username_receiver",
+			"nick": "custom_username"
 		}
 
 	send message
@@ -63,7 +68,8 @@ Commands
 			"mac":"MAC_of_receiver",
 			"msg":"msg_content",
 			"ip":my_ip,
-			"username":"username_receiver"
+			"username":"username_receiver",
+			"nick": "custom_username"
 		}
 
 	kill download/upload progress

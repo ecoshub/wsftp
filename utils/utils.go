@@ -42,7 +42,16 @@ func GetPackNumber(totalsize, speed int64) int{
     return int(totalFrag)
 }
 
-func GetCustomUsername() string{
+func GetUsername() string{
+    user, err := user.Current()
+    if err != nil {
+        return "unknown"
+    }else{
+        return user.Username
+    }
+}
+
+func GetNick() string{
     if rw.IsFileExist(settingDir) {
         if !rw.IsFileEmpty(settingDir) {
             file := rw.Read(settingDir)
@@ -58,14 +67,6 @@ func GetCustomUsername() string{
     }else{
         return user.Username
     }
-}
-
-func GetUsername() string{
-    user, err := user.Current()
-    if err != nil {
-        return "unknown"
-    }
-    return user.Username
 }
 
 func GetInterfaceIP() net.IP{
