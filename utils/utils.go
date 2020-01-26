@@ -122,10 +122,7 @@ func IsFileExist(file string) bool {
 
 
 func UniqName(dest, fileName string, filesize int64) string{
-    if IsFileExist(dest + "/" + fileName){
-        if GetFileSize(dest + "/" + fileName) < filesize {
-            return fileName
-        }
+    if !IsFileExist(dest + Sep + fileName){
     }else{
         return fileName
     }
@@ -135,8 +132,8 @@ func UniqName(dest, fileName string, filesize int64) string{
     count := 1
     for {
         newName := fmt.Sprintf("%v(%v).%v", name, count, ext)
-        if IsFileExist(dest + "/" + newName){
-            if GetFileSize(dest + "/" + newName) < filesize {
+        if IsFileExist(dest + Sep + newName){
+            if GetFileSize(dest + Sep + newName) < filesize {
                 return newName
             }
         }else{

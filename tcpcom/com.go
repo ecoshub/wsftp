@@ -90,16 +90,15 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	res = com.SendInt(fileSize)
 	if !res {return}
 
-	// receive offset
-	res = com.RecInt(int64Chan)
-	if !res {return}
-	off := <-int64Chan
+	// receive ack
+	res = com.Rec(boolChan)
+	if !res {return}else{<-boolChan}
 
 	// speed test controlPort mechanism
-	fileSize = utils.GetFileSize(dir)
-	remaining := fileSize - off
+	// fileSize = utils.GetFileSize(dir)
+	// remaining := fileSize - off
 	speed := int64(0)
-	if int(remaining) >= SPEEDTESTLIMIT {
+	if int(fileSize) >= SPEEDTESTLIMIT {
 		// run speed test
 		res = com.SendTestData(intChan)
 		if !res {return}else{speed = int64(<- intChan)}
@@ -123,7 +122,7 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 	res = com.Rec(boolChan)
 	if !res {return}else{<-boolChan}
 
-	batchSize := utils.GetPackNumber(remaining, int64(READDISCBUFFER))
+	batchSize := utils.GetPackNumber(fileSize, int64(READDISCBUFFER))
 	innerBatchSize := utils.GetPackNumber(int64(READDISCBUFFER), speed)
 
 	// // total := fileSize
@@ -226,12 +225,16 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 
     filename = utils.UniqName(dest, filename, fileSize)
     dir := dest + utils.Sep + filename
-	offset := utils.GetFileSize(dir)
-	remaining := fileSize - offset
+	// offset := utils.GetFileSize(dir)
+	// remaining := fileSize - offset
+
+    // ack
+    res = com.Ack()
+    if !res{return}
 
     // send offset of file
-    res = com.SendInt(offset)
-    if !res {return}
+    // res = com.SendInt(0)
+    // if !res {return}
 
     // if filesize bigger than speed test limit run a speed test
     if int(remaining) >= SPEEDTESTLIMIT {
@@ -257,7 +260,7 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     if !res{return}	
 
    // download file
-    count := remaining
+    count := fileSize
     currentSize := int64(0)
     mainBuffer := make([]byte, 0, WRITEDISCBUFFER)
     genCount := 0
