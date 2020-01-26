@@ -327,14 +327,12 @@ func (c * comm) Rec(ch chan<- bool) bool{
 
 // send acknowledge
 func (c * comm) Ack() bool{
-	res := c.Write([]byte{1}, "Send Ack")
-	return res
+	return c.Write([]byte{1}, "Send Ack")
 }
 
 // send not acknowledge
 func (c * comm) Nack() bool{
-	res := c.Write([]byte{0}, "Send Nack")
-	return res
+	return c.Write([]byte{0}, "Send Nack")
 }
 
 // receive int64
@@ -368,8 +366,7 @@ func (c *comm) RecData(chbyte chan<- []byte) bool{
 
 // send byte array
 func (c * comm) SendData(data []byte) bool{
-    res := c.Write(data, "Send Data")
-    return res
+    return c.Write(data, "Send Data")
 }
 
 // Receive speed test data
