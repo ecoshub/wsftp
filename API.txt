@@ -7,9 +7,10 @@ Commands
 
 		return from SR port
 			{
-				"username":my_username,
-				"mac":my_mac,
-				"ip":my_ip
+				"event": "my"
+				"username":"my_username",
+				"mac":"my_mac",
+				"ip":"my_ip"
 			}
 
 	send file request
@@ -18,7 +19,9 @@ Commands
 			"event":"creq",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"ip":my_ip,
+			"username":"username_receiver"
 		}
 
 	send accept to request
@@ -27,7 +30,9 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"dest":"file_dest",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"ip":my_ip,
+			"username":"username_receiver"
 		}
 
 	send reject to request
@@ -35,7 +40,9 @@ Commands
 			"event":"crej",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"ip":my_ip,
+			"username":"username_receiver",
 		}
 
 	send message
@@ -43,7 +50,9 @@ Commands
 		{
 			"event":"cmsg",
 			"mac":"MAC_of_receiver",
-			"msg":"msg_content"
+			"msg":"msg_content",
+			"ip":my_ip,
+			"username":"username_receiver"
 		}
 
 	kill download/upload progress
@@ -51,22 +60,6 @@ Commands
 		{
 			"event":"kprg",
 			"port":"port_of_download/upload"
-		}
-
-	save string/json
-		{
-			"event":"save",
-			"mac":"MAC_of_receiver",
-			"username":"username",
-			"content":"content/all/media",
-			"input":"content"
-		}
-
-	get string/json
-		{
-			"event":"get",
-			"mac":"MAC_of_receiver",
-			"username":"username"
 		}
 
 	restart handshake
@@ -99,6 +92,10 @@ Info Messages
 			current command has missing keyword 'key'.
 		- File not found
 			dir of current command is wrong or pointing another directory, check 'dir' keyword.
+		- Unfinished file deleted. directory ...
+			if trasaction not completed commander is going to delete unfinished file this info means file deletion is successful.
+		- Unfinished file delete operation fail. directory
+			if trasaction not completed commander is going to delete unfinished file this info means file deletion is failed.
 
 File Send Requests
 	A request has arrive
@@ -153,7 +150,7 @@ Requests Acceptation
 			"dir":"file_dir",
 			"fileName": "filename.extension",
 			"fileType": "extension",
-			"dest": "upload_destination",
+			"destination": "upload_destination",
 			"port":"trasferPort",
 			"uuid":"custom_id",
 			"contentType": "file",
@@ -168,7 +165,7 @@ Requests Acceptation
 			"dir":"file_dir",
 			"fileName": "filename.extension",
 			"fileType": "extension",
-			"dest": "upload_destination",
+			"destination": "upload_destination",
 			"port":"trasferPort",
 			"uuid":"custom_id",
 			"contentType": "file",
@@ -183,7 +180,7 @@ Requests Acceptation
 			"dir":"file_dir",
 			"fileName": "filename.extension",
 			"fileType": "extension",
-			"dest": "upload_destination",
+			"destination": "upload_destination",
 			"port":"trasferPort",
 			"uuid":"custom_id",
 			"contentType": "file",
@@ -200,7 +197,8 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"cause": "stadart/full"
 		 }
 	you have reject a request
 		{
@@ -212,7 +210,8 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"cause": "stadart/full"
 		 }
 
 	your reject not arrived to receiver
@@ -225,7 +224,8 @@ Requests Rejection
 			"fileName": "filename.extension",
 			"fileType": "extension",
 			"contentType": "file",
-			"uuid":"custom_id"
+			"uuid":"custom_id",
+			"cause": "stadart/full"
 		 }
 
 File Transfer Progress
