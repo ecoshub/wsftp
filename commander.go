@@ -261,16 +261,24 @@ func getPortIndex(port int) int{
 			return i
 		}
 	}
-	fmt.Println("Fatal error port index out of range", port)
+	fmt.Println("Fatal error (getPort) port index out of range", port)
 	return -1
 }
 
 func setPortBusy(port int) {
 	index := getPortIndex(port)
-	ports[index][1] = 1
+	if index >= STARTPORT && index < ACTIVETRANSACTIONLIMIT {
+		ports[index][1] = 1
+	}else{
+		fmt.Println("Fatal error (setPort) port index out of range", port)
+	}
 }
 
 func freePort(port int){
 	index := getPortIndex(port)
-	ports[index][1] = 0 
+	if index >= STARTPORT && index < ACTIVETRANSACTIONLIMIT {
+		ports[index][1] = 0 
+	}else{
+		fmt.Println("Fatal error (freeport)port index out of range", port)
+	}
 }

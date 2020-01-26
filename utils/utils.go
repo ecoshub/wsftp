@@ -123,7 +123,6 @@ func IsFileExist(file string) bool {
 
 func UniqName(dest, fileName string, filesize int64) string{
     if !IsFileExist(dest + Sep + fileName){
-    }else{
         return fileName
     }
     tokens := strings.Split(fileName, ".")
