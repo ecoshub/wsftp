@@ -242,6 +242,7 @@ File Transfer Progress
 			"total": "fileSize as byte",
 			"current": "currently upload as byte",
 			"speed": "transfer speed as kilobyte second",
+			"type": "upload/download"
 		 }
 
 	file transfer progress has failed
@@ -256,6 +257,7 @@ File Transfer Progress
 			"total": "fileSize as byte",
 			"current": "last currently upload/download as byte",
 			"speed": "last transfer speed as kilobyte second",
+			"type": "upload/download"
 		 }
 		 
 	progress has done
@@ -269,6 +271,7 @@ File Transfer Progress
 			"total": "fileSize",
 			"current": "fileSize",
 			"speed": "0",
+			"type": "upload/download"
 		 }
 
 Message Protocol
