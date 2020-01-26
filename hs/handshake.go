@@ -131,24 +131,6 @@ func activity(){
 	}
 }
 
-func GetIP(mac string) string{
-	if len(onlines[mac]) != 0 {
-		return onlines[mac][1]
-	}else{
-		sendInfo("No IP address match!")
-	}
-	return ""
-}
-
-func GetUsername(mac string) string{
-	if len(onlines[mac]) != 0 {
-		return onlines[mac][0]
-	}else{
-		sendInfo("No MAC address match!")
-	}
-	return ""
-}
-
 func receive(ip, port string, ch chan<- []byte){
 	buff := make([]byte, 1024)
     pack, err := net.ListenPacket("udp", ip + ":" + port)
