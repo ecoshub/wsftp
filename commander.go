@@ -199,13 +199,17 @@ func manage(){
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
 				username := hs.GetUsername(mac)
-				setPortBusy(intPort)
+				if !setPortBusy(intPort) {
+					continue
+				}
 				go com.SendFile(ip, mac, username, intPort, uuid, dir, dest, &(ports[index][1]))
 			case "dprg":
 				port, err := jint.GetString(json, "port")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				intPort, _ := strconv.Atoi(port)
-				freePort(intPort)
+				if !freePort(intPort){
+					continue
+				}
 				activeTransaction--
 			case "fprg":
 				port, err := jint.GetString(json, "port")
@@ -265,20 +269,24 @@ func getPortIndex(port int) int{
 	return -1
 }
 
-func setPortBusy(port int) {
+func setPortBusy(port int) bool{
 	index := getPortIndex(port)
-	if index >= STARTPORT && index < ACTIVETRANSACTIONLIMIT {
+	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT{
 		ports[index][1] = 1
+		return true
 	}else{
 		fmt.Println("Fatal error (setPort) port index out of range", port)
+		return false
 	}
 }
 
-func freePort(port int){
+func freePort(port int) bool{
 	index := getPortIndex(port)
-	if index >= STARTPORT && index < ACTIVETRANSACTIONLIMIT {
-		ports[index][1] = 0 
+	if index <= STARTPORT && index >= STARTPORT - ACTIVETRANSACTIONLIMIT{
+		ports[index][1] = 0
+		return true
 	}else{
 		fmt.Println("Fatal error (freeport)port index out of range", port)
+		return false
 	}
 }
