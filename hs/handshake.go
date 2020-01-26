@@ -181,7 +181,7 @@ func send(ip, port string, data []byte, ch chan<- int){
 
 func onClose(ch chan<- bool){
 	sendValidationChan := make(chan int, 1)
-	data := fmt.Sprintf(`{"event":"offline","ip":"%v","username":"%v","mac":"%v"}`, myIP, myUsername, myEthMac)
+	data := fmt.Sprintf(`{"event":"offline","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
 	valid := 0
 	count := 0
 	for valid != 1 {
