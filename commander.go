@@ -131,9 +131,9 @@ func manage(){
 			case "my":
 				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "creq":
+				dir, err := jint.GetString(json, "dir")
+				if err != nil {parseErrorHandle(err, "dir");continue}
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
-					dir, err := jint.GetString(json, "dir")
-					if err != nil {parseErrorHandle(err, "dir");continue}
 					mac, err := jint.GetString(json, "mac")
 					if err != nil {parseErrorHandle(err, "mac");continue}
 					uuid, err := jint.GetString(json, "uuid")
@@ -151,33 +151,38 @@ func manage(){
 						activeTransaction++
 					}
 				}else{
-					cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Active transaction full"}`)
+					cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","dir":"%v"}`, dir))
 				}
 			case "cacp":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {parseErrorHandle(err, "dir");continue}
-				dest, err := jint.GetString(json, "dest")
-				if err != nil {parseErrorHandle(err, "dest");continue}
-				uuid, err := jint.GetString(json, "uuid")
-				if err != nil {parseErrorHandle(err, "uuid");continue}
-				mac, err := jint.GetString(json, "mac")
-				if err != nil {parseErrorHandle(err, "mac");continue}
-				ip, err := jint.GetString(json, "ip")
-				if err != nil {parseErrorHandle(err, "ip");continue}
-				username, err := jint.GetString(json, "username")
-				if err != nil {parseErrorHandle(err, "username");continue}
-				nick, err := jint.GetString(json, "nick")
-				if err != nil {parseErrorHandle(err, "nick");continue}
-				index := allocatePort()
-				if index == -1 {
-					cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full"}`))
-					cmd.SendReject(ip, mac, dir, uuid, username, nick, "full")
-					continue
+				if activeTransaction < ACTIVETRANSACTIONLIMIT {
+					dest, err := jint.GetString(json, "dest")
+					if err != nil {parseErrorHandle(err, "dest");continue}
+					uuid, err := jint.GetString(json, "uuid")
+					if err != nil {parseErrorHandle(err, "uuid");continue}
+					mac, err := jint.GetString(json, "mac")
+					if err != nil {parseErrorHandle(err, "mac");continue}
+					ip, err := jint.GetString(json, "ip")
+					if err != nil {parseErrorHandle(err, "ip");continue}
+					username, err := jint.GetString(json, "username")
+					if err != nil {parseErrorHandle(err, "username");continue}
+					nick, err := jint.GetString(json, "nick")
+					if err != nil {parseErrorHandle(err, "nick");continue}
+					index := allocatePort()
+					if index == -1 {
+						cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full"}`))
+						cmd.SendReject(ip, mac, dir, uuid, username, nick, "full")
+						continue
+					}
+					newPort := ports[index][0]
+					portIDMap[newPort] = uuid
+					go com.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports[index][1]))
+					cmd.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
+					activeTransaction++
+				}else{
+					cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","dir":"%v"}`, dir))
 				}
-				newPort := ports[index][0]
-				portIDMap[newPort] = uuid
-				go com.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports[index][1]))
-				cmd.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 			case "crej":
 				mac, err := jint.GetString(json, "mac")
 				if err != nil {parseErrorHandle(err, "mac");continue}
@@ -260,14 +265,16 @@ func manage(){
 				activeTransaction--
 			case "kprg":
 				port, err := jint.GetString(json, "port")
-				if err != nil {;continue}
+				if err != nil {parseErrorHandle(err, "port");continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 			case "rshs":
 				hs.Restart()
+			default:
+				cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Wrong command"}`)
 			}
 		}else{
-			cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"Wrong command"}`)
+			cmd.TransmitData(myIP,SRLISTENPORT,`{"event":"info","content":"'event' can't be null"}`)
 		}
 	}
 }
