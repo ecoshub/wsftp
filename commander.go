@@ -123,7 +123,7 @@ func manage(){
 	for {
 		json := <- commandChan
 		event, err := jint.GetString(json, "event")
-		if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'event'\n", err));continue}
+		if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'event'", err));continue}
 		if event != ""{
 			switch event{
 			case "my":
@@ -131,11 +131,11 @@ func manage(){
 			case "creq":
 				if activeTransaction < ACTIVETRANSACTIONLIMIT {
 					dir, err := jint.GetString(json, "dir")
-					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'\n", err));continue}
+					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
 					mac, err := jint.GetString(json, "mac")
-					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'\n", err));continue}
+					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
 					uuid, err := jint.GetString(json, "uuid")
-					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'\n", err));continue}
+					if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'", err));continue}
 					ip := hs.GetIP(mac)
 					username := hs.GetUsername(mac)
 					cmd.SendRequest(ip, dir, mac, username, uuid)
@@ -147,13 +147,13 @@ func manage(){
 				index := allocatePort()
 				newPort := ports[index][0]
 				dir, err := jint.GetString(json, "dir")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
 				dest, err := jint.GetString(json, "dest")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dest'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dest'", err));continue}
 				uuid, err := jint.GetString(json, "uuid")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'", err));continue}
 				mac, err := jint.GetString(json, "mac")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
 				username := hs.GetUsername(mac)
 				ip := hs.GetIP(mac)
 				if newPort == -1{
@@ -167,35 +167,35 @@ func manage(){
 				}
 			case "crej":
 				mac, err := jint.GetString(json, "mac")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
 				dir, err := jint.GetString(json, "dir")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
 				uuid, err := jint.GetString(json, "uuid")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'", err));continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendReject(ip, mac, dir, uuid, username)
 			case "cmsg":
 				mac, err := jint.GetString(json, "mac")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
 				msg, err := jint.GetString(json, "msg")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'msg'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'msg'", err));continue}
 				ip := hs.GetIP(mac)
 				username := hs.GetUsername(mac)
 				cmd.SendMessage(ip, mac, username, msg)
 			case "racp":
 				dir, err := jint.GetString(json, "dir")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
 				dest, err := jint.GetString(json, "destination")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'destination'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'destination'", err));continue}
 				uuid, err := jint.GetString(json, "uuid")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'uuid'", err));continue}
 				mac, err := jint.GetString(json, "mac")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'mac'", err));continue}
 				ip, err := jint.GetString(json, "ip")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'ip'", err));continue}
 				port, err := jint.GetString(json, "port")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
 				username := hs.GetUsername(mac)
@@ -203,19 +203,19 @@ func manage(){
 				go com.SendFile(ip, mac, username, intPort, uuid, dir, dest, &(ports[index][1]))
 			case "dprg":
 				port, err := jint.GetString(json, "port")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "fprg":
 				port, err := jint.GetString(json, "port")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 				activeTransaction--
 			case "kprg":
 				port, err := jint.GetString(json, "port")
-				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'\n", err));continue}
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				freePort(intPort)
 			case "rshs":
