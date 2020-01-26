@@ -168,7 +168,7 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
 				index := allocatePort()
 				if index == -1 {
-					cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","username":"%v"}`, utils.GetUsername()))
+					cmd.TransmitData(myIP,SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full"}`))
 					cmd.SendReject(ip, mac, dir, uuid, username, nick, "full")
 					continue
 				}
