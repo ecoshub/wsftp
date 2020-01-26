@@ -54,7 +54,7 @@ func NewCom(ip string, port int) *comm{
 	return &tempCon
 }
 
-func SendFile(ip, mac, username string, port int, id, dir, dest string, control * int){
+func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, control * int){
 
 	boolChan := make(chan bool, 1)
 	intChan := make(chan int, 1)
@@ -160,15 +160,15 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 
 				currentSpeed := float64(speed) / float64(end.Sub(start).Seconds() * 1e3) // kb/second 
 
-				msg := fmt.Sprintf(`{"event":"prg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
-				 username, ip, mac, port, id, dir, fileSize, off, int(currentSpeed))
+				msg := fmt.Sprintf(`{"event":"prg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
+				 username, nick, ip, mac, port, id, dir, fileSize, off, int(currentSpeed))
 
 				SendMsg(myIP, SRLISTENPORT, msg)
 			}
 		}else{
 
-			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
-			 username, ip, mac, port, id, dir, fileSize, off, 0)
+			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
+			 username, nick, ip, mac, port, id, dir, fileSize, off, 0)
 			SendMsg(myIP, MAINCOMANDPORT, msg)
 			time.Sleep(10 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
@@ -176,8 +176,8 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 			return
 		}
 	}
-	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
-	 username, ip, mac, port, id, dir, fileSize, off, 0)
+	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"upload"}`,
+	 username, nick, ip, mac, port, id, dir, fileSize, off, 0)
 	SendMsg(myIP, MAINCOMANDPORT, msg)
 	time.Sleep(10 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)
@@ -185,7 +185,7 @@ func SendFile(ip, mac, username string, port int, id, dir, dest string, control 
 }
 
 
-func ReceiveFile(ip, mac, username string, port int, id string, control * int){
+func ReceiveFile(ip, mac, username, nick string, port int, id string, control * int){
 
 	byteChan := make(chan []byte, 1)
 	boolChan := make(chan bool, 1)
@@ -283,8 +283,8 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 			if printCount > speed{
 		    	end := time.Now()
 				currentSpeed = float64(printCount) / float64(end.Sub(start).Seconds() * 1e3)
-				msg := fmt.Sprintf(`{"event":"prg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
-				 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
+				msg := fmt.Sprintf(`{"event":"prg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
+				 username, nick, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
 				SendMsg(myIP, SRLISTENPORT, msg)
 		    	start = end
 				printCount = 0
@@ -294,8 +294,8 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
 			printCount += int64(n)
     		currentSize = fileSize - count
     	}else{
-			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
-			 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
+			msg := fmt.Sprintf(`{"event":"fprg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
+			 username, nick, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
 			SendMsg(myIP, MAINCOMANDPORT, msg)
 			time.Sleep(10 * time.Millisecond)
 			SendMsg(myIP, SRLISTENPORT, msg)
@@ -312,8 +312,8 @@ func ReceiveFile(ip, mac, username string, port int, id string, control * int){
     if len(mainBuffer) > 0 {
         rw.Write(dir, mainBuffer)
     }
-	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
-	 username, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
+	msg := fmt.Sprintf(`{"event":"dprg","username":"%v","nick":"%v","ip":"%v","mac":"%v","port":"%v","uuid":"%v","dir":"%v","total":"%v","current":"%v","speed":"%v","type":"download"}`,
+	 username, nick, ip, mac, port, id, dir, fileSize, currentSize, int(currentSpeed))
 	SendMsg(myIP, MAINCOMANDPORT, msg)
 	time.Sleep(10 * time.Millisecond)
 	SendMsg(myIP, SRLISTENPORT, msg)

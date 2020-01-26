@@ -89,7 +89,8 @@ Handshake Port Transfer Messages
 		"event":"online/offline",
 		"ip":"IP",
 		"username":"username",
-		"mac":"MAC_of_receiver"
+		"mac":"MAC_of_receiver",
+		"nick": "custom_username"
 	}
 
 Send/Receive Port Transfer Messages
@@ -119,6 +120,7 @@ File Send Cancel
 		{
 			"event":"rcncl",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -133,6 +135,7 @@ File Send Cancel
 		{
 			"event":"scncl",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -147,6 +150,7 @@ File Send Cancel
 		{
 			"event":"fcncl",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -162,6 +166,7 @@ File Send Requests
 		{
 			"event":"rreq",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -176,6 +181,7 @@ File Send Requests
 		{
 			"event":"sreq",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -190,6 +196,7 @@ File Send Requests
 		{
 			"event":"freq",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -205,6 +212,7 @@ Requests Acceptation
 		{
 			"event":"racp",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -220,6 +228,7 @@ Requests Acceptation
 		{
 			"event":"sacp",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -235,6 +244,7 @@ Requests Acceptation
 		{
 			"event":"facp",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver"
 			"dir":"file_dir",
@@ -251,6 +261,7 @@ Requests Rejection
 		{
 			"event":"rrej",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -264,6 +275,7 @@ Requests Rejection
 		{
 			"event":"srej",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
@@ -278,6 +290,7 @@ Requests Rejection
 		{
 			"event":"frej",
 			"username": "username",
+			"nick": "custom_username"
 			"ip":"IP",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",

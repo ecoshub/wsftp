@@ -170,7 +170,7 @@ func manage(){
 				}
 				newPort := ports[index][0]
 				portIDMap[newPort] = uuid
-				go com.ReceiveFile(ip, mac, username, newPort, uuid, &(ports[index][1]))
+				go com.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports[index][1]))
 				cmd.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 			case "crej":
 				mac, err := jint.GetString(json, "mac")
@@ -213,15 +213,15 @@ func manage(){
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'port'", err));continue}
 				username, err := jint.GetString(json, "username")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'username'", err));continue}
-				// nick, err := jint.GetString(json, "nick")
-				// if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
+				nick, err := jint.GetString(json, "nick")
+				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'nick'", err));continue}
 				intPort, _ := strconv.Atoi(port)
 				index := getPortIndex(intPort)
 				if !setPortBusy(intPort) {
 					// add an error handle if needed.
 					continue
 				}
-				go com.SendFile(ip, mac, username, intPort, uuid, dir, dest, &(ports[index][1]))
+				go com.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports[index][1]))
 			case "cncl":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf("(Commander JSON Parse Error). ERROR: %v, KEY: 'dir'", err));continue}
