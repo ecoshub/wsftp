@@ -7,7 +7,7 @@ import (
     "os/user"
     "net"
     rw "github.com/ecoshub/penman"
-    "github.com/ecoshub/jparse"
+    "github.com/ecoshub/jint"
 )
 
 var Sep = string(os.PathSeparator)
@@ -46,9 +46,8 @@ func GetCustomUsername() string{
     if rw.IsFileExist(settingDir) {
         if !rw.IsFileEmpty(settingDir) {
             file := rw.Read(settingDir)
-            json := jparse.Parse(file)
-            username, done := json.Get("username")
-            if done {
+            username, done := jint.Get(file, "username")
+            if done == nil{
                 return string(username)
             }
         }
