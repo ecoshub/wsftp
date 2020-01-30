@@ -1,0 +1,6 @@
+github.com/ecoshub/jint v0.0.0-20200129222115-719498ea4903 h1:3Qv4lCEioz/jMnFEvpiCj3SEKXlGezWb9QfM7gfHLRQ=
+github.com/ecoshub/jint v0.0.0-20200129222115-719498ea4903/go.mod h1:rwoLxgrkne1q5VlOiOXKHl+iRgqpZgax++/J1mBPxDI=
+github.com/ecoshub/penman v0.0.0-20191215215553-76f0efaf3b0a h1:vQODOT7RW1n5X89rAJ/W1+2C7ooO9jZoNjgKc8RZWMc=
+github.com/ecoshub/penman v0.0.0-20191215215553-76f0efaf3b0a/go.mod h1:/1u9UH2HFIQ7mGp5DEkSMtmlo02TmRt6KeF6dc0u8oA=
+github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
+github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
