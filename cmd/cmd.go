@@ -5,7 +5,7 @@ import (
 	"net"
 	"strconv"
 	utils "wsftp/utils"
-    rw "github.com/ecoshub/penman"  
+    rw "github.com/ecoshub/penman"
 )
 
 const (
@@ -34,7 +34,7 @@ func SendRequest(ip, dir, mac, username, nick, uuid string){
     fileType := utils.GetFileExt(fileName)
 
     if fileSize == 0 {
-        fnf := `{"event":"info","content":"File not found"}`
+        fnf := `{"event":"info","content":"File not found or size is zero"}`
         TransmitData(myIP, SRLISTEN, fnf)
     }else{
         dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
@@ -130,7 +130,7 @@ func SendMessage(ip, mac, username, nick, msg string){
     smsg := `{"event":"smsg",` + dataToMe
     fmsg := `{"event":"fmsg",` + dataToMe
 
-    res := TransmitData(ip,MSGLISTEN, rmsg)
+    res := TransmitData(ip, MSGLISTEN, rmsg)
     if res {
         TransmitData(myIP, MSGLISTEN, smsg)
     }else{
@@ -147,12 +147,12 @@ func TransmitData(ip string, port int, msg string) bool{
         return false
     }
     conn, err := net.DialTCP("tcp", nil, tcpAddr)
+    defer conn.Close()
     if err != nil {
         fmt.Println("Connection Fail (Inner)", err)
         return false
     }else{
         conn.Write([]byte(msg))
-        conn.Close()
         return true
     }
 }

@@ -146,12 +146,15 @@ func manage(){
 					if err != nil {parseErrorHandle(err, "nick");continue}
 					if utils.IsDir(dir) {
 						cmd.TransmitData(myIP, SRLISTENPORT,`{"event":"info","content":"Folder transaction not suppoted."}`)
+						continue
 					}else{
 						cmd.SendRequest(ip, dir, mac, username, nick, uuid)
 						activeTransaction++
+						continue
 					}
 				}else{
 					cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"info","content":"Active transaction full","dir":"%v"}`, dir))
+					continue
 				}
 			case "cacp":
 				dir, err := jint.GetString(json, "dir")
