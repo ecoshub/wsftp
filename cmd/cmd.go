@@ -147,12 +147,12 @@ func TransmitData(ip string, port int, msg string) bool{
         return false
     }
     conn, err := net.DialTCP("tcp", nil, tcpAddr)
-    defer conn.Close()
     if err != nil {
         fmt.Println("Connection Fail (Inner)", err)
         return false
     }else{
         conn.Write([]byte(msg))
+        conn.Close()
         return true
     }
 }
