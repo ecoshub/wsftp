@@ -198,7 +198,7 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control * 
 	res := com.Listen()
     if !res{return}
 
-    // receive file destination
+    // receive file dest
     res = com.RecData(byteChan)
     if !res {return}
 

@@ -82,9 +82,9 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int){
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
+    dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","dest":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
         myUsername, myNick, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
-    dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","destination":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
+    dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","dest":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
         username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
 
     racp := `{"event":"racp",` + dataToSend

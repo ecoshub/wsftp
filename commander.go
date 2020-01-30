@@ -215,8 +215,8 @@ func manage(){
 			case "racp":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {parseErrorHandle(err, "dir");continue}
-				dest, err := jint.GetString(json, "destination")
-				if err != nil {parseErrorHandle(err, "destination");continue}
+				dest, err := jint.GetString(json, "dest")
+				if err != nil {parseErrorHandle(err, "dest");continue}
 				uuid, err := jint.GetString(json, "uuid")
 				if err != nil {parseErrorHandle(err, "uuid");continue}
 				mac, err := jint.GetString(json, "mac")
