@@ -129,7 +129,7 @@ func manage(){
 			case "actv":
 				cmd.TransmitData(myIP, SRLISTENPORT, fmt.Sprintf(`{"event":"actv","total":"%v","active":"%v"}`, ACTIVETRANSACTIONLIMIT, activeTransaction))
 			case "my":
-				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":%v}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
+				cmd.TransmitData(myIP, SRLISTENPORT,fmt.Sprintf(`{"event":"my","username":"%v","mac":"%v","ip":"%v","nick":"%v"}`, utils.GetUsername(), utils.GetEthMac(), myIP, utils.GetNick()))
 			case "creq":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {parseErrorHandle(err, "dir");continue}
