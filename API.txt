@@ -23,7 +23,7 @@ Commands
 				"username":"my_username",
 				"mac":"my_mac",
 				"ip":"my_ip",
-				"nick": "custom_username"
+				"nick": "my_custom_username"
 			}
 
 	send file request
@@ -33,9 +33,9 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"uuid":"custom_id",
-			"ip":my_ip,
+			"ip":ip_receiver,
 			"username":"username_receiver",
-			"nick": "custom_username"
+			"nick": "custom_username_receiver"
 		}
 
 	send cancel file
@@ -45,9 +45,9 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"uuid":"custom_id",
-			"ip":my_ip,
+			"ip":ip_receiver,
 			"username":"username_receiver",
-			"nick": "custom_username"
+			"nick": "custom_username_receiver"
 		}
 
 	send accept to request
@@ -57,9 +57,9 @@ Commands
 			"dir":"file_dir",
 			"dest":"file_dest",
 			"uuid":"custom_id",
-			"ip":my_ip,
+			"ip":ip_receiver,
 			"username":"username_receiver",
-			"nick": "custom_username"
+			"nick": "custom_username_receiver"
 		}
 
 	send reject to request
@@ -68,9 +68,9 @@ Commands
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"uuid":"custom_id",
-			"ip":my_ip,
+			"ip":ip_receiver,
 			"username":"username_receiver",
-			"nick": "custom_username"
+			"nick": "custom_username_receiver"
 		}
 
 	send message
@@ -79,9 +79,9 @@ Commands
 			"event":"cmsg",
 			"mac":"MAC_of_receiver",
 			"msg":"msg_content",
-			"ip":my_ip,
+			"ip":ip_receiver,
 			"username":"username_receiver",
-			"nick": "custom_username"
+			"nick": "custom_username_receiver"
 		}
 
 	kill download/upload progress
@@ -99,10 +99,10 @@ Commands
 Handshake Port Transfer Messages
 	{
 		"event":"online/offline",
-		"ip":"IP",
+		"ip":"ip_receiver",
 		"username":"username",
 		"mac":"MAC_of_receiver",
-		"nick": "custom_username"
+		"nick": "custom_username_receiver"
 	}
 
 Send/Receive Port Transfer Messages
@@ -132,8 +132,8 @@ File Send Cancel
 		{
 			"event":"rcncl",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -147,8 +147,8 @@ File Send Cancel
 		{
 			"event":"scncl",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -162,8 +162,8 @@ File Send Cancel
 		{
 			"event":"fcncl",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -178,8 +178,8 @@ File Send Requests
 		{
 			"event":"rreq",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -193,8 +193,8 @@ File Send Requests
 		{
 			"event":"sreq",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -208,8 +208,8 @@ File Send Requests
 		{
 			"event":"freq",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -224,8 +224,8 @@ Requests Acceptation
 		{
 			"event":"racp",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -240,8 +240,8 @@ Requests Acceptation
 		{
 			"event":"sacp",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -256,8 +256,8 @@ Requests Acceptation
 		{
 			"event":"facp",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver"
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -273,8 +273,8 @@ Requests Rejection
 		{
 			"event":"rrej",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -287,8 +287,8 @@ Requests Rejection
 		{
 			"event":"srej",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -302,8 +302,8 @@ Requests Rejection
 		{
 			"event":"frej",
 			"username": "username",
-			"nick": "custom_username"
-			"ip":"IP",
+			"nick": "custom_username_receiver"
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"dir":"file_dir",
 			"fileName": "filename.extension",
@@ -319,7 +319,7 @@ File Transfer Progress
 		{
 			"event":"prg",
 			"username": "username",
-			"ip":"IP",
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"port":"port",
 			"uuid":"custom_id",
@@ -334,7 +334,7 @@ File Transfer Progress
 		{
 			"event":"fprg",
 			"username": "username",
-			"ip":"IP",
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"port":"port",
 			"uuid":"custom_id",
@@ -349,7 +349,7 @@ File Transfer Progress
 		{
 			"event":"dprg",
 			"username": "username",
-			"ip":"IP",
+			"ip":"ip_receiver",
 			"mac":"MAC_of_receiver",
 			"port":"port",
 			"uuid":"custom_id",
