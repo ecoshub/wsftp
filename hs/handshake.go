@@ -2,50 +2,50 @@ package hs
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	"net"
 	"net/http"
 	"os"
-    "os/signal"
-    "syscall"
-    "wsftp/utils"
-	"github.com/gorilla/websocket"
+	"os/signal"
+	"syscall"
+	"wsftp/utils"
 	// "github.com/ecoshub/jparse"
 	"github.com/ecoshub/jint"
 )
 
 const (
-	MAINPORT string = "9998"
-	WSCOMPORT string = "10000"
-	ENDPOINT = "/hs"
+	MAINPORT          string = "9998"
+	WSCOMPORT         string = "10000"
+	ENDPOINT                 = "/hs"
 	BROADCASTLISTENIP string = "0.0.0.0"
-	LOOPCONTROLLIMIT int = 100
-	UDPREPEAT int = 5
+	LOOPCONTROLLIMIT  int    = 100
+	UDPREPEAT         int    = 5
 )
 
 var (
-	broadcastIP string = utils.GetBroadcastIP().String()
-	myIP string = utils.GetInterfaceIP().String()
-	myEthMac string = utils.GetEthMac()
-	myUsername string = utils.GetUsername()
-	myNick string = utils.GetNick()
-	receiveControl bool = true
-	MACList []string = make([]string,0,1024)
-	onlineCount int = 0
-	onlines = make(map[string][]string, 256)
-	innerMessageChan = make(chan []byte, 1)
-	sigs = make(chan os.Signal, 1)
+	broadcastIP      string   = utils.GetBroadcastIP().String()
+	myIP             string   = utils.GetInterfaceIP().String()
+	myEthMac         string   = utils.GetEthMac()
+	myUsername       string   = utils.GetUsername()
+	myNick           string   = utils.GetNick()
+	receiveControl   bool     = true
+	MACList          []string = make([]string, 0, 1024)
+	onlineCount      int      = 0
+	onlines                   = make(map[string][]string, 256)
+	innerMessageChan          = make(chan []byte, 1)
+	sigs                      = make(chan os.Signal, 1)
 
 	upgraderHS = websocket.Upgrader{
-	ReadBufferSize:    1024,
-	WriteBufferSize:   1024,
-	EnableCompression: false,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+		ReadBufferSize:    1024,
+		WriteBufferSize:   1024,
+		EnableCompression: false,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
 )
 
-func handleConn(w http.ResponseWriter, r *http.Request){
+func handleConn(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgraderHS.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("Handshake web socket connection error: ", err)
@@ -56,42 +56,42 @@ func handleConn(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func Start(){
+func Start() {
 	http.HandleFunc(ENDPOINT, handleConn)
 	go activity()
-	err := http.ListenAndServe(":" + WSCOMPORT, nil)
+	err := http.ListenAndServe(":"+WSCOMPORT, nil)
 	fmt.Println("Handshake server shutdown unexpectedly!", err)
-	sendInfo("Handshake server shutdown unexpectedly!, err:" +  err.Error())
+	sendInfo("Handshake server shutdown unexpectedly!, err:" + err.Error())
 }
 
-func Restart(){
-    done := make(chan bool, 1)
-    onClose(done)
-    <-done
-    myUsername = utils.GetUsername()
-    myNick = utils.GetNick()
-	MACList = make([]string,0,1024)
-    onlines = make(map[string][]string, 128)
-    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
-    sendPack(broadcastIP, MAINPORT, []byte(data))
+func Restart() {
+	done := make(chan bool, 1)
+	onClose(done)
+	<-done
+	myUsername = utils.GetUsername()
+	myNick = utils.GetNick()
+	MACList = make([]string, 0, 1024)
+	onlines = make(map[string][]string, 128)
+	data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
+	sendPack(broadcastIP, MAINPORT, []byte(data))
 }
 
-func activity(){	
-    done := make(chan bool, 1)
-    signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-    data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
-    sendPack(broadcastIP, MAINPORT, []byte(data))
+func activity() {
+	done := make(chan bool, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
+	sendPack(broadcastIP, MAINPORT, []byte(data))
 	receiveChan := make(chan []byte, 1)
-    go func() {
-        <- sigs
-        onClose(done)
-        receiveControl = false
-        <- done
-      	os.Exit(0)
-    }()
+	go func() {
+		<-sigs
+		onClose(done)
+		receiveControl = false
+		<-done
+		os.Exit(0)
+	}()
 	for receiveControl {
 		go receive(BROADCASTLISTENIP, MAINPORT, receiveChan)
-		receive := <- receiveChan
+		receive := <-receiveChan
 		if len(receive) < 2 {
 			if len(receive) == 1 {
 				if receive[0] == 0 {
@@ -105,28 +105,43 @@ func activity(){
 			}
 		}
 		tempStatus, err := jint.GetString(receive, "event")
-		if err != nil {sendInfo("HS json parse error. Key:'event' err: " + err.Error());continue}
+		if err != nil {
+			sendInfo("HS json parse error. Key:'event' err: " + err.Error())
+			continue
+		}
 		tempIP, err := jint.GetString(receive, "ip")
-		if err != nil {sendInfo("HS json parse error. Key:'ip' err: " + err.Error());continue}
+		if err != nil {
+			sendInfo("HS json parse error. Key:'ip' err: " + err.Error())
+			continue
+		}
 		tempUsername, err := jint.GetString(receive, "username")
-		if err != nil {sendInfo("HS json parse error. Key:'username' err: " + err.Error());continue}
+		if err != nil {
+			sendInfo("HS json parse error. Key:'username' err: " + err.Error())
+			continue
+		}
 		tempMAC, err := jint.GetString(receive, "mac")
-		if err != nil {sendInfo("HS json parse error. Key:'mac' err: " + err.Error());continue}
+		if err != nil {
+			sendInfo("HS json parse error. Key:'mac' err: " + err.Error())
+			continue
+		}
 		tempNick, err := jint.GetString(receive, "nick")
-		if err != nil {sendInfo("HS json parse error. Key:'nick' err: " + err.Error());continue}
-		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`,tempStatus, tempIP, tempUsername, tempNick, tempMAC)
+		if err != nil {
+			sendInfo("HS json parse error. Key:'nick' err: " + err.Error())
+			continue
+		}
+		msg := fmt.Sprintf(`{"event":"%v","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, tempStatus, tempIP, tempUsername, tempNick, tempMAC)
 		if tempMAC != myEthMac {
-			if !hasThis(MACList, tempMAC) && tempStatus == "online" && tempUsername != myUsername{
-				onlines[tempMAC] = []string{tempUsername, tempIP} 
+			if !hasThis(MACList, tempMAC) && tempStatus == "online" && tempUsername != myUsername {
+				onlines[tempMAC] = []string{tempUsername, tempIP}
 				MACList = append(MACList, tempMAC)
 				onlineCount++
 				innerMessageChan <- []byte(msg)
 				data := fmt.Sprintf(`{"event":"online","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
-	    		sendPack(broadcastIP, MAINPORT, []byte(data))
+				sendPack(broadcastIP, MAINPORT, []byte(data))
 			}
-			if hasThis(MACList, tempMAC) && tempStatus == "offline" && tempUsername != myUsername{
+			if hasThis(MACList, tempMAC) && tempStatus == "offline" && tempUsername != myUsername {
 				MACList = removeFromList(MACList, tempMAC)
-				delete(onlines, tempMAC) 
+				delete(onlines, tempMAC)
 				onlineCount--
 				innerMessageChan <- []byte(msg)
 			}
@@ -134,80 +149,80 @@ func activity(){
 	}
 }
 
-func receive(ip, port string, ch chan<- []byte){
+func receive(ip, port string, ch chan<- []byte) {
 	buff := make([]byte, 1024)
-    pack, err := net.ListenPacket("udp", ip + ":" + port)
+	pack, err := net.ListenPacket("udp", ip+":"+port)
 	defer pack.Close()
-    if err != nil {
-        sendInfo("UDP(R) Connection Error " + err.Error())
-        ch <- []byte{0}
-    }
-    n, _, err := pack.ReadFrom(buff)
-    if err != nil {
-        sendInfo("UDP(R) Read Error " + err.Error())
-        ch <- []byte{0}
-    }
-    ch <- buff[:n]
+	if err != nil {
+		sendInfo("UDP(R) Connection Error " + err.Error())
+		ch <- []byte{0}
+	}
+	n, _, err := pack.ReadFrom(buff)
+	if err != nil {
+		sendInfo("UDP(R) Read Error " + err.Error())
+		ch <- []byte{0}
+	}
+	ch <- buff[:n]
 }
 
-func sendPack(ip, port string, data []byte){
+func sendPack(ip, port string, data []byte) {
 	sendValidationChan := make(chan int, 1)
 	valid := 0
 	count := 0
 	for valid != 1 {
-		for i := 0 ; i < UDPREPEAT ; i++ {
-			go send(ip, port, data , sendValidationChan)
+		for i := 0; i < UDPREPEAT; i++ {
+			go send(ip, port, data, sendValidationChan)
 		}
-		valid = <- sendValidationChan
+		valid = <-sendValidationChan
 		count++
 		if count > LOOPCONTROLLIMIT {
-        	sendInfo("UDP(S) Repetition Error. Something is wrong can't send any signal!")
+			sendInfo("UDP(S) Repetition Error. Something is wrong can't send any signal!")
 			return
 		}
 	}
 }
 
-func send(ip, port string, data []byte, ch chan<- int){
-    conn, err := net.Dial("udp", ip + ":" + port)
-       if err != nil {
-        sendInfo("UDP(S) Connection Error." + err.Error())
-    	ch <- 0
-    }else{
-    	defer conn.Close()
-	    conn.Write(data)
-	    ch <- 1
-    }
+func send(ip, port string, data []byte, ch chan<- int) {
+	conn, err := net.Dial("udp", ip+":"+port)
+	if err != nil {
+		sendInfo("UDP(S) Connection Error." + err.Error())
+		ch <- 0
+	} else {
+		defer conn.Close()
+		conn.Write(data)
+		ch <- 1
+	}
 }
 
-func onClose(ch chan<- bool){
+func onClose(ch chan<- bool) {
 	sendValidationChan := make(chan int, 1)
 	data := fmt.Sprintf(`{"event":"offline","ip":"%v","username":"%v","nick":"%v","mac":"%v"}`, myIP, myUsername, myNick, myEthMac)
 	valid := 0
 	count := 0
 	for valid != 1 {
-		for i := 0 ; i < UDPREPEAT ; i++ {
-			go offlineFunc(broadcastIP, MAINPORT, []byte(data) , sendValidationChan)
+		for i := 0; i < UDPREPEAT; i++ {
+			go offlineFunc(broadcastIP, MAINPORT, []byte(data), sendValidationChan)
 		}
-		valid = <- sendValidationChan
+		valid = <-sendValidationChan
 		count++
 		if count > LOOPCONTROLLIMIT {
-        	sendInfo("UDP(S-Off) Repetition Error. Something is wrong can't send any signal!")
+			sendInfo("UDP(S-Off) Repetition Error. Something is wrong can't send any signal!")
 			break
 		}
 	}
 	ch <- true
 }
 
-func offlineFunc(ip, port string, data []byte, ch chan<- int){
-    conn, err := net.Dial("udp", ip + ":" + port)
-       if err != nil {
-        sendInfo("UDP(S-Off) Connection Error." + err.Error())
-        ch <- 0
-    }else{
-    	defer conn.Close()
-    	conn.Write(data)
-    	ch <- 1
-    }
+func offlineFunc(ip, port string, data []byte, ch chan<- int) {
+	conn, err := net.Dial("udp", ip+":"+port)
+	if err != nil {
+		sendInfo("UDP(S-Off) Connection Error." + err.Error())
+		ch <- 0
+	} else {
+		defer conn.Close()
+		conn.Write(data)
+		ch <- 1
+	}
 }
 
 func hasThis(list []string, el string) bool {
@@ -219,15 +234,15 @@ func hasThis(list []string, el string) bool {
 	return false
 }
 
-func removeFromList(list []string, el string) []string{
+func removeFromList(list []string, el string) []string {
 	lenl := len(list)
 	if lenl < 2 {
 		return nil
 	}
-	newList := make([]string,lenl - 1,1024)
+	newList := make([]string, lenl-1, 1024)
 	count := 0
 	for _, v := range list {
-		if v != el  {
+		if v != el {
 			newList[count] = v
 			count++
 		}
@@ -235,7 +250,7 @@ func removeFromList(list []string, el string) []string{
 	return newList
 }
 
-func sendInfo(msg string){
-    msg = fmt.Sprintf(`{"event":"info","content":"-HANDSHAKE- %v"}`, msg)
+func sendInfo(msg string) {
+	msg = fmt.Sprintf(`{"event":"info","content":"-HANDSHAKE- %v"}`, msg)
 	innerMessageChan <- []byte(msg)
 }
