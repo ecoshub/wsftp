@@ -5,7 +5,8 @@ import (
 	"net"
 	"strconv"
 	utils "wsftp/utils"
-    rw "github.com/ecoshub/penman"
+    penman "github.com/ecoshub/penman"
+    jint "github.com/ecoshub/jint"
 )
 
 const (
@@ -28,131 +29,151 @@ var (
 )
 
 func SendRequest(ip, dir, mac, username, nick, uuid string){
-    dir = rw.PreProcess(dir)
+
+    dir = penman.PreProcess(dir)
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
     if fileSize == 0 {
-        fnf := `{"event":"info","content":"File not found or size is zero"}`
-        TransmitData(myIP, SRLISTEN, fnf)
-    }else{
-        dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
-         myUsername, myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
-        dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
-         username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
+        fileNotFound := jint.MakeJson([]string{"event","content"},[]string{"info","File not found or size is zero"})
+        TransmitDataByte(myIP, SRLISTEN, fileNotFound)
+        return
+    }
 
-        rreq := `{"event":"rreq",` + dataToSend
-        sreq := `{"event":"sreq",` + dataToMe
-        freq := `{"event":"freq",` + dataToMe
-        
-        res := TransmitData(ip, SRLISTEN, rreq)
-        if res {
-            TransmitData(myIP, SRLISTEN, sreq)
-        }else{
-            TransmitData(myIP, SRLISTEN, freq)
-        }
+    data := jint.Scheme([]string{"event","username","nick","ip","mac","dir","fileName","fileType","fileSize","contentType","uuid"})
+
+    dataForReceiver := data.MakeJson([]string{"none", myUsername,myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid})
+    dataForMe := data.MakeJson([]string{"none", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid})
+
+    rreq, _ := jint.SetString(dataForReceiver, "rreq", "event")
+    sreq, _ := jint.SetString(dataForMe, "sreq", "event")
+    freq, _ := jint.SetString(dataForMe, "freq", "event")
+
+
+    if TransmitDataByte(ip, SRLISTEN, rreq) {
+        TransmitDataByte(myIP, SRLISTEN, sreq)
+    }else{
+        TransmitDataByte(myIP, SRLISTEN, freq)
     }
 }
 
 func SendCancel(ip, dir, mac, username, nick, uuid string){
-    dir = rw.PreProcess(dir)
+
+    dir = penman.PreProcess(dir)
     fileSize := utils.GetFileSize(dir)
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
-     myUsername, myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
-    dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","fileSize":"%v","contentType":"file","uuid":"%v"}`,
-     username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), uuid)
+    data := jint.Scheme([]string{"event","username","nick","ip","mac","dir","fileName","fileType","fileSize","contentType","uuid"})
 
-    rreq := `{"event":"rcncl",` + dataToSend
-    sreq := `{"event":"scncl",` + dataToMe
-    freq := `{"event":"fcncl",` + dataToMe
-    
-    res := TransmitData(ip, SRLISTEN, rreq)
-    if res {
-        TransmitData(myIP, SRLISTEN, sreq)
+    dataForReceiver := data.MakeJson([]string{"none", myUsername,myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid})
+    dataForMe := data.MakeJson([]string{"none", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid})
+
+    rcncl, _ := jint.SetString(dataForReceiver, "rcncl", "event")
+    scncl, _ := jint.SetString(dataForMe, "scncl", "event")
+    fcncl, _ := jint.SetString(dataForMe, "fcncl", "event")
+
+    TransmitDataByte(ip, SRLISTEN, rcncl)
+    if TransmitDataByte(ip, SRLISTEN, rcncl) {
+        TransmitDataByte(myIP, SRLISTEN, scncl)
     }else{
-        TransmitData(myIP, SRLISTEN, freq)
+        TransmitDataByte(myIP, SRLISTEN, fcncl)
     }
 }
 
 func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int){
+
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","dest":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
-        myUsername, myNick, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
-    dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","dest":"%v","port":"%v","uuid":"%v","contentType":"file"}`,
-        username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid)
+    data := jint.Scheme([]string{"event","username","nick","ip","mac","dir","fileName","fileType","dest","port","uuid","contentType"})
 
-    racp := `{"event":"racp",` + dataToSend
-    sacp := `{"event":"sacp",` + dataToMe
-    facp := `{"event":"facp",` + dataToMe
+    dataForReceiver := data.MakeJson([]string{"none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid,"file"})
+    dataForMe := data.MakeJson([]string{"none", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file"})
+
+    racp, _ := jint.SetString(dataForReceiver, "racp", "event")
+    sacp, _ := jint.SetString(dataForMe, "sacp", "event")
+    facp, _ := jint.SetString(dataForMe, "facp", "event")
     
-    res := TransmitData(ip, MAINLISTEN, racp)
-    if res {
-        TransmitData(myIP, SRLISTEN, sacp)
-        TransmitData(ip, SRLISTEN, racp)
+    if TransmitDataByte(ip, MAINLISTEN, racp) {
+        TransmitDataByte(myIP, SRLISTEN, sacp)
+        TransmitDataByte(ip, SRLISTEN, racp)
     }else{
-        TransmitData(ip, SRLISTEN, facp)
-        TransmitData(myIP, SRLISTEN, facp)
+        TransmitDataByte(ip, SRLISTEN, facp)
+        TransmitDataByte(myIP, SRLISTEN, facp)
     }
 }
 
 func SendReject(ip, mac, dir, uuid, username, nick, cause string){
+
     fileName := utils.GetFileName(dir)
     fileType := utils.GetFileExt(fileName)
 
-    dataToSend := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","uuid":"%v","cause":"%v"}`,
-     myUsername, myNick, myIP, myMAC, dir, fileName, fileType, uuid, cause)
-    dataToMe := fmt.Sprintf(`"username":"%v","nick":"%v","ip":"%v","mac":"%v","dir":"%v","fileName":"%v","fileType":"%v","contentType":"file","uuid":"%v","cause":"%v"}`,
-     username, nick, ip, mac, dir, fileName, fileType, uuid, cause)
+    data := jint.Scheme([]string{"event","username","nick","ip","mac","dir","fileName","fileType","uuid","cause","contentType"})
 
-    rrej := `{"event":"rrej",` + dataToSend
-    srej := `{"event":"srej",` + dataToMe
-    frej := `{"event":"frej",` + dataToMe
+    dataForReceiver := data.MakeJson([]string{"none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, uuid, cause, "file"})
+    dataForMe := data.MakeJson([]string{username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file"})
 
-    res := TransmitData(ip, SRLISTEN, rrej)
-    if res {
-    	TransmitData(myIP, SRLISTEN, srej)
+    rrej, _ := jint.SetString(dataForReceiver, "rrej", "event")
+    srej, _ := jint.SetString(dataForMe, "srej", "event")
+    frej, _ := jint.SetString(dataForMe, "frej", "event")
+
+    if TransmitDataByte(ip, SRLISTEN, rrej) {
+        TransmitDataByte(myIP, SRLISTEN, srej)
     }else{
-    	TransmitData(myIP, SRLISTEN, frej)
+        TransmitDataByte(myIP, SRLISTEN, frej)
     }
 }
 
 func SendMessage(ip, mac, username, nick, msg string){
-    dataToSend := fmt.Sprintf(`"mac":"%v","username":"%v","nick":"%v","content":"%v","contentType":"text"}`, myMAC, myUsername, myNick, msg)
-    dataToMe := fmt.Sprintf(`"mac":"%v","username":"%v","nick":"%v","content":"%v","contentType":"text"}`,mac,  username, nick, msg)
 
-    rmsg := `{"event":"rmsg",` + dataToSend
-    smsg := `{"event":"smsg",` + dataToMe
-    fmsg := `{"event":"fmsg",` + dataToMe
+    data := jint.Scheme([]string{"event","mac","username","nick","content","contentType"})
 
-    res := TransmitData(ip, MSGLISTEN, rmsg)
-    if res {
-        TransmitData(myIP, MSGLISTEN, smsg)
+    dataForReceiver := data.MakeJson([]string{"none", myMAC, myUsername, myNick, msg, "text"})
+    dataForMe := data.MakeJson([]string{"none", mac,  username, nick, msg, "text"})
+
+    rmsg, _ := jint.SetString(dataForReceiver, "rmsg", "event")
+    smsg, _ := jint.SetString(dataForMe, "smsg", "event")
+    fmsg, _ := jint.SetString(dataForMe, "fmsg", "event")
+
+    if TransmitDataByte(ip, SRLISTEN, rmsg) {
+        TransmitDataByte(myIP, SRLISTEN, smsg)
     }else{
-        TransmitData(myIP, MSGLISTEN, fmsg)
+        TransmitDataByte(myIP, SRLISTEN, fmsg)
     }
 }
 
-func TransmitData(ip string, port int, msg string) bool{
-    strPort := strconv.Itoa(port)
-    addr := ip + ":" + strPort
-    tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
+func TransmitDataByte(ip string, port int, data []byte) bool{
+    tcpAddr, err := net.ResolveTCPAddr("tcp", ip + ":" + strconv.Itoa(port))
     if err != nil {
         fmt.Println("Address resolving error (Inner)", err)
-        return false
+       return false
     }
     conn, err := net.DialTCP("tcp", nil, tcpAddr)
     if err != nil {
         fmt.Println("Connection Fail (Inner)", err)
-        return false
+       return false
     }else{
-        conn.Write([]byte(msg))
+        conn.Write(data)
         conn.Close()
-        return true
+       return true
+    }
+}
+
+func TransmitData(ip string, port int, data string) bool{
+    tcpAddr, err := net.ResolveTCPAddr("tcp", ip + ":" + strconv.Itoa(port))
+    if err != nil {
+        fmt.Println("Address resolving error (Inner)", err)
+       return false
+    }
+    conn, err := net.DialTCP("tcp", nil, tcpAddr)
+    if err != nil {
+        fmt.Println("Connection Fail (Inner)", err)
+       return false
+    }else{
+        conn.Write([]byte(data))
+        conn.Close()
+       return true
     }
 }
