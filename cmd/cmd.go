@@ -41,7 +41,7 @@ func SendRequest(ip, dir, mac, username, nick, uuid string) {
 		return
 	}
 
-	data := jint.Scheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
+	data := jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
 
 	dataForReceiver := data.MakeJson("none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	dataForMe := data.MakeJson("none", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
@@ -64,7 +64,7 @@ func SendCancel(ip, dir, mac, username, nick, uuid string) {
 	fileName := utils.GetFileName(dir)
 	fileType := utils.GetFileExt(fileName)
 
-	data := jint.Scheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
+	data := jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
 
 	dataForReceiver := data.MakeJson("none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	dataForMe := data.MakeJson("none", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
@@ -86,7 +86,7 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	fileName := utils.GetFileName(dir)
 	fileType := utils.GetFileExt(fileName)
 
-	data := jint.Scheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
+	data := jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
 
 	dataForReceiver := data.MakeJson("none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	dataForMe := data.MakeJson("none", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
@@ -109,7 +109,7 @@ func SendReject(ip, mac, dir, uuid, username, nick, cause string) {
 	fileName := utils.GetFileName(dir)
 	fileType := utils.GetFileExt(fileName)
 
-	data := jint.Scheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
+	data := jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
 
 	dataForReceiver := data.MakeJson("none", myUsername, myNick, myIP, myMAC, dir, fileName, fileType, uuid, cause, "file")
 	dataForMe := data.MakeJson(username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file")
@@ -127,7 +127,7 @@ func SendReject(ip, mac, dir, uuid, username, nick, cause string) {
 
 func SendMessage(ip, mac, username, nick, msg string) {
 
-	data := jint.Scheme("event", "mac", "username", "nick", "content", "contentType")
+	data := jint.MakeScheme("event", "mac", "username", "nick", "content", "contentType")
 
 	dataForReceiver := data.MakeJson("none", myMAC, myUsername, myNick, msg, "text")
 	dataForMe := data.MakeJson("none", mac, username, nick, msg, "text")
