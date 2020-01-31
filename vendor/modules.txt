@@ -1,0 +1,6 @@
+# github.com/ecoshub/jint v0.0.0-20200130002953-972b99d22935
+github.com/ecoshub/jint
+# github.com/ecoshub/penman v0.0.0-20191215215553-76f0efaf3b0a
+github.com/ecoshub/penman
+# github.com/gorilla/websocket v1.4.1
+github.com/gorilla/websocket
