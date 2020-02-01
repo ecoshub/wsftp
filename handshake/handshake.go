@@ -79,8 +79,8 @@ func Start() {
 func Restart() {
 	sendMessage(OFFLINE_MESSAGE)
 	tools.MY_NICK = tools.GetNick()
-	ONLINE_MESSAGE, _ = jint.SetSting(ONLINE_MESSAGE, tools.MY_NICK, "nick")
-	OFFLINE_MESSAGE, _ = jint.SetSting(OFFLINE_MESSAGE, tools.MY_NICK, "nick")
+	ONLINE_MESSAGE, _ = jint.SetString(ONLINE_MESSAGE, tools.MY_NICK, "nick")
+	OFFLINE_MESSAGE, _ = jint.SetString(OFFLINE_MESSAGE, tools.MY_NICK, "nick")
 	MACList = make([]string, 0, 1024)
 	onlineList = make(map[string][]string, 128)
 	sendMessage(ONLINE_MESSAGE)
