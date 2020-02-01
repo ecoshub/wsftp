@@ -1,4 +1,4 @@
-package tools
+package ports
 
 import "strconv"
 import "net"
@@ -6,13 +6,15 @@ import "errors"
 
 var (
 	// ports
-	TCP_TRANSECTION_START_PORT  int = 9996
-	TCP_COMMANDER_LISTEN_PORT   int = 9997
-	UDP_HANDSHAKE_LISTEN_PORT   int = 9998
-	WS_COMMANDER_LISTEN_PORT    int = 9999
-	WS_HANDSHAKE_LISTEN_PORT    int = 10000
-	WS_SEND_RECEIVE_LISTEN_PORT int = 10001
-	WS_MESSAGE_LISTEN_PORT      int = 10002
+	TCP_TRANSECTION_START_PORT   int = 9996
+	WS_COMMANDER_LISTEN_PORT     int = 9997
+	UDP_HANDSHAKE_LISTEN_PORT    int = 9998
+	TCP_COMMANDER_LISTEN_PORT    int = 9999
+	WS_HANDSHAKE_LISTEN_PORT     int = 10000
+	TCP_SEND_RECEIVE_LISTEN_PORT int = 10001
+	TCP_MESSAGE_LISTEN_PORT      int = 10002
+	WS_SEND_RECEIVE_LISTEN_PORT  int = 10003
+	WS_MESSAGE_LISTEN_PORT       int = 10004
 
 	ACTIVE_TRANSACTION_LIMIT int = 25
 	ActiveTransaction        int = 0
@@ -45,11 +47,11 @@ func AllocatePort() int {
 }
 
 func MainPortCheck() error {
-	result := portCheck(WS_COMMANDER_LISTEN_PORT)
+	result := portCheck(TCP_TRANSECTION_START_PORT)
 	if !result {
 		return errors.New(ERROR_MAIN_PORT_BUSSY)
 	}
-	result = result && portCheck(TCP_COMMANDER_LISTEN_PORT)
+	result = result && portCheck(WS_COMMANDER_LISTEN_PORT)
 	if !result {
 		return errors.New(ERROR_MAIN_PORT_BUSSY)
 	}
@@ -57,7 +59,19 @@ func MainPortCheck() error {
 	if !result {
 		return errors.New(ERROR_MAIN_PORT_BUSSY)
 	}
+	result = result && portCheck(TCP_COMMANDER_LISTEN_PORT)
+	if !result {
+		return errors.New(ERROR_MAIN_PORT_BUSSY)
+	}
 	result = result && portCheck(WS_HANDSHAKE_LISTEN_PORT)
+	if !result {
+		return errors.New(ERROR_MAIN_PORT_BUSSY)
+	}
+	result = result && portCheck(TCP_SEND_RECEIVE_LISTEN_PORT)
+	if !result {
+		return errors.New(ERROR_MAIN_PORT_BUSSY)
+	}
+	result = result && portCheck(TCP_MESSAGE_LISTEN_PORT)
 	if !result {
 		return errors.New(ERROR_MAIN_PORT_BUSSY)
 	}
@@ -90,19 +104,19 @@ func GetPortIndex(port int) (int, error) {
 	return -1, errors.New(ERROR_PORT_INDEX_GET)
 }
 
-func SetPortBusy(port int) (error) {
+func SetPortBusy(port int) error {
 	index, err := GetPortIndex(port)
 	if err != nil {
 		return err
 	}
 	if index > -1 && index < ACTIVE_TRANSACTION_LIMIT {
 		Ports[index][1] = 1
-		return  nil
+		return nil
 	}
 	return errors.New(ERROR_PORT_INDEX_SET)
 }
 
-func FreePort(port int) (error) {
+func FreePort(port int) error {
 	index, err := GetPortIndex(port)
 	if err != nil {
 		return err
