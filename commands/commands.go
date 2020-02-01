@@ -19,7 +19,6 @@ const (
 
 var (
 	MY_USERNAME string = tools.MY_USERNAME
-	MY_NICK     string = tools.MY_NICK
 	MY_IP       string = tools.MY_IP
 	MY_MAC      string = tools.MY_MAC
 
@@ -41,7 +40,7 @@ func SendRequest(ip, dir, mac, username, nick, uuid string) {
 		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, WARNING_FILE_NOT_FOUND)
 		return
 	}
-	rreq := REQUEST_SCHEME.MakeJson("rreq", MY_USERNAME, MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
+	rreq := REQUEST_SCHEME.MakeJson("rreq", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	sreq := REQUEST_SCHEME.MakeJson("sreq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	freq := REQUEST_SCHEME.MakeJson("freq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rreq) {
@@ -60,7 +59,7 @@ func SendCancel(ip, dir, mac, username, nick, uuid string) {
 		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, WARNING_FILE_NOT_FOUND)
 		return
 	}
-	rcncl := CANCEL_SCHEME.MakeJson("rcncl", MY_USERNAME, MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
+	rcncl := CANCEL_SCHEME.MakeJson("rcncl", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	scncl := CANCEL_SCHEME.MakeJson("scncl", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	fcncl := CANCEL_SCHEME.MakeJson("fcncl", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rcncl) {
@@ -73,7 +72,7 @@ func SendCancel(ip, dir, mac, username, nick, uuid string) {
 func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	fileName := tools.GetFileName(dir)
 	fileType := tools.GetFileExt(fileName)
-	rcacp := ACCEPT_SCHEME.MakeJson("rcacp", MY_USERNAME, MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
+	rcacp := ACCEPT_SCHEME.MakeJson("rcacp", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	scacp := ACCEPT_SCHEME.MakeJson("scacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	fcacp := ACCEPT_SCHEME.MakeJson("fcacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rcacp) {
@@ -84,7 +83,7 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 }
 
 func SendMessage(ip, mac, username, nick, msg string) {
-	rmsg := MESSAGE_SCHEME.MakeJson("rmsg", MY_MAC, MY_USERNAME, MY_NICK, msg, "text")
+	rmsg := MESSAGE_SCHEME.MakeJson("rmsg", MY_MAC, MY_USERNAME, tools.MY_NICK, msg, "text")
 	smsg := MESSAGE_SCHEME.MakeJson("smsg", mac, username, nick, msg, "text")
 	fmsg := MESSAGE_SCHEME.MakeJson("fmsg", mac, username, nick, msg, "text")
 	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rmsg) {

@@ -80,6 +80,8 @@ func Start() {
 func Restart() {
 	sendMessage(OFFLINE_MESSAGE)
 	tools.MY_NICK = tools.GetNick()
+	ONLINE_MESSAGE  = HANDSHAKESCHEME.MakeJson("online", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
+	OFFLINE_MESSAGE = HANDSHAKESCHEME.MakeJson("offline", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
 	MACList = make([]string, 0, 1024)
 	onlineList = make(map[string][]string, 128)
 	sendMessage(ONLINE_MESSAGE)
