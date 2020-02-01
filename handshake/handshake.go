@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"wsftp/tools"
 )
@@ -17,8 +16,8 @@ const (
 	LOOP_CONTROL_LIMIT        int    = 100
 	UDP_SIGNAL_REPEAT         int    = 5
 	BROADCAST_LISTEN_IP       string = "0.0.0.0"
-	UDP_HANDSHAKE_LISTEN_PORT int    = 9998
-	WS_HANDSHAKE_LISTEN_PORT  int    = 10000
+	UDP_HANDSHAKE_LISTEN_PORT string = "9998"
+	WS_HANDSHAKE_LISTEN_PORT  string = "10000"
 	HANDSHAKE_END_POINT       string = "/hs"
 
 	// log
@@ -73,14 +72,14 @@ func Start() {
 	go activity()
 	http.HandleFunc(HANDSHAKE_END_POINT, handleConn)
 	tools.StdoutHandle("log", LOG_START, nil)
-	err := http.ListenAndServe(":"+strconv.Itoa(WS_HANDSHAKE_LISTEN_PORT), nil)
+	err := http.ListenAndServe(":"+WS_HANDSHAKE_LISTEN_PORT, nil)
 	tools.StdoutHandle("error", ERROR_CLOSE, err)
 }
 
 func Restart() {
 	sendMessage(OFFLINE_MESSAGE)
 	tools.MY_NICK = tools.GetNick()
-	ONLINE_MESSAGE  = HANDSHAKESCHEME.MakeJson("online", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
+	ONLINE_MESSAGE = HANDSHAKESCHEME.MakeJson("online", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
 	OFFLINE_MESSAGE = HANDSHAKESCHEME.MakeJson("offline", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
 	MACList = make([]string, 0, 1024)
 	onlineList = make(map[string][]string, 128)
@@ -158,7 +157,7 @@ func activity() {
 
 func listenUDP(ch chan<- []byte) {
 	buff := make([]byte, 1024)
-	pack, err := net.ListenPacket("udp", BROADCAST_LISTEN_IP+":"+strconv.Itoa(UDP_HANDSHAKE_LISTEN_PORT))
+	pack, err := net.ListenPacket("udp", BROADCAST_LISTEN_IP+":"+UDP_HANDSHAKE_LISTEN_PORT)
 	if err != nil {
 		tools.StdoutHandle("error", ERROR_BROADCAST_CONNECTION, err)
 		ch <- []byte{0}
@@ -203,7 +202,7 @@ func sendMessageValidation(data []byte, ch chan<- bool) {
 }
 
 func sendCore(data []byte, ch chan<- bool) {
-	conn, err := net.Dial("udp", tools.BROADCAST_IP+":"+strconv.Itoa(UDP_HANDSHAKE_LISTEN_PORT))
+	conn, err := net.Dial("udp", tools.BROADCAST_IP+":"+UDP_HANDSHAKE_LISTEN_PORT)
 	if err != nil {
 		ch <- false
 	} else {

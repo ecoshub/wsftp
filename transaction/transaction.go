@@ -19,9 +19,9 @@ const (
 	ERROR_TCP_READ              string = "Transaction: TCP read error."
 	ERROR_CLOSE_CONN            string = "Transaction: TCP close connection error."
 
-	WS_COMMANDER_LISTEN_PORT    int = 9999
-	WS_SEND_RECEIVE_LISTEN_PORT int = 10001
-	WS_MESSAGE_LISTEN_PORT      int = 10002
+	WS_COMMANDER_LISTEN_PORT    string = "9999"
+	WS_SEND_RECEIVE_LISTEN_PORT string = "10001"
+	WS_MESSAGE_LISTEN_PORT      string = "10002"
 )
 
 var (
@@ -232,8 +232,8 @@ func (c *comm) Close() bool {
 	return true
 }
 
-func sendCore(ip string, port int, data []byte) bool {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+strconv.Itoa(port))
+func sendCore(ip, port string, data []byte) bool {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+port)
 	if err != nil {
 		tools.StdoutHandle("warning", ERROR_ADDRESS_RESOLVING, err)
 		return false

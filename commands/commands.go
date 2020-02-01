@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	WS_COMMANDER_LISTEN_PORT    int = 9999
-	WS_SEND_RECEIVE_LISTEN_PORT int = 10001
-	WS_MESSAGE_LISTEN_PORT      int = 10002
+	WS_COMMANDER_LISTEN_PORT    string = "9999"
+	WS_SEND_RECEIVE_LISTEN_PORT string = "10001"
+	WS_MESSAGE_LISTEN_PORT      string = "10002"
 
 	ERROR_ADDRESS_RESOLVING string = "Commands: TCP IP resolve error."
 	ERROR_CONNECTION_FAILED string = "Commands: TCP Connection error."
@@ -107,8 +107,8 @@ func SendMessage(ip, mac, username, nick, msg string) {
 	}
 }
 
-func sendCore(ip string, port int, data []byte) bool {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+strconv.Itoa(port))
+func sendCore(ip, port string, data []byte) bool {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+port)
 	if err != nil {
 		tools.StdoutHandle("warning", ERROR_ADDRESS_RESOLVING, err)
 		return false
