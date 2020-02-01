@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 	"wsftp/tools"
+	"fmt"
 )
 
 const (
@@ -33,8 +34,9 @@ var (
 	MY_IP string = tools.MY_IP
 
 	MB               int = 1048576
-	SPEED_TEST_LIMIT int = 10 * MB
-	STANDART_SPEED   int = 5 * MB
+	// after debug set to 10 MB
+	SPEED_TEST_LIMIT int = 1000 * MB
+	STANDART_SPEED   int = 10 * MB
 	TCPREADSIZE      int = 65536
 
 	// write RAM to DISK tresholds
@@ -163,6 +165,7 @@ func (c *comm) Dial() bool {
 
 func (c *comm) Listen() bool {
 	strPort := strconv.Itoa(c.port)
+	fmt.Println(tools.MY_IP)
 	addr := tools.MY_IP + ":" + strPort
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
@@ -250,7 +253,6 @@ func sendCore(ip, port string, data []byte) bool {
 }
 
 func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, control *int) {
-
 	boolChan := make(chan bool, 1)
 	intChan := make(chan int, 1)
 	// int64Chan := make(chan int64, 1)
@@ -309,9 +311,6 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
-	// speed test controlPort mechanism
-	// fileSize = GetFileSize(dir)
-	// remaining := fileSize - off
 	speed := int64(0)
 	if int(fileSize) >= SPEED_TEST_LIMIT {
 		// run speed test
@@ -321,7 +320,6 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		} else {
 			speed = int64(<-intChan)
 		}
-
 	} else {
 		// ack
 		res = com.Ack()
@@ -412,7 +410,6 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 }
 
 func ReceiveFile(ip, mac, username, nick string, port int, id string, control *int) {
-
 	byteChan := make(chan []byte, 1)
 	boolChan := make(chan bool, 1)
 	int64Chan := make(chan int64, 1)

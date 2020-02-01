@@ -72,13 +72,13 @@ func SendCancel(ip, dir, mac, username, nick, uuid string) {
 func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	fileName := tools.GetFileName(dir)
 	fileType := tools.GetFileExt(fileName)
-	rcacp := ACCEPT_SCHEME.MakeJson("rcacp", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
-	scacp := ACCEPT_SCHEME.MakeJson("scacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
-	fcacp := ACCEPT_SCHEME.MakeJson("fcacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
-	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rcacp) {
-		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, scacp)
+	racp := ACCEPT_SCHEME.MakeJson("racp", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
+	sacp := ACCEPT_SCHEME.MakeJson("sacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
+	facp := ACCEPT_SCHEME.MakeJson("facp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
+	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, racp) {
+		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, sacp)
 	} else {
-		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, fcacp)
+		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, facp)
 	}
 }
 

@@ -81,6 +81,7 @@ func main() {
 	go handshake.Start()
 	go router.StartRouting()
 	go listenTCP()
+	go manage()
 	tools.StdoutHandle("log", LOG_START, nil)
 	http.HandleFunc(COMMANDER_END_POINT, handleConn)
 	err = http.ListenAndServe(":"+WS_COMMANDER_LISTEN_PORT, nil)
@@ -100,7 +101,7 @@ func manage() {
 			case "actv":
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jint.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(ports.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(ports.ActiveTransaction)}))
 			case "my":
-				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson(tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
+				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson("my", tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
 			case "creq":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {
@@ -134,7 +135,7 @@ func manage() {
 						continue
 					}
 					if penman.IsDir(dir) {
-						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_FOLDER, nil))
+						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_FOLDER))
 						continue
 					} else {
 						commands.SendRequest(ip, dir, mac, username, nick, uuid)
@@ -142,7 +143,7 @@ func manage() {
 						continue
 					}
 				} else {
-					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL, nil))
+					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 					continue
 				}
 			case "cacp":
@@ -184,7 +185,7 @@ func manage() {
 					}
 					index := ports.AllocatePort()
 					if index == -1 {
-						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL, nil))
+						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 						commands.SendReject(ip, mac, dir, uuid, username, nick, "full")
 						continue
 					}
@@ -194,7 +195,7 @@ func manage() {
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 					ports.ActiveTransaction++
 				} else {
-					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL, nil))
+					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 				}
 			case "crej":
 				mac, err := jint.GetString(json, "mac")
@@ -340,6 +341,7 @@ func manage() {
 					continue
 				}
 				commands.SendCancel(ip, dir, mac, username, nick, uuid)
+				ports.ActiveTransaction--
 			case "dprg":
 				port, err := jint.GetString(json, "port")
 				if err != nil {
@@ -382,10 +384,10 @@ func manage() {
 			case "rshs":
 				handshake.Restart()
 			default:
-				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_WRONG_COMMAND, nil))
+				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_WRONG_COMMAND))
 			}
 		} else {
-			sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_NULL_EVENT, nil))
+			sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_NULL_EVENT))
 		}
 	}
 }
@@ -396,7 +398,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 		tools.StdoutHandle("fatal", ERROR_WS_CONNECTION, err)
 		return
 	} else {
-		tools.StdoutHandle("info", INFO_WS_CONNECTION, nil)
+		tools.StdoutHandle("log", INFO_WS_CONNECTION, nil)
 		for {
 			_, msg, err := ws.ReadMessage()
 			if err != nil {
