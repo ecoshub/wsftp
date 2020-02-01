@@ -26,7 +26,7 @@ var (
 	CANCEL_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
 	ACCEPT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
 	REJECT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
-	MESSAGE_SCHEME *jint.Scheme = jint.MakeScheme("event", "mac", "username", "nick", "content", "contentType")
+	MESSAGE_SCHEME *jint.Scheme = jint.MakeScheme("event", "username", "nick", "mac", "content", "contentType")
 
 	WARNING_FILE_NOT_FOUND []byte = jint.MakeJson([]string{"event", "content"}, []string{"info", "File not found or size is zero"})
 )
@@ -82,10 +82,24 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	}
 }
 
+func SendReject(ip, mac, dir, uuid, username, nick, cause string) {
+
+	fileName := tools.GetFileName(dir)
+	fileType := tools.GetFileExt(fileName)
+	rrej := ACCEPT_SCHEME.MakeJson("rrej", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, uuid, cause, "file")
+	srej := ACCEPT_SCHEME.MakeJson("srej", username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file")
+	frej := ACCEPT_SCHEME.MakeJson("frej", username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file")
+	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rrej) {
+		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, srej)
+	} else {
+		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, frej)
+	}
+}
+
 func SendMessage(ip, mac, username, nick, msg string) {
-	rmsg := MESSAGE_SCHEME.MakeJson("rmsg", MY_MAC, MY_USERNAME, tools.MY_NICK, msg, "text")
-	smsg := MESSAGE_SCHEME.MakeJson("smsg", mac, username, nick, msg, "text")
-	fmsg := MESSAGE_SCHEME.MakeJson("fmsg", mac, username, nick, msg, "text")
+	rmsg := MESSAGE_SCHEME.MakeJson("rmsg", MY_USERNAME, tools.MY_NICK, MY_MAC, msg, "text")
+	smsg := MESSAGE_SCHEME.MakeJson("smsg", username, nick, mac, msg, "text")
+	fmsg := MESSAGE_SCHEME.MakeJson("fmsg", username, nick, mac, msg, "text")
 	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rmsg) {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, smsg)
 	} else {
