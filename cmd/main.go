@@ -1,9 +1,9 @@
 package main
 
 import "fmt"
-import "wsftp2/tools"
-import "wsftp2/port_tools"
-import "wsftp2/locals"
+import "wsftp/tools"
+import "wsftp/port_tools"
+import "wsftp/locals"
 
 
 func main(){

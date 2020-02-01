@@ -2,8 +2,8 @@ package port_tools
 
 import "strconv"
 import "net"
-import "wsftp2/locals"
-import "wsftp2/log"
+import "wsftp/locals"
+import "wsftp/log"
 
 var (
 	activeTransaction int    = 0
