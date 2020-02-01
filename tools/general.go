@@ -10,6 +10,6 @@ func StdoutHandle(event, content string, err error) {
 		fmt.Println(string(LOG_SCHEME.MakeJson(event, content)))
 		return
 	}
-	fmt.Println(string(LOG_SCHEME.MakeJson(event, content + " err: " + err.Error())))
+	fmt.Println(string(LOG_SCHEME.MakeJson(event, content+" err: "+err.Error())))
 	return
 }
