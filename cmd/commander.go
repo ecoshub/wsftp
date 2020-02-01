@@ -10,14 +10,16 @@ import (
 	"strconv"
 	"wsftp/commands"
 	"wsftp/handshake"
+	"wsftp/ports"
+	"wsftp/router"
 	"wsftp/tools"
 	"wsftp/transaction"
 )
 
 const (
-	WS_COMMANDER_LISTEN_PORT    int = 9997
-	TCP_COMMANDER_LISTEN_PORT   int = 9999
-	WS_SEND_RECEIVE_LISTEN_PORT int = 10001
+	WS_COMMANDER_LISTEN_PORT    string = "9997"
+	TCP_COMMANDER_LISTEN_PORT   string = "9999"
+	WS_SEND_RECEIVE_LISTEN_PORT string = "10001"
 
 	LOG_START                   string = "Main: Websocket listen started."
 	ERROR_GET_IP                string = "Main: Fatal Error: IP resolve error. Commander closing."
@@ -71,16 +73,17 @@ func main() {
 		tools.StdoutHandle("fatal", ERROR_GET_MAC, err)
 		return
 	}
-	err = tools.MainPortCheck()
+	err = ports.MainPortCheck()
 	if err != nil {
 		tools.StdoutHandle("fatal", ERROR_GET_MAC, err)
 		return
 	}
 	go handshake.Start()
+	go router.StartRouting()
 	go listenTCP()
 	tools.StdoutHandle("log", LOG_START, nil)
 	http.HandleFunc(COMMANDER_END_POINT, handleConn)
-	err = http.ListenAndServe(":"+strconv.Itoa(WS_COMMANDER_LISTEN_PORT), nil)
+	err = http.ListenAndServe(":"+WS_COMMANDER_LISTEN_PORT, nil)
 	tools.StdoutHandle("fatal", ERROR_UNEXPECTED_SHUTDOWN, err)
 }
 
@@ -95,7 +98,7 @@ func manage() {
 		if event != "" {
 			switch event {
 			case "actv":
-				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jint.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(tools.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(tools.ActiveTransaction)}))
+				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jint.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(ports.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(ports.ActiveTransaction)}))
 			case "my":
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson(tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
 			case "creq":
@@ -104,7 +107,7 @@ func manage() {
 					parseErrorHandle(err, "dir")
 					continue
 				}
-				if tools.ActiveTransaction < tools.ACTIVE_TRANSACTION_LIMIT {
+				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
 					mac, err := jint.GetString(json, "mac")
 					if err != nil {
 						parseErrorHandle(err, "mac")
@@ -135,7 +138,7 @@ func manage() {
 						continue
 					} else {
 						commands.SendRequest(ip, dir, mac, username, nick, uuid)
-						tools.ActiveTransaction++
+						ports.ActiveTransaction++
 						continue
 					}
 				} else {
@@ -148,7 +151,7 @@ func manage() {
 					parseErrorHandle(err, "dir")
 					continue
 				}
-				if tools.ActiveTransaction < tools.ACTIVE_TRANSACTION_LIMIT {
+				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
 					dest, err := jint.GetString(json, "dest")
 					if err != nil {
 						parseErrorHandle(err, "dest")
@@ -179,17 +182,17 @@ func manage() {
 						parseErrorHandle(err, "nick")
 						continue
 					}
-					index := tools.AllocatePort()
+					index := ports.AllocatePort()
 					if index == -1 {
 						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL, nil))
 						commands.SendReject(ip, mac, dir, uuid, username, nick, "full")
 						continue
 					}
-					newPort := tools.Ports[index][0]
+					newPort := ports.Ports[index][0]
 					// portIDMap[newPort] = uuid
-					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(tools.Ports[index][1]))
+					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]))
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
-					tools.ActiveTransaction++
+					ports.ActiveTransaction++
 				} else {
 					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL, nil))
 				}
@@ -294,17 +297,17 @@ func manage() {
 					continue
 				}
 				intPort, _ := strconv.Atoi(port)
-				index, err := tools.GetPortIndex(intPort)
+				index, err := ports.GetPortIndex(intPort)
 				if err != nil {
 					tools.StdoutHandle("info", ERROR_GET_PORT, err)
 					continue
 				}
-				err = tools.SetPortBusy(intPort)
+				err = ports.SetPortBusy(intPort)
 				if err != nil {
 					tools.StdoutHandle("info", ERROR_SET_PORT, err)
 					continue
 				}
-				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(tools.Ports[index][1]))
+				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports.Ports[index][1]))
 			case "cncl":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {
@@ -344,12 +347,12 @@ func manage() {
 					continue
 				}
 				intPort, _ := strconv.Atoi(port)
-				err = tools.FreePort(intPort)
+				err = ports.FreePort(intPort)
 				if err != nil {
 					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
 					continue
 				}
-				tools.ActiveTransaction--
+				ports.ActiveTransaction--
 
 			case "fprg":
 				port, err := jint.GetString(json, "port")
@@ -358,12 +361,12 @@ func manage() {
 					continue
 				}
 				intPort, _ := strconv.Atoi(port)
-				err = tools.FreePort(intPort)
+				err = ports.FreePort(intPort)
 				if err != nil {
 					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
 					continue
 				}
-				tools.ActiveTransaction--
+				ports.ActiveTransaction--
 			case "kprg":
 				port, err := jint.GetString(json, "port")
 				if err != nil {
@@ -371,7 +374,7 @@ func manage() {
 					continue
 				}
 				intPort, _ := strconv.Atoi(port)
-				err = tools.FreePort(intPort)
+				err = ports.FreePort(intPort)
 				if err != nil {
 					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
 					continue
@@ -406,7 +409,7 @@ func handleConn(w http.ResponseWriter, r *http.Request) {
 }
 
 func receiveTCP() bool {
-	addr := MY_IP + ":" + strconv.Itoa(TCP_COMMANDER_LISTEN_PORT)
+	addr := MY_IP + ":" + TCP_COMMANDER_LISTEN_PORT
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
 		tools.StdoutHandle("error", ERROR_ADDRESS_RESOLVING, err)
@@ -445,8 +448,8 @@ func parseErrorHandle(err error, key string) {
 	tools.StdoutHandle("info", ERROR_JSON_PARSE+" '"+key+"'", err)
 }
 
-func sendCore(ip string, port int, data []byte) bool {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+strconv.Itoa(port))
+func sendCore(ip, port string, data []byte) bool {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", ip+":"+port)
 	if err != nil {
 		tools.StdoutHandle("warning", ERROR_ADDRESS_RESOLVING, err)
 		return false
