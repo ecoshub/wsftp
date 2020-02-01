@@ -1,0 +1,11 @@
+{"event":"creq","mac":"bc:ae:c5:13:84:f9","dir":"/home/ecomain/Desktop/hole.mp4"}
+{"event":"cacp","mac":"bc:ae:c5:13:84:f9","dir":"/home/eco/Desktop/tbbt.avi","dest":"/home/ecomain/Desktop","id":"3310"}
+{"event":"crej","mac":"bc:ae:c5:13:84:f9","dir":"/home/eco/Desktop/tbbt.avi"}
+{"event":"cmsg","mac":"bc:ae:c5:13:84:f9","msg":"hi everyone!"}
+{"event":"save","mac":"bc:ae:c5:13:84:f9","username":"eco","content":"all","input":"hello world!"}
+{"event":"save","mac":"bc:ae:c5:13:84:f9","username":"eco","content":"all","input":{"event":"cmsg","mac":"bc:ae:c5:13:84:f9","msg":"hi everyone!"}}
+{"event":"get","mac":"bc:ae:c5:13:84:f9"}
+{"event":"kprg","port":"9996"}
+{"event":"rshs"}
+{"event":"get","mac":"bc:ae:c5:13:84:f9","username":"eco","content":"all","start":0,"end":10}
+{"event":"creq","mac":"bc:ae:c5:13:84:f9","dir":"/home/ecomain/Desktop/tbbt.avi","uuid":"dummyid","ip":"192.168.1.105","username":"eco","nick":"eco"}
