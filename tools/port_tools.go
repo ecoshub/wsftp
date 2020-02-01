@@ -15,9 +15,9 @@ var (
 	WS_MESSAGE_LISTEN_PORT      int = 10002
 
 	ACTIVE_TRANSACTION_LIMIT int = 25
-	activeTransaction        int = 0
-	ports                        = make([][]int, ACTIVE_TRANSACTION_LIMIT)
-	portIDMap                    = make(map[int]string, ACTIVE_TRANSACTION_LIMIT)
+	ActiveTransaction        int = 0
+	Ports                        = make([][]int, ACTIVE_TRANSACTION_LIMIT)
+	PortIDMap                    = make(map[int]string, ACTIVE_TRANSACTION_LIMIT)
 
 	ERROR_MAIN_PORT_BUSSY string = "PortTools: The ports that required for the program to work properly is busy. Please close other program/programs that using this ports. Port range is [9997:10002]"
 	ERROR_PORT_INDEX_GET  string = "PortTools: Port index out of range. at GetPortIndex()"
@@ -29,16 +29,16 @@ func init() {
 	// port initializing
 	for i := 0; i < ACTIVE_TRANSACTION_LIMIT; i++ {
 		if portCheck(TCP_TRANSECTION_START_PORT - i) {
-			ports[i] = []int{TCP_TRANSECTION_START_PORT - i, 0}
+			Ports[i] = []int{TCP_TRANSECTION_START_PORT - i, 0}
 		}
 	}
 }
 
 func AllocatePort() int {
 	for i := 0; i < ACTIVE_TRANSACTION_LIMIT; i++ {
-		if ports[i][1] == 0 && portCheck(ports[i][0]) {
-			ports[i][1] = 1
-			return ports[i][0]
+		if Ports[i][1] == 0 && portCheck(Ports[i][0]) {
+			Ports[i][1] = 1
+			return i
 		}
 	}
 	return -1
@@ -83,33 +83,33 @@ func portCheck(port int) bool {
 
 func GetPortIndex(port int) (int, error) {
 	for i := 0; i < ACTIVE_TRANSACTION_LIMIT; i++ {
-		if ports[i][0] == port {
+		if Ports[i][0] == port {
 			return i, nil
 		}
 	}
 	return -1, errors.New(ERROR_PORT_INDEX_GET)
 }
 
-func SetPortBusy(port int) (bool, error) {
+func SetPortBusy(port int) (error) {
 	index, err := GetPortIndex(port)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if index > -1 && index < ACTIVE_TRANSACTION_LIMIT {
-		ports[index][1] = 1
-		return true, nil
+		Ports[index][1] = 1
+		return  nil
 	}
-	return false, errors.New(ERROR_PORT_INDEX_SET)
+	return errors.New(ERROR_PORT_INDEX_SET)
 }
 
-func FreePort(port int) (bool, error) {
+func FreePort(port int) (error) {
 	index, err := GetPortIndex(port)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if index > -1 && index < ACTIVE_TRANSACTION_LIMIT {
-		ports[index][1] = 0
-		return true, nil
+		Ports[index][1] = 0
+		return nil
 	}
-	return false, errors.New(ERROR_PORT_INDEX_FREE)
+	return errors.New(ERROR_PORT_INDEX_FREE)
 }
