@@ -42,7 +42,7 @@ const (
 	ERROR_SET_PORT                   string = "Main: SetPort error."
 	ERROR_FREE_PORT                  string = "Main: FreePort error."
 	ERROR_JSON_PARSE                 string = "Main: JSON parse error. Probably missing key."
-	WARNING_UNAUTHORIZED_TRANSACTION string = "Main: Unauthorized transaction. It will reject automatically."
+	WARNING_UNAUTHORIZED_TRANSACTION string = "Main: Unauthorized transaction."
 	COMMANDER_END_POINT              string = "/cmd"
 	WARNING_FILE_NOT_FOUND           string = "File not found or size is zero"
 )
@@ -198,7 +198,7 @@ func manage() {
 					}
 					if !ports.HasUUID(uuid) {
 						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("warning", WARNING_UNAUTHORIZED_TRANSACTION))
-						commands.SendReject(ip, mac, dir, uuid, username, nick, "unauthorized")
+						continue
 					}
 					ports.ClearUUID(uuid)
 					index := ports.AllocatePort()
