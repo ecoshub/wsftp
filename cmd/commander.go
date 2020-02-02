@@ -21,30 +21,30 @@ const (
 	TCP_COMMANDER_LISTEN_PORT   string = "9999"
 	WS_SEND_RECEIVE_LISTEN_PORT string = "10001"
 
-	LOG_START                   string = "Main: Websocket listen started."
-	ERROR_GET_IP                string = "Main: Fatal Error: IP resolve error. Commander closing."
-	ERROR_GET_MAC               string = "Main: Fatal Error: MAC resolve error. Commander closing."
-	ERROR_ADDRESS_RESOLVING     string = "Main: TCP IP resolve error."
-	ERROR_CONNECTION_FAILED     string = "Main: TCP Connection error."
-	ERROR_TCP_LISTEN_FAILED     string = "Main: TCP Listen error."
-	ERROR_TCP_READ              string = "Main: TCP read error."
-	ERROR_LISTEN_ACCECPT_FAILED string = "Main: TCP Listen accept error."
-	ERROR_PORTS_BUSY            string = "Main: Fatal Error: Ports Busy. Commander closing."
-	ERROR_WS_CONNECTION         string = "Main: Fatal Error: Websocket connection error. Commander closing."
-	ERROR_WS_READ               string = "Main: Fatal Error: Websocket read error please refresh client wensocket. Commander closing."
-	ERROR_UNEXPECTED_SHUTDOWN   string = "Main: Fatal Error: Websocket shutdown unexpectedly. Commander closing."
-	INFO_WS_CONNECTION          string = "Main: Websocket connected."
-	INFO_FOLDER                 string = "Main: Folder transaction not suppoted."
-	INFO_TRANSACTION_FULL       string = "Main: Active transaction full."
-	INFO_WRONG_COMMAND          string = "Main: Wrong command."
-	INFO_NULL_EVENT             string = "Main: 'event' key can not be null."
-	ERROR_GET_PORT              string = "Main: GetPort error."
-	ERROR_SET_PORT              string = "Main: SetPort error."
-	ERROR_FREE_PORT             string = "Main: FreePort error."
-	ERROR_JSON_PARSE            string = "Main: JSON parse error. Probably missing key."
-	COMMANDER_END_POINT         string = "/cmd"
-	WARNING_FILE_NOT_FOUND      string = "File not found or size is zero"
-
+	LOG_START                        string = "Main: Websocket listen started."
+	ERROR_GET_IP                     string = "Main: Fatal Error: IP resolve error. Commander closing."
+	ERROR_GET_MAC                    string = "Main: Fatal Error: MAC resolve error. Commander closing."
+	ERROR_ADDRESS_RESOLVING          string = "Main: TCP IP resolve error."
+	ERROR_CONNECTION_FAILED          string = "Main: TCP Connection error."
+	ERROR_TCP_LISTEN_FAILED          string = "Main: TCP Listen error."
+	ERROR_TCP_READ                   string = "Main: TCP read error."
+	ERROR_LISTEN_ACCECPT_FAILED      string = "Main: TCP Listen accept error."
+	ERROR_PORTS_BUSY                 string = "Main: Fatal Error: Ports Busy. Commander closing."
+	ERROR_WS_CONNECTION              string = "Main: Fatal Error: Websocket connection error. Commander closing."
+	ERROR_WS_READ                    string = "Main: Fatal Error: Websocket read error please refresh client wensocket. Commander closing."
+	ERROR_UNEXPECTED_SHUTDOWN        string = "Main: Fatal Error: Websocket shutdown unexpectedly. Commander closing."
+	INFO_WS_CONNECTION               string = "Main: Websocket connected."
+	INFO_FOLDER                      string = "Main: Folder transaction not suppoted."
+	INFO_TRANSACTION_FULL            string = "Main: Active transaction full."
+	INFO_WRONG_COMMAND               string = "Main: Wrong command."
+	INFO_NULL_EVENT                  string = "Main: 'event' key can not be null."
+	ERROR_GET_PORT                   string = "Main: GetPort error."
+	ERROR_SET_PORT                   string = "Main: SetPort error."
+	ERROR_FREE_PORT                  string = "Main: FreePort error."
+	ERROR_JSON_PARSE                 string = "Main: JSON parse error. Probably missing key."
+	WARNING_UNAUTHORIZED_TRANSACTION string = "Main: Unauthorized transaction. It will reject automatically."
+	COMMANDER_END_POINT              string = "/cmd"
+	WARNING_FILE_NOT_FOUND           string = "File not found or size is zero"
 )
 
 var (
@@ -104,6 +104,13 @@ func manage() {
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jint.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(ports.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(ports.ActiveTransaction)}))
 			case "my":
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson("my", tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
+			case "rreq":
+				uuid, err := jint.GetString(json, "uuid")
+				if err != nil {
+					parseErrorHandle(err, "uuid")
+					continue
+				}
+				ports.AllocateUUID(uuid)
 			case "creq":
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
 					dir, err := jint.GetString(json, "dir")
@@ -154,6 +161,11 @@ func manage() {
 				}
 			case "cacp":
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
+					uuid, err := jint.GetString(json, "uuid")
+					if err != nil {
+						parseErrorHandle(err, "uuid")
+						continue
+					}
 					dir, err := jint.GetString(json, "dir")
 					if err != nil {
 						parseErrorHandle(err, "dir")
@@ -162,11 +174,6 @@ func manage() {
 					dest, err := jint.GetString(json, "dest")
 					if err != nil {
 						parseErrorHandle(err, "dest")
-						continue
-					}
-					uuid, err := jint.GetString(json, "uuid")
-					if err != nil {
-						parseErrorHandle(err, "uuid")
 						continue
 					}
 					mac, err := jint.GetString(json, "mac")
@@ -189,6 +196,11 @@ func manage() {
 						parseErrorHandle(err, "nick")
 						continue
 					}
+					if !ports.HasUUID(uuid) {
+						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("warning", WARNING_UNAUTHORIZED_TRANSACTION))
+						commands.SendReject(ip, mac, dir, uuid, username, nick, "unauthorized")
+					}
+					ports.ClearUUID(uuid)
 					index := ports.AllocatePort()
 					if index == -1 {
 						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
@@ -196,7 +208,7 @@ func manage() {
 						continue
 					}
 					newPort := ports.Ports[index][0]
-					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]))
+					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, ports.GetControl(index))
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 					ports.ActiveTransaction++
 				} else {
@@ -313,7 +325,7 @@ func manage() {
 					tools.StdoutHandle("info", ERROR_SET_PORT, err)
 					continue
 				}
-				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports.Ports[index][1]))
+				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, ports.GetControl(index))
 
 			case "cncl":
 				dir, err := jint.GetString(json, "dir")
@@ -397,7 +409,6 @@ func manage() {
 		}
 	}
 }
-
 
 func handleConn(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)

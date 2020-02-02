@@ -32,7 +32,7 @@ var (
 
 	MY_IP string = tools.MY_IP
 
-	MB               int = 1048576
+	MB int = 1048576
 	// after debug set to 10 MB
 	// SPEED_TEST_LIMIT int = 1000 * MB
 	SPEED_TEST_LIMIT int = 10 * MB
@@ -251,7 +251,7 @@ func sendCore(ip, port string, data []byte) bool {
 	}
 }
 
-func unexpectedClose(ip string, backup []byte){
+func unexpectedClose(ip string, backup []byte) {
 	sendCore(MY_IP, WS_COMMANDER_LISTEN_PORT, backup)
 	time.Sleep(10 * time.Millisecond)
 	sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, backup)
@@ -436,7 +436,6 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	byteChan := make(chan []byte, 1)
 	boolChan := make(chan bool, 1)
 	int64Chan := make(chan int64, 1)
-
 
 	// main comminication struct
 	com := NewCom(ip, port)
