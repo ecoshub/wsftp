@@ -34,7 +34,8 @@ var (
 
 	MB               int = 1048576
 	// after debug set to 10 MB
-	SPEED_TEST_LIMIT int = 1000 * MB
+	// SPEED_TEST_LIMIT int = 1000 * MB
+	SPEED_TEST_LIMIT int = 10 * MB
 	STANDART_SPEED   int = 10 * MB
 	TCPREADSIZE      int = 65536
 
