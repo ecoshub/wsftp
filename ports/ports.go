@@ -19,7 +19,7 @@ var (
 	ACTIVE_TRANSACTION_LIMIT int = 25
 	ActiveTransaction        int = 0
 	availablePorts               = make([][]int, ACTIVE_TRANSACTION_LIMIT)
-	uuids                        = make([]int, ACTIVE_TRANSACTION_LIMIT)
+	uuids                        = make([]string, ACTIVE_TRANSACTION_LIMIT)
 
 	ERROR_MAIN_PORT_BUSSY string = "PortTools: The ports that required for the program to work properly is busy. Please close other program/programs that using this ports. Port range is [9997:10002]"
 	ERROR_PORT_INDEX_GET  string = "PortTools: Port index out of range. at GetPortIndex()"
@@ -104,6 +104,10 @@ func GetPortIndex(port int) (int, error) {
 	return -1, errors.New(ERROR_PORT_INDEX_GET)
 }
 
+func GetPort(index int) int{
+	return availablePorts[index][0]
+}
+
 func SetPortBusy(port int) error {
 	index, err := GetPortIndex(port)
 	if err != nil {
@@ -128,25 +132,25 @@ func FreePort(port int) error {
 	return errors.New(ERROR_PORT_INDEX_FREE)
 }
 
-func GetControl(int index) *int {
+func GetControl(index int) *int {
 	return &(availablePorts[index][1])
 }
 
-func AllocateUUID(string uuid) {
+func AllocateUUID(uuid string) {
 	uuids = append(uuids, uuid)
 }
 
-func ClearUUID(string uuid) {
-	newuuids := make([]int, 0, len(uuids))
+func ClearUUID(uuid string) {
+	newuuids := make([]string, 0, len(uuids))
 	for _, u := range uuids {
 		if u != uuid {
 			newuuids = append(newuuids, u)
 		}
 	}
-	uuid = newuuids
+	uuids = newuuids
 }
 
-func HasUUID(string uuid) bool {
+func HasUUID(uuid string) bool {
 	for _, u := range uuids {
 		if u == uuid {
 			return true

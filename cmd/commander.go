@@ -207,7 +207,7 @@ func manage() {
 						commands.SendReject(ip, mac, dir, uuid, username, nick, "full")
 						continue
 					}
-					newPort := ports.Ports[index][0]
+					newPort := ports.GetPort(index)
 					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, ports.GetControl(index))
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 					ports.ActiveTransaction++
