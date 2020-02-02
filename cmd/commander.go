@@ -31,7 +31,7 @@ const (
 	ERROR_LISTEN_ACCECPT_FAILED string = "Main: TCP Listen accept error."
 	ERROR_PORTS_BUSY            string = "Main: Fatal Error: Ports Busy. Commander closing."
 	ERROR_WS_CONNECTION         string = "Main: Fatal Error: Websocket connection error. Commander closing."
-	ERROR_WS_READ               string = "Main: Fatal Error: Websocket read error Pleas refresh client wensocket. Commander closing."
+	ERROR_WS_READ               string = "Main: Fatal Error: Websocket read error please refresh client wensocket. Commander closing."
 	ERROR_UNEXPECTED_SHUTDOWN   string = "Main: Fatal Error: Websocket shutdown unexpectedly. Commander closing."
 	INFO_WS_CONNECTION          string = "Main: Websocket connected."
 	INFO_FOLDER                 string = "Main: Folder transaction not suppoted."
@@ -147,12 +147,12 @@ func manage() {
 					continue
 				}
 			case "cacp":
-				dir, err := jint.GetString(json, "dir")
-				if err != nil {
-					parseErrorHandle(err, "dir")
-					continue
-				}
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
+					dir, err := jint.GetString(json, "dir")
+					if err != nil {
+						parseErrorHandle(err, "dir")
+						continue
+					}
 					dest, err := jint.GetString(json, "dest")
 					if err != nil {
 						parseErrorHandle(err, "dest")

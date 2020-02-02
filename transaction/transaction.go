@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 	"wsftp/tools"
-	"fmt"
 )
 
 const (
@@ -165,7 +164,6 @@ func (c *comm) Dial() bool {
 
 func (c *comm) Listen() bool {
 	strPort := strconv.Itoa(c.port)
-	fmt.Println(tools.MY_IP)
 	addr := tools.MY_IP + ":" + strPort
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
@@ -255,26 +253,29 @@ func sendCore(ip, port string, data []byte) bool {
 func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, control *int) {
 	boolChan := make(chan bool, 1)
 	intChan := make(chan int, 1)
-	// int64Chan := make(chan int64, 1)
-
+	fmt.Println("send start", ip, port)
 	// main comminication struct
 	com := NewCom(ip, port)
 
 	fileSize := tools.GetFileSize(dir)
 	filename := tools.GetFileName(dir)
 
+	fmt.Println("send", 1)
 	// dial to receiver
 	res := com.Dial()
 	if !res {
+		// *control = 0
 		return
 	}
 
+	fmt.Println("send", 2)
 	// send dest
 	res = com.SendData([]byte(dest))
 	if !res {
 		return
 	}
 
+	fmt.Println("send", 3)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
@@ -283,12 +284,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
+	fmt.Println("send", 4)
 	// send filename
 	res = com.SendData([]byte(filename))
 	if !res {
 		return
 	}
 
+	fmt.Println("send", 5)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
@@ -297,12 +300,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
+	fmt.Println("send", 6)
 	// send filesize
 	res = com.SendInt(fileSize)
 	if !res {
 		return
 	}
 
+	fmt.Println("send", 7)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
@@ -311,6 +316,7 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
+	fmt.Println("send", 8)
 	speed := int64(0)
 	if int(fileSize) >= SPEED_TEST_LIMIT {
 		// run speed test
@@ -329,6 +335,7 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		speed = int64(STANDART_SPEED)
 	}
 
+	fmt.Println("send", 9)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
@@ -337,12 +344,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
+	fmt.Println("send", 10)
 	// send filesize
 	res = com.SendInt(speed)
 	if !res {
 		return
 	}
 
+	fmt.Println("send", 11)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
@@ -351,6 +360,7 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		<-boolChan
 	}
 
+	fmt.Println("send", 12)
 	batchSize := tools.GetPackNumber(fileSize, int64(READ_DISC_BUFFER))
 	innerBatchSize := tools.GetPackNumber(int64(READ_DISC_BUFFER), speed)
 
@@ -414,21 +424,26 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	boolChan := make(chan bool, 1)
 	int64Chan := make(chan int64, 1)
 
+	fmt.Println("rec start", ip, port)
+
 	// main comminication struct
 	com := NewCom(ip, port)
 
+	fmt.Println("rece", 1)
 	// listen start
 	res := com.Listen()
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 2)
 	// receive file dest
 	res = com.RecData(byteChan)
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 3)
 	dest := string(<-byteChan)
 
 	// ack
@@ -437,6 +452,7 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 		return
 	}
 
+	fmt.Println("rece", 4)
 	// receive filename
 	res = com.RecData(byteChan)
 	if !res {
@@ -445,28 +461,33 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 
 	filename := string(<-byteChan)
 
+	fmt.Println("rece", 5)
 	// ack
 	res = com.Ack()
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 6)
 	// receive file size
 	res = com.RecInt(int64Chan)
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 7)
 	fileSize := <-int64Chan
 	filename = tools.UniqName(dest, filename, fileSize)
 	dir := dest + tools.SEPARATOR + filename
 
+	fmt.Println("rece", 8)
 	// ack
 	res = com.Ack()
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 9)
 	// if filesize bigger than speed test limit run a speed test
 	if int(fileSize) >= SPEED_TEST_LIMIT {
 		res = com.RecTestData()
@@ -482,18 +503,21 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 		}
 	}
 
+	fmt.Println("rece", 10)
 	// ack
 	res = com.Ack()
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 11)
 	// receive speed
 	res = com.RecInt(int64Chan)
 	if !res {
 		return
 	}
 
+	fmt.Println("rece", 12)
 	speed := <-int64Chan
 
 	// ack
@@ -502,6 +526,7 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 		return
 	}
 
+	fmt.Println("rece", 13)
 	// download file
 	count := fileSize
 	currentSize := int64(0)
