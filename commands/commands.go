@@ -75,15 +75,17 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	racp := ACCEPT_SCHEME.MakeJson("racp", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	sacp := ACCEPT_SCHEME.MakeJson("sacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	facp := ACCEPT_SCHEME.MakeJson("facp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
-	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, racp) {
+	
+	if sendCore(ip, WS_COMMANDER_LISTEN_PORT, racp) {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, sacp)
+		sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, sacp)
 	} else {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, facp)
+		sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, facp)
 	}
 }
 
 func SendReject(ip, mac, dir, uuid, username, nick, cause string) {
-
 	fileName := tools.GetFileName(dir)
 	fileType := tools.GetFileExt(fileName)
 	rrej := ACCEPT_SCHEME.MakeJson("rrej", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, uuid, cause, "file")
