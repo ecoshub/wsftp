@@ -418,7 +418,6 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 			time.Sleep(10 * time.Millisecond)
 			sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 			com.Close()
-			unexpectedClose(ip, backup)
 			return
 		}
 	}
@@ -427,7 +426,6 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	time.Sleep(10 * time.Millisecond)
 	sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 	com.Close()
-	unexpectedClose(ip, backup)
 	return
 }
 
@@ -580,7 +578,6 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 			} else {
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, INFO_FILE_DELETION_FAIL)
 			}
-			unexpectedClose(ip, backup)
 			return
 		}
 	}
@@ -592,6 +589,5 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	time.Sleep(10 * time.Millisecond)
 	sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 	com.Close()
-	unexpectedClose(ip, backup)
 	return
 }
