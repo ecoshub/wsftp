@@ -81,7 +81,7 @@ func SendReject(ip, mac, dir, uuid, username, nick, cause string) {
 	rrej := REJECT_SCHEME.MakeJson("rrej", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, uuid, cause, "file")
 	srej := REJECT_SCHEME.MakeJson("srej", username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file")
 	frej := REJECT_SCHEME.MakeJson("frej", username, nick, ip, mac, dir, fileName, fileType, uuid, cause, "file")
-	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rrej) {
+	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rrej) && sendCore(ip, WS_COMMANDER_LISTEN_PORT, rrej) {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, srej)
 	} else {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, frej)

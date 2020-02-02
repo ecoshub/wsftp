@@ -111,6 +111,8 @@ func manage() {
 					continue
 				}
 				ports.AllocateUUID(uuid)
+			case "rrej":
+				ports.ActiveTransaction--
 			case "creq":
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
 					dir, err := jint.GetString(json, "dir")
