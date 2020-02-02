@@ -196,20 +196,9 @@ func manage() {
 						continue
 					}
 					newPort := ports.Ports[index][0]
-					// portIDMap[newPort] = uuid
-					// done := make(chan bool , 1)
 					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]))
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
 					ports.ActiveTransaction++
-					// result := <- done
-					// if !result {
-					// 	ports.ActiveTransaction--
-					// 	err = ports.FreePort(newPort)
-					// 	if err != nil {
-					// 		tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
-					// 		continue
-					// 	}
-					// }
 				} else {
 					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 				}
@@ -324,16 +313,8 @@ func manage() {
 					tools.StdoutHandle("info", ERROR_SET_PORT, err)
 					continue
 				}
-				// done := make(chan bool, 1)
 				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports.Ports[index][1]))
-				// result := <- done
-				// if !result {
-				// 	err = ports.FreePort(intPort)
-				// 	if err != nil {
-				// 		tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
-				// 		continue
-				// 	}
-				// }
+
 			case "cncl":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {
