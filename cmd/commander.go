@@ -14,6 +14,7 @@ import (
 	"wsftp/router"
 	"wsftp/tools"
 	"wsftp/transaction"
+	"fmt"
 )
 
 const (
@@ -43,6 +44,8 @@ const (
 	ERROR_FREE_PORT             string = "Main: FreePort error."
 	ERROR_JSON_PARSE            string = "Main: JSON parse error. Probably missing key."
 	COMMANDER_END_POINT         string = "/cmd"
+	WARNING_FILE_NOT_FOUND      string = "File not found or size is zero"
+
 )
 
 var (
@@ -103,12 +106,12 @@ func manage() {
 			case "my":
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson("my", tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
 			case "creq":
-				dir, err := jint.GetString(json, "dir")
-				if err != nil {
-					parseErrorHandle(err, "dir")
-					continue
-				}
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
+					dir, err := jint.GetString(json, "dir")
+					if err != nil {
+						parseErrorHandle(err, "dir")
+						continue
+					}
 					mac, err := jint.GetString(json, "mac")
 					if err != nil {
 						parseErrorHandle(err, "mac")
@@ -138,6 +141,10 @@ func manage() {
 						sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_FOLDER))
 						continue
 					} else {
+						if penman.GetFileSize(dir) == int64(0) {
+							sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", WARNING_FILE_NOT_FOUND))
+							continue
+						}
 						commands.SendRequest(ip, dir, mac, username, nick, uuid)
 						ports.ActiveTransaction++
 						continue
@@ -193,7 +200,9 @@ func manage() {
 					// portIDMap[newPort] = uuid
 					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]))
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
+					fmt.Println("here")
 					ports.ActiveTransaction++
+					fmt.Println(ports.ActiveTransaction)
 				} else {
 					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 				}

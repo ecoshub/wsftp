@@ -27,8 +27,6 @@ var (
 	ACCEPT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
 	REJECT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
 	MESSAGE_SCHEME *jint.Scheme = jint.MakeScheme("event", "username", "nick", "mac", "content", "contentType")
-
-	WARNING_FILE_NOT_FOUND []byte = jint.MakeJson([]string{"event", "content"}, []string{"info", "File not found or size is zero"})
 )
 
 func SendRequest(ip, dir, mac, username, nick, uuid string) {
@@ -36,10 +34,6 @@ func SendRequest(ip, dir, mac, username, nick, uuid string) {
 	fileSize := tools.GetFileSize(dir)
 	fileName := tools.GetFileName(dir)
 	fileType := tools.GetFileExt(fileName)
-	if fileSize == 0 {
-		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, WARNING_FILE_NOT_FOUND)
-		return
-	}
 	rreq := REQUEST_SCHEME.MakeJson("rreq", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	sreq := REQUEST_SCHEME.MakeJson("sreq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	freq := REQUEST_SCHEME.MakeJson("freq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
@@ -55,10 +49,6 @@ func SendCancel(ip, dir, mac, username, nick, uuid string) {
 	fileSize := tools.GetFileSize(dir)
 	fileName := tools.GetFileName(dir)
 	fileType := tools.GetFileExt(fileName)
-	if fileSize == 0 {
-		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, WARNING_FILE_NOT_FOUND)
-		return
-	}
 	rcncl := CANCEL_SCHEME.MakeJson("rcncl", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	scncl := CANCEL_SCHEME.MakeJson("scncl", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	fcncl := CANCEL_SCHEME.MakeJson("fcncl", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
@@ -75,7 +65,7 @@ func SendAccept(ip, mac, dir, dest, username, nick, uuid string, port int) {
 	racp := ACCEPT_SCHEME.MakeJson("racp", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	sacp := ACCEPT_SCHEME.MakeJson("sacp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
 	facp := ACCEPT_SCHEME.MakeJson("facp", username, nick, ip, mac, dir, fileName, fileType, dest, strconv.Itoa(port), uuid, "file")
-	
+
 	if sendCore(ip, WS_COMMANDER_LISTEN_PORT, racp) {
 		sendCore(tools.MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, sacp)
 		sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, sacp)
