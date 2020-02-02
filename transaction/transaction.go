@@ -251,7 +251,7 @@ func sendCore(ip, port string, data []byte) bool {
 	}
 }
 
-func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, control *int) {
+func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, control *int, done chan<- bool) {
 	boolChan := make(chan bool, 1)
 	intChan := make(chan int, 1)
 	// main comminication struct
@@ -264,18 +264,21 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	res := com.Dial()
 	if !res {
 		// *control = 0
+		done <- false
 		return
 	}
 
 	// send dest
 	res = com.SendData([]byte(dest))
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
+		done <- false
 		return
 	} else {
 		<-boolChan
@@ -284,12 +287,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	// send filename
 	res = com.SendData([]byte(filename))
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
+		done <- false
 		return
 	} else {
 		<-boolChan
@@ -298,12 +303,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	// send filesize
 	res = com.SendInt(fileSize)
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
+		done <- false
 		return
 	} else {
 		<-boolChan
@@ -314,6 +321,7 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		// run speed test
 		res = com.SendTestData(intChan)
 		if !res {
+		done <- false
 			return
 		} else {
 			speed = int64(<-intChan)
@@ -322,14 +330,16 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 		// ack
 		res = com.Ack()
 		if !res {
+		done <- false
 			return
 		}
 		speed = int64(STANDART_SPEED)
 	}
-
+	READ_DISC_BUFFER = int(speed)
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
+		done <- false
 		return
 	} else {
 		<-boolChan
@@ -338,12 +348,14 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	// send filesize
 	res = com.SendInt(speed)
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive ack
 	res = com.Rec(boolChan)
 	if !res {
+		done <- false
 		return
 	} else {
 		<-boolChan
@@ -397,6 +409,7 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 			time.Sleep(10 * time.Millisecond)
 			sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 			com.Close()
+			done <- false
 			return
 		}
 	}
@@ -405,9 +418,11 @@ func SendFile(ip, mac, username, nick string, port int, id, dir, dest string, co
 	time.Sleep(10 * time.Millisecond)
 	sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 	com.Close()
+	done <- true
+	return
 }
 
-func ReceiveFile(ip, mac, username, nick string, port int, id string, control *int) {
+func ReceiveFile(ip, mac, username, nick string, port int, id string, control *int, done chan<- bool) {
 	byteChan := make(chan []byte, 1)
 	boolChan := make(chan bool, 1)
 	int64Chan := make(chan int64, 1)
@@ -419,12 +434,14 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	// listen start
 	res := com.Listen()
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive file dest
 	res = com.RecData(byteChan)
 	if !res {
+		done <- false
 		return
 	}
 
@@ -433,12 +450,14 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	// ack
 	res = com.Ack()
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive filename
 	res = com.RecData(byteChan)
 	if !res {
+		done <- false
 		return
 	}
 
@@ -447,12 +466,14 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	// ack
 	res = com.Ack()
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive file size
 	res = com.RecInt(int64Chan)
 	if !res {
+		done <- false
 		return
 	}
 
@@ -463,6 +484,7 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	// ack
 	res = com.Ack()
 	if !res {
+		done <- false
 		return
 	}
 
@@ -470,11 +492,13 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	if int(fileSize) >= SPEED_TEST_LIMIT {
 		res = com.RecTestData()
 		if !res {
+		done <- false
 			return
 		}
 	} else {
 		res = com.Rec(boolChan)
 		if !res {
+		done <- false
 			return
 		} else {
 			<-boolChan
@@ -484,20 +508,23 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	// ack
 	res = com.Ack()
 	if !res {
+		done <- false
 		return
 	}
 
 	// receive speed
 	res = com.RecInt(int64Chan)
 	if !res {
+		done <- false
 		return
 	}
 
 	speed := <-int64Chan
-
+	WRITE_DISC_BUFFER = int(speed)
 	// ack
 	res = com.Ack()
 	if !res {
+		done <- false
 		return
 	}
 
@@ -541,12 +568,13 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 			time.Sleep(10 * time.Millisecond)
 			sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 			com.Close()
-			done := penman.DelFile(dir)
-			if done {
+			delDone := penman.DelFile(dir)
+			if delDone {
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, INFO_FILE_DELETION)
 			} else {
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, INFO_FILE_DELETION_FAIL)
 			}
+			done <- false
 			return
 		}
 	}
@@ -558,4 +586,6 @@ func ReceiveFile(ip, mac, username, nick string, port int, id string, control *i
 	time.Sleep(10 * time.Millisecond)
 	sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, progress)
 	com.Close()
+	done <- true
+	return
 }

@@ -14,7 +14,6 @@ import (
 	"wsftp/router"
 	"wsftp/tools"
 	"wsftp/transaction"
-	"fmt"
 )
 
 const (
@@ -198,11 +197,19 @@ func manage() {
 					}
 					newPort := ports.Ports[index][0]
 					// portIDMap[newPort] = uuid
-					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]))
+					done := make(chan bool , 1)
+					go transaction.ReceiveFile(ip, mac, username, nick, newPort, uuid, &(ports.Ports[index][1]), done)
 					commands.SendAccept(ip, mac, dir, dest, username, nick, uuid, newPort)
-					fmt.Println("here")
 					ports.ActiveTransaction++
-					fmt.Println(ports.ActiveTransaction)
+					result := <- done
+					if !result {
+						ports.ActiveTransaction--
+						err = ports.FreePort(newPort)
+						if err != nil {
+							tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
+							continue
+						}
+					}
 				} else {
 					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 				}
@@ -317,7 +324,16 @@ func manage() {
 					tools.StdoutHandle("info", ERROR_SET_PORT, err)
 					continue
 				}
-				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports.Ports[index][1]))
+				done := make(chan bool, 1)
+				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, &(ports.Ports[index][1]), done)
+				result := <- done
+				if !result {
+					err = ports.FreePort(intPort)
+					if err != nil {
+						tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
+						continue
+					}
+				}
 			case "cncl":
 				dir, err := jint.GetString(json, "dir")
 				if err != nil {
@@ -360,7 +376,7 @@ func manage() {
 				intPort, _ := strconv.Atoi(port)
 				err = ports.FreePort(intPort)
 				if err != nil {
-					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
+					tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
 					continue
 				}
 				ports.ActiveTransaction--
@@ -374,7 +390,7 @@ func manage() {
 				intPort, _ := strconv.Atoi(port)
 				err = ports.FreePort(intPort)
 				if err != nil {
-					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
+					tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
 					continue
 				}
 				ports.ActiveTransaction--
@@ -387,7 +403,7 @@ func manage() {
 				intPort, _ := strconv.Atoi(port)
 				err = ports.FreePort(intPort)
 				if err != nil {
-					tools.StdoutHandle("info", ERROR_FREE_PORT, err)
+					tools.StdoutHandle("warning", ERROR_FREE_PORT, err)
 					continue
 				}
 			case "rshs":
