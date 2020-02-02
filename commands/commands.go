@@ -37,7 +37,7 @@ func SendRequest(ip, dir, mac, username, nick, uuid string) {
 	rreq := REQUEST_SCHEME.MakeJson("rreq", MY_USERNAME, tools.MY_NICK, MY_IP, MY_MAC, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	sreq := REQUEST_SCHEME.MakeJson("sreq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
 	freq := REQUEST_SCHEME.MakeJson("freq", username, nick, ip, mac, dir, fileName, fileType, strconv.FormatInt(fileSize, 10), "file", uuid)
-	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rreq) && sendCore(ip, WS_COMMANDER_LISTEN_PORT, racp){
+	if sendCore(ip, WS_SEND_RECEIVE_LISTEN_PORT, rreq) && sendCore(ip, WS_COMMANDER_LISTEN_PORT, rreq){
 		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, sreq)
 	} else {
 		sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, freq)
