@@ -1,7 +1,7 @@
 package transaction
 
 import (
-	"github.com/ecoshub/jint"
+	"github.com/ecoshub/jin"
 	"github.com/ecoshub/penman"
 	"net"
 	"strconv"
@@ -25,10 +25,10 @@ const (
 )
 
 var (
-	INFO_FILE_DELETION      []byte = jint.MakeJson([]string{"event", "content"}, []string{"info", "Transaction: Unfinished file deleted."})
-	INFO_FILE_DELETION_FAIL []byte = jint.MakeJson([]string{"event", "content"}, []string{"info", "Transaction: Unfinished file delete operation fail."})
+	INFO_FILE_DELETION      []byte = jin.MakeJson([]string{"event", "content"}, []string{"info", "Transaction: Unfinished file deleted."})
+	INFO_FILE_DELETION_FAIL []byte = jin.MakeJson([]string{"event", "content"}, []string{"info", "Transaction: Unfinished file delete operation fail."})
 
-	PROGRESS_SCHEME *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "port", "uuid", "dir", "total", "current", "speed", "type")
+	PROGRESS_SCHEME *jin.Scheme = jin.MakeScheme("event", "username", "nick", "ip", "mac", "port", "uuid", "dir", "total", "current", "speed", "type")
 
 	MY_IP string = tools.MY_IP
 

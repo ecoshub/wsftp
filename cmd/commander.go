@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ecoshub/jint"
+	"github.com/ecoshub/jin"
 	"github.com/ecoshub/penman"
 	"github.com/gorilla/websocket"
 	"io/ioutil"
@@ -48,7 +48,7 @@ const (
 )
 
 var (
-	MY_SCHEME   *jint.Scheme = jint.MakeScheme("event", "username", "mac", "ip", "nick")
+	MY_SCHEME   *jin.Scheme = jin.MakeScheme("event", "username", "mac", "ip", "nick")
 	loopControl bool         = true
 	MY_IP       string
 	MY_MAC      string
@@ -93,7 +93,7 @@ func main() {
 func manage() {
 	for {
 		json := <-commandChan
-		event, err := jint.GetString(json, "event")
+		event, err := jin.GetString(json, "event")
 		if err != nil {
 			parseErrorHandle(err, "event")
 			continue
@@ -101,11 +101,11 @@ func manage() {
 		if event != "" {
 			switch event {
 			case "actv":
-				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jint.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(ports.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(ports.ActiveTransaction)}))
+				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, jin.MakeJson([]string{"event", "total", "active"}, []string{"actv", strconv.Itoa(ports.ACTIVE_TRANSACTION_LIMIT), strconv.Itoa(ports.ActiveTransaction)}))
 			case "my":
 				sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, MY_SCHEME.MakeJson("my", tools.MY_USERNAME, tools.MY_MAC, MY_IP, tools.GetNick()))
 			case "rreq":
-				uuid, err := jint.GetString(json, "uuid")
+				uuid, err := jin.GetString(json, "uuid")
 				if err != nil {
 					parseErrorHandle(err, "uuid")
 					continue
@@ -115,32 +115,32 @@ func manage() {
 				ports.ActiveTransaction--
 			case "creq":
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
-					dir, err := jint.GetString(json, "dir")
+					dir, err := jin.GetString(json, "dir")
 					if err != nil {
 						parseErrorHandle(err, "dir")
 						continue
 					}
-					mac, err := jint.GetString(json, "mac")
+					mac, err := jin.GetString(json, "mac")
 					if err != nil {
 						parseErrorHandle(err, "mac")
 						continue
 					}
-					uuid, err := jint.GetString(json, "uuid")
+					uuid, err := jin.GetString(json, "uuid")
 					if err != nil {
 						parseErrorHandle(err, "uuid")
 						continue
 					}
-					ip, err := jint.GetString(json, "ip")
+					ip, err := jin.GetString(json, "ip")
 					if err != nil {
 						parseErrorHandle(err, "ip")
 						continue
 					}
-					username, err := jint.GetString(json, "username")
+					username, err := jin.GetString(json, "username")
 					if err != nil {
 						parseErrorHandle(err, "username")
 						continue
 					}
-					nick, err := jint.GetString(json, "nick")
+					nick, err := jin.GetString(json, "nick")
 					if err != nil {
 						parseErrorHandle(err, "nick")
 						continue
@@ -163,37 +163,37 @@ func manage() {
 				}
 			case "cacp":
 				if ports.ActiveTransaction < ports.ACTIVE_TRANSACTION_LIMIT {
-					uuid, err := jint.GetString(json, "uuid")
+					uuid, err := jin.GetString(json, "uuid")
 					if err != nil {
 						parseErrorHandle(err, "uuid")
 						continue
 					}
-					dir, err := jint.GetString(json, "dir")
+					dir, err := jin.GetString(json, "dir")
 					if err != nil {
 						parseErrorHandle(err, "dir")
 						continue
 					}
-					dest, err := jint.GetString(json, "dest")
+					dest, err := jin.GetString(json, "dest")
 					if err != nil {
 						parseErrorHandle(err, "dest")
 						continue
 					}
-					mac, err := jint.GetString(json, "mac")
+					mac, err := jin.GetString(json, "mac")
 					if err != nil {
 						parseErrorHandle(err, "mac")
 						continue
 					}
-					ip, err := jint.GetString(json, "ip")
+					ip, err := jin.GetString(json, "ip")
 					if err != nil {
 						parseErrorHandle(err, "ip")
 						continue
 					}
-					username, err := jint.GetString(json, "username")
+					username, err := jin.GetString(json, "username")
 					if err != nil {
 						parseErrorHandle(err, "username")
 						continue
 					}
-					nick, err := jint.GetString(json, "nick")
+					nick, err := jin.GetString(json, "nick")
 					if err != nil {
 						parseErrorHandle(err, "nick")
 						continue
@@ -217,101 +217,101 @@ func manage() {
 					sendCore(MY_IP, WS_SEND_RECEIVE_LISTEN_PORT, tools.LOG_SCHEME.MakeJson("info", INFO_TRANSACTION_FULL))
 				}
 			case "crej":
-				mac, err := jint.GetString(json, "mac")
+				mac, err := jin.GetString(json, "mac")
 				if err != nil {
 					parseErrorHandle(err, "mac")
 					continue
 				}
-				dir, err := jint.GetString(json, "dir")
+				dir, err := jin.GetString(json, "dir")
 				if err != nil {
 					parseErrorHandle(err, "dir")
 					continue
 				}
-				uuid, err := jint.GetString(json, "uuid")
+				uuid, err := jin.GetString(json, "uuid")
 				if err != nil {
 					parseErrorHandle(err, "uuid")
 					continue
 				}
-				ip, err := jint.GetString(json, "ip")
+				ip, err := jin.GetString(json, "ip")
 				if err != nil {
 					parseErrorHandle(err, "ip")
 					continue
 				}
-				username, err := jint.GetString(json, "username")
+				username, err := jin.GetString(json, "username")
 				if err != nil {
 					parseErrorHandle(err, "username")
 					continue
 				}
-				nick, err := jint.GetString(json, "nick")
+				nick, err := jin.GetString(json, "nick")
 				if err != nil {
 					parseErrorHandle(err, "nick")
 					continue
 				}
 				commands.SendReject(ip, mac, dir, uuid, username, nick, "standart")
 			case "cmsg":
-				mac, err := jint.GetString(json, "mac")
+				mac, err := jin.GetString(json, "mac")
 				if err != nil {
 					parseErrorHandle(err, "mac")
 					continue
 				}
-				msg, err := jint.GetString(json, "msg")
+				msg, err := jin.GetString(json, "msg")
 				if err != nil {
 					parseErrorHandle(err, "msg")
 					continue
 				}
-				ip, err := jint.GetString(json, "ip")
+				ip, err := jin.GetString(json, "ip")
 				if err != nil {
 					parseErrorHandle(err, "ip")
 					continue
 				}
-				username, err := jint.GetString(json, "username")
+				username, err := jin.GetString(json, "username")
 				if err != nil {
 					parseErrorHandle(err, "username")
 					continue
 				}
-				nick, err := jint.GetString(json, "nick")
+				nick, err := jin.GetString(json, "nick")
 				if err != nil {
 					parseErrorHandle(err, "nick")
 					continue
 				}
 				commands.SendMessage(ip, mac, username, nick, msg)
 			case "racp":
-				dir, err := jint.GetString(json, "dir")
+				dir, err := jin.GetString(json, "dir")
 				if err != nil {
 					parseErrorHandle(err, "dir")
 					continue
 				}
-				dest, err := jint.GetString(json, "dest")
+				dest, err := jin.GetString(json, "dest")
 				if err != nil {
 					parseErrorHandle(err, "dest")
 					continue
 				}
-				uuid, err := jint.GetString(json, "uuid")
+				uuid, err := jin.GetString(json, "uuid")
 				if err != nil {
 					parseErrorHandle(err, "uuid")
 					continue
 				}
-				mac, err := jint.GetString(json, "mac")
+				mac, err := jin.GetString(json, "mac")
 				if err != nil {
 					parseErrorHandle(err, "mac")
 					continue
 				}
-				ip, err := jint.GetString(json, "ip")
+				ip, err := jin.GetString(json, "ip")
 				if err != nil {
 					parseErrorHandle(err, "ip")
 					continue
 				}
-				port, err := jint.GetString(json, "port")
+				port, err := jin.GetString(json, "port")
 				if err != nil {
 					parseErrorHandle(err, "port")
 					continue
 				}
-				username, err := jint.GetString(json, "username")
+				username, err := jin.GetString(json, "username")
 				if err != nil {
 					parseErrorHandle(err, "username")
 					continue
 				}
-				nick, err := jint.GetString(json, "nick")
+				nick, err := jin.GetString(json, "nick")
 				if err != nil {
 					parseErrorHandle(err, "nick")
 					continue
@@ -330,32 +330,32 @@ func manage() {
 				go transaction.SendFile(ip, mac, username, nick, intPort, uuid, dir, dest, ports.GetControl(index))
 
 			case "cncl":
-				dir, err := jint.GetString(json, "dir")
+				dir, err := jin.GetString(json, "dir")
 				if err != nil {
 					parseErrorHandle(err, "dir")
 					continue
 				}
-				uuid, err := jint.GetString(json, "uuid")
+				uuid, err := jin.GetString(json, "uuid")
 				if err != nil {
 					parseErrorHandle(err, "uuid")
 					continue
 				}
-				mac, err := jint.GetString(json, "mac")
+				mac, err := jin.GetString(json, "mac")
 				if err != nil {
 					parseErrorHandle(err, "mac")
 					continue
 				}
-				ip, err := jint.GetString(json, "ip")
+				ip, err := jin.GetString(json, "ip")
 				if err != nil {
 					parseErrorHandle(err, "ip")
 					continue
 				}
-				username, err := jint.GetString(json, "username")
+				username, err := jin.GetString(json, "username")
 				if err != nil {
 					parseErrorHandle(err, "username")
 					continue
 				}
-				nick, err := jint.GetString(json, "nick")
+				nick, err := jin.GetString(json, "nick")
 				if err != nil {
 					parseErrorHandle(err, "nick")
 					continue
@@ -363,7 +363,7 @@ func manage() {
 				commands.SendCancel(ip, dir, mac, username, nick, uuid)
 				ports.ActiveTransaction--
 			case "dprg":
-				port, err := jint.GetString(json, "port")
+				port, err := jin.GetString(json, "port")
 				if err != nil {
 					parseErrorHandle(err, "port")
 					continue
@@ -377,7 +377,7 @@ func manage() {
 				ports.ActiveTransaction--
 
 			case "fprg":
-				port, err := jint.GetString(json, "port")
+				port, err := jin.GetString(json, "port")
 				if err != nil {
 					parseErrorHandle(err, "port")
 					continue
@@ -390,7 +390,7 @@ func manage() {
 				}
 				ports.ActiveTransaction--
 			case "kprg":
-				port, err := jint.GetString(json, "port")
+				port, err := jin.GetString(json, "port")
 				if err != nil {
 					parseErrorHandle(err, "port")
 					continue

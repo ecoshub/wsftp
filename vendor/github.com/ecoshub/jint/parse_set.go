@@ -1,4 +1,4 @@
-package jint
+package jin
 
 // func ( p * parse) Set(newVal []byte, path ... string) error{
 // 	if len(path) == 0 {

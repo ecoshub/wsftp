@@ -2,7 +2,7 @@ package tools
 
 import (
 	"errors"
-	"github.com/ecoshub/jint"
+	"github.com/ecoshub/jin"
 	"github.com/ecoshub/penman"
 	"net"
 	"os/user"
@@ -50,7 +50,7 @@ func GetNick() string {
 	if penman.IsFileExist(SETTINGS_DIR) {
 		if !penman.IsFileEmpty(SETTINGS_DIR) {
 			file := penman.Read(SETTINGS_DIR)
-			if username, done := jint.Get(file, "username"); done == nil {
+			if username, done := jin.Get(file, "username"); done == nil {
 				return string(username)
 			}
 		}

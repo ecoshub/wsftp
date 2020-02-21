@@ -1,7 +1,7 @@
 package handshake
 
 import (
-	"github.com/ecoshub/jint"
+	"github.com/ecoshub/jin"
 	"github.com/gorilla/websocket"
 	"net"
 	"net/http"
@@ -34,7 +34,7 @@ const (
 
 var (
 	// json tools
-	HANDSHAKESCHEME *jint.Scheme = jint.MakeScheme("event", "ip", "username", "nick", "mac")
+	HANDSHAKESCHEME *jin.Scheme = jin.MakeScheme("event", "ip", "username", "nick", "mac")
 	ONLINE_MESSAGE  []byte       = HANDSHAKESCHEME.MakeJson("online", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
 	OFFLINE_MESSAGE []byte       = HANDSHAKESCHEME.MakeJson("offline", tools.MY_IP, tools.MY_USERNAME, tools.MY_NICK, tools.MY_MAC)
 
@@ -79,8 +79,8 @@ func Start() {
 func Restart() {
 	sendMessage(OFFLINE_MESSAGE)
 	tools.MY_NICK = tools.GetNick()
-	ONLINE_MESSAGE, _ = jint.SetString(ONLINE_MESSAGE, tools.MY_NICK, "nick")
-	OFFLINE_MESSAGE, _ = jint.SetString(OFFLINE_MESSAGE, tools.MY_NICK, "nick")
+	ONLINE_MESSAGE, _ = jin.SetString(ONLINE_MESSAGE, tools.MY_NICK, "nick")
+	OFFLINE_MESSAGE, _ = jin.SetString(OFFLINE_MESSAGE, tools.MY_NICK, "nick")
 	MACList = make([]string, 0, 1024)
 	onlineList = make(map[string][]string, 128)
 	sendMessage(ONLINE_MESSAGE)
@@ -113,27 +113,27 @@ func activity() {
 				continue
 			}
 		}
-		tempStatus, err := jint.GetString(message, "event")
+		tempStatus, err := jin.GetString(message, "event")
 		if err != nil {
 			tools.StdoutHandle("warning", ERROR_JSON_PARSE+" 'event'", err)
 			continue
 		}
-		tempIP, err := jint.GetString(message, "ip")
+		tempIP, err := jin.GetString(message, "ip")
 		if err != nil {
 			tools.StdoutHandle("warning", ERROR_JSON_PARSE+" 'ip'", err)
 			continue
 		}
-		tempUsername, err := jint.GetString(message, "username")
+		tempUsername, err := jin.GetString(message, "username")
 		if err != nil {
 			tools.StdoutHandle("warning", ERROR_JSON_PARSE+" 'username'", err)
 			continue
 		}
-		tempMAC, err := jint.GetString(message, "mac")
+		tempMAC, err := jin.GetString(message, "mac")
 		if err != nil {
 			tools.StdoutHandle("warning", ERROR_JSON_PARSE+" 'mac'", err)
 			continue
 		}
-		tempNick, err := jint.GetString(message, "nick")
+		tempNick, err := jin.GetString(message, "nick")
 		if err != nil {
 			tools.StdoutHandle("warning", ERROR_JSON_PARSE+" 'nick'", err)
 			continue

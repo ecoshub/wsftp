@@ -1,4 +1,4 @@
-package jint
+package jin
 
 func IsObject(json []byte, path ...string) (bool, error) {
 	state, _, err := typeControlcore(json, []byte{91, 123}, true, path...)

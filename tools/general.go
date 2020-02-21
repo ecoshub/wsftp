@@ -1,9 +1,9 @@
 package tools
 
 import "fmt"
-import "github.com/ecoshub/jint"
+import "github.com/ecoshub/jin"
 
-var LOG_SCHEME *jint.Scheme = jint.MakeScheme("event", "content")
+var LOG_SCHEME *jin.Scheme = jin.MakeScheme("event", "content")
 
 func StdoutHandle(event, content string, err error) {
 	if err == nil {

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/ecoshub/jint"
+	"github.com/ecoshub/jin"
 	"github.com/ecoshub/penman"
 	"net"
 	"strconv"
@@ -22,11 +22,11 @@ var (
 	MY_IP       string = tools.MY_IP
 	MY_MAC      string = tools.MY_MAC
 
-	REQUEST_SCHEME *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
-	CANCEL_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
-	ACCEPT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
-	REJECT_SCHEME  *jint.Scheme = jint.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
-	MESSAGE_SCHEME *jint.Scheme = jint.MakeScheme("event", "username", "nick", "mac", "content", "contentType")
+	REQUEST_SCHEME *jin.Scheme = jin.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
+	CANCEL_SCHEME  *jin.Scheme = jin.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "fileSize", "contentType", "uuid")
+	ACCEPT_SCHEME  *jin.Scheme = jin.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "dest", "port", "uuid", "contentType")
+	REJECT_SCHEME  *jin.Scheme = jin.MakeScheme("event", "username", "nick", "ip", "mac", "dir", "fileName", "fileType", "uuid", "cause", "contentType")
+	MESSAGE_SCHEME *jin.Scheme = jin.MakeScheme("event", "username", "nick", "mac", "content", "contentType")
 )
 
 func SendRequest(ip, dir, mac, username, nick, uuid string) {

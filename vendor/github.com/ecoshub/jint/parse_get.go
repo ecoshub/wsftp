@@ -1,4 +1,4 @@
-package jint
+package jin
 
 
 func (p *parse) Get(path ...string) ([]byte, error) {

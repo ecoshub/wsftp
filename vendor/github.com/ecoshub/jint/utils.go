@@ -1,4 +1,4 @@
-package jint
+package jin
 
 func replace(json, newValue []byte, start, end int) []byte {
 	newJson := make([]byte, 0, len(json)-end+start+len(newValue))
